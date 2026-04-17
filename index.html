@@ -263,6 +263,15 @@ body {
 }
 .btn-secondary:hover { background: var(--border); }
 
+.level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
+.btn-level {
+  flex: 1; padding: .5rem .25rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-level.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
 @media (max-width: 480px) {
   .g-stats { gap: .85rem; }
   .stat-val { font-size: 1rem; }
@@ -296,6 +305,11 @@ body {
         <li>–200 pts por resposta errada</li>
         <li>Máximo de 3 tentativas por país</li>
       </ul>
+      <div class="level-picker">
+        <button class="btn-level active" data-level="1">Fácil</button>
+        <button class="btn-level" data-level="2">Médio</button>
+        <button class="btn-level" data-level="3">Difícil</button>
+      </div>
       <button class="btn-mode" id="btn-play">Jogar</button>
     </div>
 
@@ -603,6 +617,48 @@ const PENALTY    = 200;
 const MAX_TRIES  = 3;
 
 // ═════════════════════════════════════════════════════════════
+// LEVEL TIERS
+// ═════════════════════════════════════════════════════════════
+// Fácil: top 50
+const TIER1 = new Set([
+  // Americas
+  76,840,124,484,32,170,152,604,192,858,68,862,
+  // Europe
+  276,250,826,380,724,643,528,620,752,756,300,40,56,616,208,
+  // Africa
+  818,566,710,404,504,231,800,
+  // Middle East / Turkey
+  682,784,376,364,368,792,
+  // Asia
+  156,356,392,410,586,360,764,458,
+  // Oceania
+  36,
+  // Extra
+  348,
+]);
+// Médio: TIER1 ∪ TIER2 ≈ 150
+const TIER2 = new Set([
+  // Americas
+  84,188,214,218,222,320,332,340,558,591,600,740,
+  // Europe
+  31,51,70,100,112,191,203,233,246,268,352,372,383,428,440,498,499,578,642,688,703,705,807,
+  // Africa
+  12,24,72,120,140,148,180,204,226,232,266,288,324,384,430,434,450,454,466,478,508,516,562,646,686,694,706,716,728,729,768,788,834,854,894,
+  // Middle East
+  4,400,414,422,634,760,887,
+  // Asia / Oceania
+  50,64,104,116,144,158,262,304,328,398,408,417,418,496,512,524,554,608,626,704,762,795,860,
+]);
+
+let selectedLevel = 1;
+
+function poolForLevel(level) {
+  if (level === 1) return pool.filter(c => TIER1.has(c.id));
+  if (level === 2) return pool.filter(c => TIER1.has(c.id) || TIER2.has(c.id));
+  return pool;
+}
+
+// ═════════════════════════════════════════════════════════════
 // HELPERS
 // ═════════════════════════════════════════════════════════════
 function norm(s) {
@@ -739,11 +795,14 @@ function paintQ(id, color) {
 function resetQ(id) { d3.select(`#c${id}`).attr('fill', 'var(--land)'); }
 
 function startGame() {
+  const levelNames = ['', 'Fácil', 'Médio', 'Difícil'];
   gs = {
-    qs: shuffle(pool).slice(0, TOTAL_Q),
+    qs: shuffle(poolForLevel(selectedLevel)).slice(0, TOTAL_Q),
     idx: 0, score: 0, results: [],
     wrongs: 0, qPts: MAX_PTS, answered: false,
   };
+  document.querySelector('#game .mode-badge').textContent =
+    `Modo Perguntas · ${levelNames[selectedLevel]}`;
   showScreen('game');
   requestAnimationFrame(() => requestAnimationFrame(() => { buildQMap(); askQuestion(); }));
 }
@@ -1040,6 +1099,15 @@ function zoomBy(svgSel, zoom, factor) {
 // ═════════════════════════════════════════════════════════════
 // EVENT LISTENERS
 // ═════════════════════════════════════════════════════════════
+
+// Level picker
+document.querySelectorAll('.btn-level').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedLevel = +btn.dataset.level;
+  });
+});
 
 // Home
 document.getElementById('btn-play').addEventListener('click', startGame);
