@@ -294,7 +294,7 @@ body {
         <li>10 países por rodada</li>
         <li>Até 2.000 pts por acerto</li>
         <li>–200 pts por resposta errada</li>
-        <li>Tentativas ilimitadas por país</li>
+        <li>Máximo de 3 tentativas por país</li>
       </ul>
       <button class="btn-mode" id="btn-play">Jogar</button>
     </div>
@@ -597,9 +597,10 @@ const DB = {
 // ═════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═════════════════════════════════════════════════════════════
-const TOTAL_Q = 10;
-const MAX_PTS = 2000;
-const PENALTY = 200;
+const TOTAL_Q    = 10;
+const MAX_PTS    = 2000;
+const PENALTY    = 200;
+const MAX_TRIES  = 3;
 
 // ═════════════════════════════════════════════════════════════
 // HELPERS
@@ -805,15 +806,31 @@ function wrongQ(q) {
   const inp = document.getElementById('ans');
   inp.className = 'ans-input bad';
   inp.value = '';
-  setTimeout(() => { inp.className = 'ans-input'; inp.focus(); }, 380);
 
   paintQ(q.id, 'var(--red)');
+
+  // Esgotou as tentativas — revelar resposta e avançar
+  if (gs.wrongs >= MAX_TRIES) {
+    gs.answered = true;
+    gs.results.push({ country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: false, failed: true });
+    inp.value    = q.pt;
+    inp.disabled = true;
+    inp.className = 'ans-input bad';
+    document.getElementById('btn-submit').disabled = true;
+    document.getElementById('btn-giveup').disabled = true;
+    setFeedback('feedback', `✗ Era: ${q.pt}. Tentativas esgotadas.`, 'bad');
+    setTimeout(advanceQ, 2000);
+    return;
+  }
+
+  setTimeout(() => { inp.className = 'ans-input'; inp.focus(); }, 380);
   setTimeout(() => paintQ(q.id, 'var(--gold)'), 380);
 
+  const restantes = MAX_TRIES - gs.wrongs;
   document.getElementById('q-pts').textContent    = fmt(gs.qPts);
   document.getElementById('g-wrongs').textContent =
-    `${gs.wrongs} erro${gs.wrongs > 1 ? 's' : ''}`;
-  setFeedback('feedback', `✗ Incorreto. Pode ganhar mais ${fmt(gs.qPts)} pontos`, 'bad');
+    `${gs.wrongs} erro${gs.wrongs > 1 ? 's' : ''} · ${restantes} restante${restantes > 1 ? 's' : ''}`;
+  setFeedback('feedback', `✗ Incorreto. ${restantes} tentativa${restantes > 1 ? 's' : ''} restante${restantes > 1 ? 's' : ''}.`, 'bad');
 }
 
 function giveUpQ() {
@@ -859,7 +876,7 @@ function endGame() {
   container.innerHTML = '';
   gs.results.forEach((r, i) => {
     const cls     = r.pts === MAX_PTS ? 'pmax' : r.pts >= 1500 ? 'pgood' : r.pts > 0 ? 'plow' : 'pzero';
-    const attempt = r.gaveUp ? 'Desistiu' : r.wrongs === 0 ? 'Acertou de primeira!' : `${r.wrongs} erro${r.wrongs > 1 ? 's' : ''}`;
+    const attempt = r.gaveUp ? 'Desistiu' : r.failed ? 'Tentativas esgotadas' : r.wrongs === 0 ? 'Acertou de primeira!' : `${r.wrongs} erro${r.wrongs > 1 ? 's' : ''}`;
     const div = document.createElement('div');
     div.className = 'r-item';
     div.innerHTML = `
