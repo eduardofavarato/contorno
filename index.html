@@ -99,7 +99,9 @@ body {
   font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; flex-shrink: 0;
   background: linear-gradient(135deg, #f0c040, #ff8c00);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  cursor: pointer; transition: opacity .15s;
 }
+.g-logo:hover { opacity: .75; }
 .mode-badge {
   font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
   background: var(--bg3); border: 1px solid var(--border);
@@ -363,7 +365,7 @@ body {
 <!-- ═══════════════════════════════════════════ MODO PERGUNTAS ═══ -->
 <div id="game" class="screen">
   <div class="g-header">
-    <div class="g-logo">Contorno</div>
+    <div class="g-logo" id="g-logo">Contorno</div>
     <span class="mode-badge">Modo Perguntas</span>
     <div class="g-stats">
       <div class="stat">
@@ -408,7 +410,7 @@ body {
 <!-- ═══════════════════════════════════════════ MODO LIVRE ═══ -->
 <div id="free" class="screen">
   <div class="g-header">
-    <div class="g-logo">Contorno</div>
+    <div class="g-logo" id="f-logo">Contorno</div>
     <span class="mode-badge">Modo Livre</span>
     <div class="g-stats">
       <div class="stat">
@@ -1221,9 +1223,11 @@ document.getElementById('btn-free').addEventListener('click', startFreeMode);
 document.getElementById('btn-submit').addEventListener('click', submitQ);
 document.getElementById('btn-giveup').addEventListener('click', giveUpQ);
 document.getElementById('ans').addEventListener('keydown', e => { if (e.key === 'Enter') submitQ(); });
-document.getElementById('btn-quit').addEventListener('click', () => {
+function confirmQuit() {
   if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
-});
+}
+document.getElementById('g-logo').addEventListener('click', confirmQuit);
+document.getElementById('btn-quit').addEventListener('click', confirmQuit);
 document.getElementById('btn-zoom-in').addEventListener('click',  () => zoomBy(gSvgSel, gZoom, 1.5));
 document.getElementById('btn-zoom-out').addEventListener('click', () => zoomBy(gSvgSel, gZoom, 1 / 1.5));
 
@@ -1234,9 +1238,8 @@ document.getElementById('btn-home').addEventListener('click',  () => showScreen(
 // Modo Livre
 document.getElementById('f-submit').addEventListener('click', submitFree);
 document.getElementById('f-ans').addEventListener('keydown', e => { if (e.key === 'Enter') submitFree(); });
-document.getElementById('f-quit').addEventListener('click', () => {
-  if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
-});
+document.getElementById('f-logo').addEventListener('click', confirmQuit);
+document.getElementById('f-quit').addEventListener('click', confirmQuit);
 document.getElementById('f-zoom-in').addEventListener('click',  () => zoomBy(fSvgSel, fZoom, 1.5));
 document.getElementById('f-zoom-out').addEventListener('click', () => zoomBy(fSvgSel, fZoom, 1 / 1.5));
 
