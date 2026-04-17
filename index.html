@@ -893,7 +893,7 @@ function startGame() {
     qs: shuffle(poolForLevel(selectedLevel)).slice(0, TOTAL_Q),
     idx: 0, score: 0, results: [],
     wrongs: 0, qPts: MAX_PTS, answered: false,
-    total: TOTAL_Q, modeName, restartFn: startGame,
+    total: TOTAL_Q, modeName, restartFn: startGame, perQuestionZoom: true,
   };
   document.querySelector('#game .mode-badge').textContent = modeName;
   showScreen('game');
@@ -933,6 +933,7 @@ function askQuestion() {
   document.getElementById('prog').style.width = `${(gs.idx / gs.total) * 100}%`;
 
   paintQ(q.id, 'var(--gold)');
+  if (gs.perQuestionZoom) zoomToCountry(q.id);
   inp.focus();
 }
 
@@ -1205,6 +1206,24 @@ function setFeedback(elId, msg, cls) {
 // ═════════════════════════════════════════════════════════════
 function zoomBy(svgSel, zoom, factor) {
   if (svgSel && zoom) svgSel.transition().duration(250).call(zoom.scaleBy, factor);
+}
+
+function zoomToCountry(id) {
+  const path = document.getElementById(`c${id}`);
+  if (!path || !gSvgSel || !gZoom) return;
+  const el = document.getElementById('map-area');
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+  try {
+    const b = path.getBBox();
+    if (b.width === 0 && b.height === 0) return;
+    const pad = 160;
+    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
+    const tx = (W - scale * (b.x * 2 + b.width)) / 2;
+    const ty = (H - scale * (b.y * 2 + b.height)) / 2;
+    gSvgSel.transition().duration(900)
+      .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  } catch (e) {}
 }
 
 function zoomToContinent() {
