@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <title>Contorno — Quiz de Países</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
@@ -34,7 +34,7 @@ body {
 /* ── Screens ── */
 .screen { display: none; }
 .screen.active { display: flex; flex-direction: column; }
-#game.active, #free.active { height: 100vh; overflow: hidden; }
+#game.active, #free.active { position: fixed; inset: 0; overflow: hidden; }
 
 /* ── Loading ── */
 #loading {
@@ -161,6 +161,7 @@ body {
 .g-bottom {
   background: var(--bg2); border-top: 1px solid var(--border);
   padding: .9rem 1.25rem; flex-shrink: 0;
+  padding-bottom: max(.9rem, env(safe-area-inset-bottom));
 }
 .bottom-info {
   display: flex; align-items: center; justify-content: space-between;
