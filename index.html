@@ -1053,9 +1053,15 @@ document.getElementById('f-zoom-out').addEventListener('click', () => zoomBy(fSv
 
 // Resize
 let resizeTO;
+let lastResizeW = 0;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTO);
   resizeTO = setTimeout(() => {
+    // Keyboard open/close only changes height — ignore those events
+    const currentW = window.innerWidth;
+    if (currentW === lastResizeW) return;
+    lastResizeW = currentW;
+
     if (document.getElementById('game').classList.contains('active')) {
       const q = gs.qs?.[gs.idx];
       buildQMap();
