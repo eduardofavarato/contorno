@@ -477,6 +477,7 @@ const DB = {
   300: { pt:"Grécia",                    a:["grecia","greece"] },
   320: { pt:"Guatemala",                 a:["guatemala"] },
   324: { pt:"Guiné",                     a:["guine","guinea","guine conacri","guine-conacri"] },
+  328: { pt:"Guiana",                    a:["guiana","guyana","guiana inglesa"] },
   332: { pt:"Haiti",                     a:["haiti"] },
   340: { pt:"Honduras",                  a:["honduras"] },
   348: { pt:"Hungria",                   a:["hungria","hungary"] },
@@ -666,7 +667,7 @@ function buildMapInto(svgId, areaId, options = {}) {
     .data(countries.features)
     .join('path')
     .attr('class', 'cp')
-    .attr('id', d => `${options.prefix || 'c'}${d.id}`)
+    .attr('id', d => `${options.prefix || 'c'}${+d.id}`)
     .attr('d', path)
     .attr('fill', d => options.fillFn ? options.fillFn(+d.id) : 'var(--land)')
     .attr('stroke', 'var(--land-bdr)')
