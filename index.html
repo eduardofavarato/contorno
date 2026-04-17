@@ -65,7 +65,7 @@ body {
 
 .mode-cards {
   display: flex; gap: 1rem; flex-wrap: wrap;
-  justify-content: center; max-width: 680px; width: 100%;
+  justify-content: center; max-width: 1020px; width: 100%;
 }
 .mode-card {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
@@ -272,6 +272,15 @@ body {
 }
 .btn-level.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
 
+.continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
+.btn-continent {
+  flex: 1; min-width: calc(50% - .2rem); padding: .45rem .5rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
 @media (max-width: 480px) {
   .g-stats { gap: .85rem; }
   .stat-val { font-size: 1rem; }
@@ -311,6 +320,28 @@ body {
         <button class="btn-level" data-level="3">Difícil</button>
       </div>
       <button class="btn-mode" id="btn-play">Jogar</button>
+    </div>
+
+    <!-- Modo Continentes -->
+    <div class="mode-card">
+      <div class="mode-card-icon">🌎</div>
+      <h3>Modo Continentes</h3>
+      <p>Escolha um continente e tente acertar todos os países que fazem parte dele!</p>
+      <ul>
+        <li>Todos os países do continente</li>
+        <li>Até 2.000 pts por acerto</li>
+        <li>–200 pts por resposta errada</li>
+        <li>Máximo de 3 tentativas por país</li>
+      </ul>
+      <div class="continent-picker">
+        <button class="btn-continent active" data-continent="sul">América do Sul</button>
+        <button class="btn-continent" data-continent="central">América Central</button>
+        <button class="btn-continent" data-continent="norte">América do Norte</button>
+        <button class="btn-continent" data-continent="europa">Europa</button>
+        <button class="btn-continent" data-continent="asia">Ásia</button>
+        <button class="btn-continent" data-continent="oceania">Oceania</button>
+      </div>
+      <button class="btn-mode" id="btn-continent">Jogar</button>
     </div>
 
     <!-- Modo Livre -->
@@ -419,9 +450,9 @@ body {
   <div class="r-logo">Contorno</div>
 
   <div class="score-card">
-    <div class="score-lbl">Pontuação Final — Modo Perguntas</div>
+    <div class="score-lbl" id="r-mode-lbl">Pontuação Final</div>
     <div class="score-big" id="r-score">0</div>
-    <div class="score-of">de 20.000 pontos possíveis</div>
+    <div class="score-of" id="r-score-of">de 20.000 pontos possíveis</div>
     <div class="rating" id="r-rating">—</div>
     <div class="stars"  id="r-stars">⭐</div>
   </div>
@@ -606,6 +637,7 @@ const DB = {
   795: { pt:"Turcomenistão",             a:["turcomenistao","turkmenistan"] },
   834: { pt:"Tanzânia",                  a:["tanzania"] },
   854: { pt:"Burkina Faso",              a:["burkina faso","burkina"] },
+  254: { pt:"Guiana Francesa",           a:["guiana francesa","french guiana","guyana francesa"] },
 };
 
 // ═════════════════════════════════════════════════════════════
@@ -651,6 +683,20 @@ const TIER2 = new Set([
 ]);
 
 let selectedLevel = 1;
+
+// ═════════════════════════════════════════════════════════════
+// CONTINENT POOLS
+// ═════════════════════════════════════════════════════════════
+const CONTINENT_POOLS = {
+  sul:     { name: 'América do Sul',   ids: new Set([32,68,76,152,170,218,254,328,600,604,740,780,858,862]) },
+  central: { name: 'América Central',  ids: new Set([84,188,192,214,222,320,332,340,388,558,591]) },
+  norte:   { name: 'América do Norte', ids: new Set([124,304,484,840]) },
+  europa:  { name: 'Europa',           ids: new Set([8,40,56,70,100,112,191,203,208,233,246,250,276,300,348,352,372,380,383,428,440,442,498,499,528,578,616,620,642,643,688,703,705,724,752,756,804,807,826]) },
+  asia:    { name: 'Ásia',             ids: new Set([4,31,50,51,64,104,116,144,156,158,196,268,356,360,364,368,376,392,398,400,408,410,414,417,418,422,458,496,512,524,586,608,626,634,682,704,760,762,764,784,792,795,860,887]) },
+  oceania: { name: 'Oceania',          ids: new Set([36,242,554,598]) },
+};
+
+let selectedContinent = 'sul';
 
 function poolForLevel(level) {
   if (level === 1) return pool.filter(c => TIER1.has(c.id));
@@ -796,22 +842,38 @@ function resetQ(id) { d3.select(`#c${id}`).attr('fill', 'var(--land)'); }
 
 function startGame() {
   const levelNames = ['', 'Fácil', 'Médio', 'Difícil'];
+  const modeName = `Modo Perguntas · ${levelNames[selectedLevel]}`;
   gs = {
     qs: shuffle(poolForLevel(selectedLevel)).slice(0, TOTAL_Q),
     idx: 0, score: 0, results: [],
     wrongs: 0, qPts: MAX_PTS, answered: false,
+    total: TOTAL_Q, modeName, restartFn: startGame,
   };
-  document.querySelector('#game .mode-badge').textContent =
-    `Modo Perguntas · ${levelNames[selectedLevel]}`;
+  document.querySelector('#game .mode-badge').textContent = modeName;
   showScreen('game');
   requestAnimationFrame(() => requestAnimationFrame(() => { buildQMap(); askQuestion(); }));
+}
+
+function startContinentMode() {
+  const cont = CONTINENT_POOLS[selectedContinent];
+  const contPool = pool.filter(c => cont.ids.has(c.id));
+  const modeName = cont.name;
+  gs = {
+    qs: shuffle(contPool),
+    idx: 0, score: 0, results: [],
+    wrongs: 0, qPts: MAX_PTS, answered: false,
+    total: contPool.length, modeName, restartFn: startContinentMode,
+  };
+  document.querySelector('#game .mode-badge').textContent = modeName;
+  showScreen('game');
+  requestAnimationFrame(() => requestAnimationFrame(() => { buildQMap(); askQuestion(); zoomToContinent(); }));
 }
 
 function askQuestion() {
   const q = gs.qs[gs.idx];
   gs.wrongs = 0; gs.qPts = MAX_PTS; gs.answered = false;
 
-  document.getElementById('q-num').textContent   = `${gs.idx + 1}/${TOTAL_Q}`;
+  document.getElementById('q-num').textContent   = `${gs.idx + 1}/${gs.total}`;
   document.getElementById('g-score').textContent = fmt(gs.score);
   document.getElementById('q-pts').textContent   = fmt(gs.qPts);
   document.getElementById('g-wrongs').textContent = '';
@@ -822,7 +884,7 @@ function askQuestion() {
   inp.placeholder = 'Digite o nome do país…';
   document.getElementById('btn-submit').disabled = false;
   document.getElementById('btn-giveup').disabled = false;
-  document.getElementById('prog').style.width = `${(gs.idx / TOTAL_Q) * 100}%`;
+  document.getElementById('prog').style.width = `${(gs.idx / gs.total) * 100}%`;
 
   paintQ(q.id, 'var(--gold)');
   inp.focus();
@@ -842,7 +904,7 @@ function submitQ() {
 function correctQ(q) {
   const pts = Math.max(0, gs.qPts);
   gs.score += pts; gs.answered = true;
-  gs.results.push({ country: q.pt, wrongs: gs.wrongs, pts, gaveUp: false });
+  gs.results.push({ id: q.id, country: q.pt, wrongs: gs.wrongs, pts, gaveUp: false });
 
   paintQ(q.id, 'var(--green)');
   const inp = document.getElementById('ans');
@@ -871,7 +933,7 @@ function wrongQ(q) {
   // Esgotou as tentativas — revelar resposta e avançar
   if (gs.wrongs >= MAX_TRIES) {
     gs.answered = true;
-    gs.results.push({ country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: false, failed: true });
+    gs.results.push({ id: q.id, country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: false, failed: true });
     inp.value    = q.pt;
     inp.disabled = true;
     inp.className = 'ans-input bad';
@@ -896,7 +958,7 @@ function giveUpQ() {
   if (gs.answered) return;
   const q = gs.qs[gs.idx];
   gs.answered = true;
-  gs.results.push({ country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: true });
+  gs.results.push({ id: q.id, country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: true });
 
   paintQ(q.id, 'var(--red)');
   const inp = document.getElementById('ans');
@@ -908,9 +970,8 @@ function giveUpQ() {
 }
 
 function advanceQ() {
-  resetQ(gs.qs[gs.idx].id);
   gs.idx++;
-  if (gs.idx >= TOTAL_Q) endGame();
+  if (gs.idx >= gs.total) endGame();
   else askQuestion();
 }
 
@@ -918,8 +979,10 @@ function endGame() {
   showScreen('results');
   document.getElementById('prog').style.width = '100%';
   const total = gs.score;
-  const pct   = total / (TOTAL_Q * MAX_PTS);
-  document.getElementById('r-score').textContent = fmt(total);
+  const pct   = total / (gs.total * MAX_PTS);
+  document.getElementById('r-score').textContent    = fmt(total);
+  document.getElementById('r-score-of').textContent = `de ${fmt(gs.total * MAX_PTS)} pontos possíveis`;
+  document.getElementById('r-mode-lbl').textContent = `Pontuação Final — ${gs.modeName}`;
 
   let rating, stars;
   if      (pct >= 1.00) { rating = 'Perfeito! Gênio Geográfico'; stars = '⭐⭐⭐⭐⭐'; }
@@ -1096,6 +1159,37 @@ function zoomBy(svgSel, zoom, factor) {
   if (svgSel && zoom) svgSel.transition().duration(250).call(zoom.scaleBy, factor);
 }
 
+function zoomToContinent() {
+  const cont = CONTINENT_POOLS[selectedContinent];
+  const el = document.getElementById('map-area');
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  cont.ids.forEach(id => {
+    const path = document.getElementById(`c${id}`);
+    if (!path) return;
+    try {
+      const b = path.getBBox();
+      if (b.width === 0 && b.height === 0) return;
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    } catch (e) {}
+  });
+
+  if (minX === Infinity) return;
+
+  const pad = 30;
+  const scale = Math.min(10, Math.min(W / (maxX - minX + pad * 2), H / (maxY - minY + pad * 2)));
+  const tx = (W - scale * (minX + maxX)) / 2;
+  const ty = (H - scale * (minY + maxY)) / 2;
+
+  gSvgSel.transition().duration(800)
+    .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+
 // ═════════════════════════════════════════════════════════════
 // EVENT LISTENERS
 // ═════════════════════════════════════════════════════════════
@@ -1109,8 +1203,18 @@ document.querySelectorAll('.btn-level').forEach(btn => {
   });
 });
 
+// Continent picker
+document.querySelectorAll('.btn-continent').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-continent').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedContinent = btn.dataset.continent;
+  });
+});
+
 // Home
 document.getElementById('btn-play').addEventListener('click', startGame);
+document.getElementById('btn-continent').addEventListener('click', startContinentMode);
 document.getElementById('btn-free').addEventListener('click', startFreeMode);
 
 // Modo Perguntas
@@ -1124,7 +1228,7 @@ document.getElementById('btn-zoom-in').addEventListener('click',  () => zoomBy(g
 document.getElementById('btn-zoom-out').addEventListener('click', () => zoomBy(gSvgSel, gZoom, 1 / 1.5));
 
 // Resultados
-document.getElementById('btn-again').addEventListener('click', startGame);
+document.getElementById('btn-again').addEventListener('click', () => { if (gs.restartFn) gs.restartFn(); });
 document.getElementById('btn-home').addEventListener('click',  () => showScreen('home'));
 
 // Modo Livre
@@ -1150,14 +1254,8 @@ window.addEventListener('resize', () => {
     if (document.getElementById('game').classList.contains('active')) {
       const q = gs.qs?.[gs.idx];
       buildQMap();
-      if (q) {
-        if (gs.answered) {
-          const r = gs.results[gs.results.length - 1];
-          paintQ(q.id, r.gaveUp ? 'var(--red)' : 'var(--green)');
-        } else {
-          paintQ(q.id, 'var(--gold)');
-        }
-      }
+      gs.results?.forEach(r => paintQ(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+      if (q && !gs.answered) paintQ(q.id, 'var(--gold)');
     } else if (document.getElementById('free').classList.contains('active')) {
       buildFreeMap();
     }
