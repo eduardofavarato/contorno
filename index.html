@@ -460,7 +460,8 @@ const DB = {
   188: { pt:"Costa Rica",                a:["costa rica","costarica"] },
   191: { pt:"Croácia",                   a:["croacia","croatia"] },
   192: { pt:"Cuba",                      a:["cuba"] },
-  196: { pt:"Chipre",                    a:["chipre","cyprus"] },
+  196: { pt:"Chipre",                    a:["chipre","cyprus","nicosia","nicósia"] },
+  233: { pt:"Estônia",                   a:["estonia","estonia"] },
   203: { pt:"República Tcheca",          a:["republica tcheca","tcheca","czech republic","czechia","czech"] },
   204: { pt:"Benin",                     a:["benin"] },
   208: { pt:"Dinamarca",                 a:["dinamarca","denmark"] },
@@ -567,6 +568,29 @@ const DB = {
   862: { pt:"Venezuela",                 a:["venezuela"] },
   887: { pt:"Iêmen",                     a:["iemen","yemen"] },
   894: { pt:"Zâmbia",                    a:["zambia"] },
+  // ── Adições
+  304: { pt:"Groenlândia",               a:["groenlandia","greenland"] },
+  383: { pt:"Kosovo",                    a:["kosovo"] },
+  84:  { pt:"Belize",                    a:["belize"] },
+  108: { pt:"Burundi",                   a:["burundi"] },
+  158: { pt:"Taiwan",                    a:["taiwan"] },
+  222: { pt:"El Salvador",               a:["el salvador","salvador"] },
+  226: { pt:"Guiné Equatorial",          a:["guine equatorial","equatorial guinea"] },
+  242: { pt:"Fiji",                      a:["fiji"] },
+  262: { pt:"Djibuti",                   a:["djibuti","djibouti"] },
+  414: { pt:"Kuwait",                    a:["kuwait"] },
+  417: { pt:"Quirguistão",               a:["quirguistao","kyrgyzstan","quirguizia"] },
+  426: { pt:"Lesoto",                    a:["lesoto","lesotho"] },
+  450: { pt:"Madagáscar",                a:["madagascar","madagasca","madagaskar"] },
+  512: { pt:"Omã",                       a:["oma","oman"] },
+  554: { pt:"Nova Zelândia",             a:["nova zelandia","new zealand"] },
+  624: { pt:"Guiné-Bissau",              a:["guine-bissau","guine bissau","guinea-bissau","guinea bissau"] },
+  626: { pt:"Timor-Leste",               a:["timor-leste","timor leste","timor","east timor"] },
+  634: { pt:"Catar",                     a:["catar","qatar"] },
+  728: { pt:"Sudão do Sul",              a:["sudao do sul","south sudan"] },
+  795: { pt:"Turcomenistão",             a:["turcomenistao","turkmenistan"] },
+  834: { pt:"Tanzânia",                  a:["tanzania"] },
+  854: { pt:"Burkina Faso",              a:["burkina faso","burkina"] },
 };
 
 // ═════════════════════════════════════════════════════════════
@@ -691,7 +715,7 @@ function buildMapInto(svgId, areaId, options = {}) {
    .attr('stroke-width', .3).attr('d', path);
 
   const zoom = d3.zoom()
-    .scaleExtent([1, 5])
+    .scaleExtent([1, 10])
     .translateExtent([[0, 0], [W, H]])
     .on('zoom', (event) => g.attr('transform', event.transform));
 
