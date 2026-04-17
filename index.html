@@ -390,6 +390,7 @@ body {
       <button class="btn-zoom" id="btn-zoom-in"  title="Aproximar (+)">+</button>
       <button class="btn-zoom" id="btn-zoom-out" title="Afastar (−)">−</button>
     </div>
+    <div class="map-tooltip" id="g-tooltip"></div>
   </div>
 
   <div class="g-bottom">
@@ -832,8 +833,51 @@ function buildMapInto(svgId, areaId, options = {}) {
 // ═════════════════════════════════════════════════════════════
 // ── MODO PERGUNTAS ──────────────────────────────────────────
 // ═════════════════════════════════════════════════════════════
+function qTooltipHandler(id, event, phase) {
+  const tooltip = document.getElementById('g-tooltip');
+  const r = gs.results?.find(r => r.id === id);
+
+  if (phase === 'out' || !r) { tooltip.style.opacity = '0'; return; }
+
+  if (phase === 'over') {
+    if (r.pts > 0) {
+      const attempt = r.wrongs === 0 ? 'De primeira!' : `${r.wrongs} erro${r.wrongs > 1 ? 's' : ''}`;
+      tooltip.innerHTML =
+        `<div class="tt-ok">✓ Correto</div>` +
+        `<div class="tt-name">${r.country}</div>` +
+        `<div class="tt-attempt">${attempt} · +${fmt(r.pts)} pts</div>`;
+    } else if (r.gaveUp) {
+      tooltip.innerHTML =
+        `<div class="tt-bad">✗ Desistiu</div>` +
+        `<div class="tt-name">${r.country}</div>`;
+    } else {
+      tooltip.innerHTML =
+        `<div class="tt-bad">✗ Incorreto</div>` +
+        `<div class="tt-name">${r.country}</div>` +
+        `<div class="tt-attempt">Tentativas esgotadas</div>`;
+    }
+    tooltip.style.opacity = '1';
+  }
+
+  if (phase === 'move' || phase === 'over') {
+    const rect = document.getElementById('map-area').getBoundingClientRect();
+    let x = event.clientX - rect.left + 14;
+    let y = event.clientY - rect.top  - 14;
+    const tw = tooltip.offsetWidth  || 180;
+    const th = tooltip.offsetHeight || 60;
+    if (x + tw > rect.width  - 8) x = event.clientX - rect.left - tw - 14;
+    if (y + th > rect.height - 8) y = event.clientY - rect.top  - th - 14;
+    if (y < 4) y = 4;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top  = `${y}px`;
+  }
+}
+
 function buildQMap() {
-  const { zoom, svgSel } = buildMapInto('world-svg', 'map-area', { prefix: 'c' });
+  const { zoom, svgSel } = buildMapInto('world-svg', 'map-area', {
+    prefix: 'c',
+    onCountryHover: qTooltipHandler,
+  });
   gZoom = zoom; gSvgSel = svgSel;
 }
 
@@ -946,8 +990,10 @@ function wrongQ(q) {
     return;
   }
 
-  setTimeout(() => { inp.className = 'ans-input'; inp.focus(); }, 380);
-  setTimeout(() => paintQ(q.id, 'var(--gold)'), 380);
+  const snap = gs;
+  setTimeout(() => {
+    if (gs === snap && !snap.answered) { inp.className = 'ans-input'; inp.focus(); paintQ(q.id, 'var(--gold)'); }
+  }, 380);
 
   const restantes = MAX_TRIES - gs.wrongs;
   document.getElementById('q-pts').textContent    = fmt(gs.qPts);
