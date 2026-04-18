@@ -1550,8 +1550,10 @@ function duelWrong(q) {
       setTimeout(() => duelTbSwitchToB(q), 1500);
     } else {
       if (!ds.tbACorrect) {
+        paintD(q.id, 'var(--red)');
+        ds.results.push({ id: q.id, country: q.pt, pts: 0, player: -1, stolen: false });
         setFeedback('d-feedback', '✗ Ambos erraram! Nova Rodada de Fogo…', 'bad');
-        setTimeout(() => duelTbNext(q), 2000);
+        setTimeout(() => duelTbNext(q, true), 2000);
       } else {
         paintD(q.id, 'var(--red)');
         setFeedback('d-feedback', '✗ Incorreto! Jogador A vence!', 'bad');
@@ -1630,8 +1632,8 @@ function duelTbSwitchToB(q) {
   duelAsk();
 }
 
-function duelTbNext(q) {
-  paintD(q.id, 'var(--land)');
+function duelTbNext(q, bothMissed = false) {
+  if (!bothMissed) paintD(q.id, 'var(--land)');
   ds.tbIdx++;
   if (ds.tbIdx >= ds.tbPool.length) {
     ds.tbPool = shuffle(pool.filter(c => !ds.qs.some(qq => qq.id === c.id)));
