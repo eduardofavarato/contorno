@@ -103,6 +103,7 @@ function duelAsk() {
   setFeedback('d-feedback', '');
 
   paintD(q.id, 'var(--gold)');
+  zoomToCountryDuel(q.id);
   inp.focus();
 }
 

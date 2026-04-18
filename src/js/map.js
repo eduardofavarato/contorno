@@ -81,6 +81,24 @@ function zoomToCountry(id) {
   } catch (e) {}
 }
 
+function zoomToCountryDuel(id) {
+  const path = document.getElementById(`d${id}`);
+  if (!path || !dSvgSel || !dZoom) return;
+  const el = document.getElementById('duel-map-area');
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+  try {
+    const b = path.getBBox();
+    if (b.width === 0 && b.height === 0) return;
+    const pad = 160;
+    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
+    const tx = (W - scale * (b.x * 2 + b.width)) / 2;
+    const ty = (H - scale * (b.y * 2 + b.height)) / 2;
+    dSvgSel.transition().duration(900)
+      .call(dZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  } catch (e) {}
+}
+
 function zoomToContinent() {
   const cont = CONTINENT_POOLS[selectedContinent];
   const el = document.getElementById('map-area');
