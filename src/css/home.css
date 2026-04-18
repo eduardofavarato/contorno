@@ -1,0 +1,68 @@
+#home {
+  min-height: 100vh;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 1.75rem; padding: 2rem; overflow-y: auto;
+}
+.logo {
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 900; letter-spacing: -.03em; line-height: 1;
+  background: linear-gradient(135deg, #f0c040 30%, #ff8c00);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.tagline { font-size: 1.2rem; color: var(--muted); font-style: italic; }
+
+.mode-cards {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  justify-content: center; max-width: 1020px; width: 100%;
+}
+.mode-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.6rem 1.5rem; flex: 1; min-width: 220px; max-width: 310px;
+  display: flex; flex-direction: column; gap: .9rem; text-align: left;
+  transition: border-color .2s, box-shadow .2s;
+}
+.mode-card:hover { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.mode-card-icon { font-size: 2rem; line-height: 1; }
+.mode-card h3   { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+.mode-card p    { font-size: .88rem; color: var(--muted); line-height: 1.55; }
+.card-desc      { flex: 1; display: flex; flex-direction: column; gap: .4rem; }
+.mode-card ul   { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
+.mode-card li   { font-size: .82rem; color: var(--muted); display: flex; gap: .5rem; }
+.mode-card li::before { content: '›'; color: var(--gold); flex-shrink: 0; }
+.card-details { margin-top: -.1rem; }
+.card-details summary {
+  font-size: .8rem; color: var(--muted); cursor: pointer;
+  list-style: none; display: flex; align-items: center; gap: .3rem;
+  user-select: none; transition: color .15s;
+}
+.card-details summary:hover { color: var(--text); }
+.card-details summary::-webkit-details-marker { display: none; }
+.card-details summary::after { content: '▾'; font-size: 1rem; transition: transform .2s; display: inline-block; }
+.card-details[open] summary::after { transform: rotate(-180deg); }
+.card-details ul { margin-top: .5rem; }
+
+.btn-mode {
+  background: linear-gradient(135deg, #f0c040, #e09000);
+  color: #0d1117; border: none; border-radius: 8px;
+  padding: .75rem 1.5rem; font-size: .95rem; font-weight: 800;
+  cursor: pointer; transition: opacity .15s; text-align: center; width: 100%;
+}
+.btn-mode:hover { opacity: .9; }
+
+.level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
+.btn-level, .btn-level-duel {
+  flex: 1; padding: .5rem .25rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-level.active, .btn-level-duel.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
+.continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
+.btn-continent {
+  flex: 1; min-width: calc(50% - .2rem); padding: .45rem .5rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }

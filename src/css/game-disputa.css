@@ -1,0 +1,55 @@
+.duel-score-bar { display: flex; align-items: center; gap: .6rem; }
+.duel-player-box {
+  background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
+  padding: .3rem .7rem; text-align: center; transition: all .25s; min-width: 64px;
+}
+#d-box-a.active {
+  border-color: var(--player-a); background: rgba(240,192,64,.15);
+  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(240,192,64,.25);
+}
+#d-box-b.active {
+  border-color: var(--player-b); background: rgba(88,166,255,.15);
+  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(88,166,255,.25);
+}
+.duel-pname    { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+#d-sa          { font-size: 1.05rem; font-weight: 700; color: var(--player-a); }
+#d-sb          { font-size: 1.05rem; font-weight: 700; color: var(--player-b); }
+.duel-sep      { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.duel-turn-lbl { font-size: .9rem; font-weight: 600; color: var(--text); }
+
+.duel-active-banner {
+  display: flex; align-items: center; gap: .55rem;
+  padding: .55rem 1.25rem; border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+.duel-active-banner.pa { background: rgba(240,192,64,.07); }
+.duel-active-banner.pb { background: rgba(88,166,255,.07); }
+.duel-active-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  animation: duel-pulse 1.4s ease-in-out infinite;
+}
+.duel-active-banner.pa .duel-active-dot { background: var(--player-a); box-shadow: 0 0 0 3px rgba(240,192,64,.3); }
+.duel-active-banner.pb .duel-active-dot { background: var(--player-b); box-shadow: 0 0 0 3px rgba(88,166,255,.3); }
+@keyframes duel-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+.duel-active-name { font-size: 1rem; font-weight: 800; transition: color .3s; }
+.duel-active-banner.pa .duel-active-name { color: var(--player-a); }
+.duel-active-banner.pb .duel-active-name { color: var(--player-b); }
+.duel-active-sub  { font-size: .78rem; color: var(--muted); margin-left: auto; }
+
+#duel-results {
+  min-height: 100vh; overflow-y: auto;
+  align-items: center; padding: 2.5rem 1.5rem; gap: 1.75rem;
+}
+.duel-winner-card {
+  background: var(--bg2); border: 2px solid var(--gold); border-radius: 16px;
+  padding: 2rem 3rem; text-align: center; max-width: 480px; width: 100%;
+}
+.duel-winner-text { font-size: 2rem; font-weight: 900; color: var(--gold); }
+.duel-final-scores {
+  display: flex; gap: 2.5rem; justify-content: center;
+  font-size: 1rem; color: var(--muted);
+}
+.duel-final-scores strong { color: var(--text); font-size: 1.25rem; }

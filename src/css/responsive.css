@@ -1,0 +1,8 @@
+@media (max-width: 480px) {
+  .g-stats { gap: .85rem; }
+  .stat-val { font-size: 1rem; }
+  .btn-confirm, .btn-giveup { font-size: .85rem; padding: .7rem .85rem; }
+  .mode-badge { display: none; }
+  .duel-score-bar { gap: .35rem; }
+  .duel-player-box { min-width: 52px; padding: .25rem .45rem; }
+}

@@ -1,0 +1,44 @@
+<div id="game" class="screen">
+  <div class="g-header">
+    <div class="g-logo" id="g-logo">Contorno</div>
+    <span class="mode-badge">Modo Perguntas</span>
+    <div class="g-stats">
+      <div class="stat">
+        <div class="stat-lbl">Pergunta</div>
+        <div class="stat-val" id="q-num">1/10</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Pontuação</div>
+        <div class="stat-val gold" id="g-score">0</div>
+      </div>
+    </div>
+    <button class="g-quit" id="btn-quit">Sair</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="prog" style="width:0%"></div>
+  </div>
+
+  <div class="map-area" id="map-area">
+    <svg id="world-svg"></svg>
+    <div class="zoom-controls">
+      <button class="btn-zoom" id="btn-zoom-in"  title="Aproximar (+)">+</button>
+      <button class="btn-zoom" id="btn-zoom-out" title="Afastar (−)">−</button>
+    </div>
+    <div class="map-tooltip" id="g-tooltip"></div>
+  </div>
+
+  <div class="g-bottom">
+    <div class="bottom-info">
+      <div class="pts-label">Pontos disponíveis: <span id="q-pts">2.000</span></div>
+      <div class="wrongs" id="g-wrongs"></div>
+    </div>
+    <div class="input-row">
+      <input class="ans-input" id="ans" type="text" placeholder="Digite o nome do país…"
+             autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="btn-confirm" id="btn-submit">Confirmar</button>
+      <button class="btn-giveup"  id="btn-giveup">Desistir</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #21262d;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --muted:    #8b949e;
+  --gold:     #f0c040;
+  --player-a: #f0c040;
+  --player-b: #58a6ff;
+  --green:    #3fb950;
+  --red:      #f85149;
+  --ocean:    #0a1628;
+  --land:     #1e2a3a;
+  --land-bdr: #2d3f52;
+}

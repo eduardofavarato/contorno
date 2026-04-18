@@ -1,0 +1,38 @@
+<div id="free" class="screen">
+  <div class="g-header">
+    <div class="g-logo" id="f-logo">Contorno</div>
+    <span class="mode-badge">Modo Livre</span>
+    <div class="g-stats">
+      <div class="stat">
+        <div class="stat-lbl">Acertos</div>
+        <div class="stat-val green" id="f-correct">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Tentativas</div>
+        <div class="stat-val" id="f-total">0</div>
+      </div>
+    </div>
+    <button class="g-quit" id="f-quit">Sair</button>
+  </div>
+
+  <div class="map-area" id="free-map-area">
+    <svg id="free-svg"></svg>
+    <div class="zoom-controls">
+      <button class="btn-zoom" id="f-zoom-in"  title="Aproximar (+)">+</button>
+      <button class="btn-zoom" id="f-zoom-out" title="Afastar (−)">−</button>
+    </div>
+    <div class="map-tooltip" id="f-tooltip"></div>
+  </div>
+
+  <div class="g-bottom">
+    <div class="bottom-info">
+      <div class="pts-label" id="f-hint">Clique em um país no mapa para adivinhar</div>
+    </div>
+    <div class="input-row">
+      <input class="ans-input" id="f-ans" type="text" placeholder="Selecione um país no mapa…"
+             autocomplete="off" autocorrect="off" spellcheck="false" disabled>
+      <button class="btn-confirm" id="f-submit" disabled>Confirmar</button>
+    </div>
+    <div class="feedback" id="f-feedback"></div>
+  </div>
+</div>

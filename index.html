@@ -33,12 +33,10 @@ body {
   min-height: 100vh;
 }
 
-/* ── Screens ── */
 .screen { display: none; }
 .screen.active { display: flex; flex-direction: column; }
 #game.active, #free.active, #duel.active { position: fixed; inset: 0; overflow: hidden; }
 
-/* ── Loading ── */
 #loading {
   position: fixed; inset: 0; background: var(--bg);
   display: flex; flex-direction: column;
@@ -51,7 +49,6 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Home ── */
 #home {
   min-height: 100vh;
   align-items: center; justify-content: center;
@@ -94,6 +91,7 @@ body {
 .card-details summary::after { content: '▾'; font-size: 1rem; transition: transform .2s; display: inline-block; }
 .card-details[open] summary::after { transform: rotate(-180deg); }
 .card-details ul { margin-top: .5rem; }
+
 .btn-mode {
   background: linear-gradient(135deg, #f0c040, #e09000);
   color: #0d1117; border: none; border-radius: 8px;
@@ -102,7 +100,24 @@ body {
 }
 .btn-mode:hover { opacity: .9; }
 
-/* ── Shared game header ── */
+.level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
+.btn-level, .btn-level-duel {
+  flex: 1; padding: .5rem .25rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-level.active, .btn-level-duel.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
+.continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
+.btn-continent {
+  flex: 1; min-width: calc(50% - .2rem); padding: .45rem .5rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
 .g-header {
   background: var(--bg2); border-bottom: 1px solid var(--border);
   padding: .7rem 1.25rem;
@@ -137,11 +152,9 @@ body {
 .progress-wrap { height: 3px; background: var(--border); flex-shrink: 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ff8c00); transition: width .6s ease; }
 
-/* ── Map area ── */
 .map-area { flex: 1; min-height: 0; background: var(--ocean); position: relative; overflow: hidden; }
 .map-area svg { width: 100%; height: 100%; display: block; }
 
-/* ── Zoom controls ── */
 .zoom-controls {
   position: absolute; bottom: 1rem; right: 1rem;
   display: flex; flex-direction: column; gap: .35rem; z-index: 10;
@@ -157,7 +170,6 @@ body {
 .btn-zoom:hover { background: var(--bg3); border-color: var(--muted); }
 .btn-zoom:active { transform: scale(.93); }
 
-/* ── Map tooltip ── */
 .map-tooltip {
   position: absolute; pointer-events: none; z-index: 20;
   background: rgba(22,27,34,.97); border: 1px solid var(--border);
@@ -177,7 +189,6 @@ body {
 .tt-name    { color: var(--text);  font-weight: 700; margin-top: .15rem; }
 .tt-attempt { color: var(--muted); font-size: .8rem; margin-top: .15rem; }
 
-/* ── Shared bottom bar ── */
 .g-bottom {
   background: var(--bg2); border-top: 1px solid var(--border);
   padding: .9rem 1.25rem; flex-shrink: 0;
@@ -229,10 +240,8 @@ body {
 .feedback.ok  { color: var(--green); }
 .feedback.bad { color: var(--red);   }
 
-/* ── Free mode: clickable countries ── */
 #free-svg .cp { cursor: pointer; }
 
-/* ── Results ── */
 #results {
   min-height: 100vh; overflow-y: auto;
   align-items: center; padding: 2.5rem 1.5rem; gap: 1.75rem;
@@ -283,25 +292,6 @@ body {
 }
 .btn-secondary:hover { background: var(--border); }
 
-.level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
-.btn-level, .btn-level-duel {
-  flex: 1; padding: .5rem .25rem; border-radius: 6px;
-  background: var(--bg3); border: 1px solid var(--border);
-  color: var(--muted); font-size: .82rem; font-weight: 600;
-  cursor: pointer; transition: all .15s;
-}
-.btn-level.active, .btn-level-duel.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
-
-.continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
-.btn-continent {
-  flex: 1; min-width: calc(50% - .2rem); padding: .45rem .5rem; border-radius: 6px;
-  background: var(--bg3); border: 1px solid var(--border);
-  color: var(--muted); font-size: .8rem; font-weight: 600;
-  cursor: pointer; transition: all .15s; text-align: center;
-}
-.btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
-
-/* ── Duel mode ── */
 .duel-score-bar { display: flex; align-items: center; gap: .6rem; }
 .duel-player-box {
   background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
@@ -315,11 +305,12 @@ body {
   border-color: var(--player-b); background: rgba(88,166,255,.15);
   transform: scale(1.1); box-shadow: 0 0 0 3px rgba(88,166,255,.25);
 }
-.duel-pname   { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-#d-sa         { font-size: 1.05rem; font-weight: 700; color: var(--player-a); }
-#d-sb         { font-size: 1.05rem; font-weight: 700; color: var(--player-b); }
-.duel-sep     { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.duel-pname    { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+#d-sa          { font-size: 1.05rem; font-weight: 700; color: var(--player-a); }
+#d-sb          { font-size: 1.05rem; font-weight: 700; color: var(--player-b); }
+.duel-sep      { font-size: .78rem; font-weight: 700; color: var(--muted); }
 .duel-turn-lbl { font-size: .9rem; font-weight: 600; color: var(--text); }
+
 .duel-active-banner {
   display: flex; align-items: center; gap: .55rem;
   padding: .55rem 1.25rem; border-bottom: 1px solid var(--border);
@@ -365,17 +356,16 @@ body {
   .duel-score-bar { gap: .35rem; }
   .duel-player-box { min-width: 52px; padding: .25rem .45rem; }
 }
+
 </style>
 </head>
 <body>
 
-<!-- Loading -->
 <div id="loading">
   <div class="spinner"></div>
   <p style="color:var(--muted);font-size:.95rem">Carregando mapa do mundo…</p>
 </div>
 
-<!-- ═══════════════════════════════════════════ HOME ═══ -->
 <div id="home" class="screen">
   <div class="logo">Contorno</div>
   <div class="tagline">Reconheça o País. Ou Não.</div>
@@ -477,7 +467,6 @@ body {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ MODO PERGUNTAS ═══ -->
 <div id="game" class="screen">
   <div class="g-header">
     <div class="g-logo" id="g-logo">Contorno</div>
@@ -523,7 +512,6 @@ body {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ MODO LIVRE ═══ -->
 <div id="free" class="screen">
   <div class="g-header">
     <div class="g-logo" id="f-logo">Contorno</div>
@@ -563,7 +551,6 @@ body {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ MODO DISPUTA ═══ -->
 <div id="duel" class="screen">
   <div class="g-header">
     <div class="g-logo" id="d-logo">Contorno</div>
@@ -613,7 +600,6 @@ body {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ RESULTADO DISPUTA ═══ -->
 <div id="duel-results" class="screen">
   <div class="r-logo">Contorno</div>
 
@@ -632,7 +618,6 @@ body {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ RESULTADOS ═══ -->
 <div id="results" class="screen">
   <div class="r-logo">Contorno</div>
 
@@ -655,10 +640,8 @@ body {
   </div>
 </div>
 
+
 <script>
-// ═════════════════════════════════════════════════════════════
-// COUNTRY DATABASE
-// ═════════════════════════════════════════════════════════════
 const DB = {
   4:   { pt:"Afeganistão",               a:["afeganistao","afghanistan"] },
   8:   { pt:"Albânia",                   a:["albania"] },
@@ -801,7 +784,6 @@ const DB = {
   862: { pt:"Venezuela",                 a:["venezuela"] },
   887: { pt:"Iêmen",                     a:["iemen","yemen"] },
   894: { pt:"Zâmbia",                    a:["zambia"] },
-  // ── Adições
   304: { pt:"Groenlândia",               a:["groenlandia","greenland"] },
   383: { pt:"Kosovo",                    a:["kosovo"] },
   84:  { pt:"Belize",                    a:["belize"] },
@@ -826,21 +808,12 @@ const DB = {
   854: { pt:"Burkina Faso",              a:["burkina faso","burkina"] },
   254: { pt:"Guiana Francesa",           a:["guiana francesa","french guiana","guyana francesa"] },
 };
-
-// ═════════════════════════════════════════════════════════════
-// CONSTANTS
-// ═════════════════════════════════════════════════════════════
-const TOTAL_Q    = 10;
-const MAX_PTS    = 2000;
-const PENALTY    = 200;
-const MAX_TRIES  = 3;
-const DUEL_Q     = 10;
-const STEAL_PTS  = 1000;
-
-// ═════════════════════════════════════════════════════════════
-// LEVEL TIERS
-// ═════════════════════════════════════════════════════════════
-// Fácil: top 50
+const TOTAL_Q   = 10;
+const MAX_PTS   = 2000;
+const PENALTY   = 200;
+const MAX_TRIES = 3;
+const DUEL_Q    = 10;
+const STEAL_PTS = 1000;
 const TIER1 = new Set([
   // Americas
   76,840,124,484,32,170,152,604,192,858,68,862,
@@ -857,7 +830,7 @@ const TIER1 = new Set([
   // Extra
   348,
 ]);
-// Médio: TIER1 ∪ TIER2 ≈ 150
+
 const TIER2 = new Set([
   // Americas
   84,188,214,218,222,320,332,340,558,591,600,740,
@@ -871,11 +844,6 @@ const TIER2 = new Set([
   50,64,104,116,144,158,262,304,328,398,408,417,418,496,512,524,554,608,626,704,762,795,860,
 ]);
 
-let selectedLevel = 1;
-
-// ═════════════════════════════════════════════════════════════
-// CONTINENT POOLS
-// ═════════════════════════════════════════════════════════════
 const CONTINENT_POOLS = {
   sul:     { name: 'América do Sul',   ids: new Set([32,68,76,152,170,218,254,328,600,604,740,780,858,862]) },
   central: { name: 'América Central',  ids: new Set([84,188,192,214,222,320,332,340,388,558,591]) },
@@ -885,23 +853,19 @@ const CONTINENT_POOLS = {
   oceania: { name: 'Oceania',          ids: new Set([36,242,554,598]) },
 };
 
-let selectedContinent = 'sul';
-
 function poolForLevel(level) {
   if (level === 1) return pool.filter(c => TIER1.has(c.id));
   if (level === 2) return pool.filter(c => TIER1.has(c.id) || TIER2.has(c.id));
   return pool;
 }
-
-// ═════════════════════════════════════════════════════════════
-// HELPERS
-// ═════════════════════════════════════════════════════════════
 function norm(s) {
   return s.toLowerCase()
           .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 }
+
 function fmt(n) { return n.toLocaleString('pt-BR'); }
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -911,13 +875,15 @@ function shuffle(arr) {
   return a;
 }
 
-// ═════════════════════════════════════════════════════════════
-// GLOBAL STATE
-// ═════════════════════════════════════════════════════════════
+function setFeedback(elId, msg, cls) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className   = 'feedback' + (cls ? ` ${cls}` : '');
+}
 let worldTopo = null;
-let pool      = [];       // countries present in the dataset
+let pool      = [];
 
-// Modo Perguntas
+// Modo Perguntas / Continentes
 let gs = {};
 let gZoom, gSvgSel;
 
@@ -926,13 +892,13 @@ let fs = {};
 let fZoom, fSvgSel;
 
 // Modo Disputa
-let selectedDuelLevel = 1;
 let ds = {};
 let dZoom, dSvgSel;
 
-// ═════════════════════════════════════════════════════════════
-// INIT
-// ═════════════════════════════════════════════════════════════
+// User selections
+let selectedLevel     = 1;
+let selectedContinent = 'sul';
+let selectedDuelLevel = 1;
 async function init() {
   const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
   worldTopo = await resp.json();
@@ -949,17 +915,14 @@ async function init() {
   showScreen('home');
 }
 
-// ═════════════════════════════════════════════════════════════
-// SCREEN
-// ═════════════════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ═════════════════════════════════════════════════════════════
-// SHARED MAP BUILDER
-// ═════════════════════════════════════════════════════════════
+function confirmQuit() {
+  if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
+}
 function buildMapInto(svgId, areaId, options = {}) {
   const el  = document.getElementById(areaId);
   const W   = el.clientWidth;
@@ -1021,9 +984,61 @@ function buildMapInto(svgId, areaId, options = {}) {
   return { zoom, svgSel: svg };
 }
 
-// ═════════════════════════════════════════════════════════════
-// ── MODO PERGUNTAS ──────────────────────────────────────────
-// ═════════════════════════════════════════════════════════════
+function zoomBy(svgSel, zoom, factor) {
+  if (svgSel && zoom) svgSel.transition().duration(250).call(zoom.scaleBy, factor);
+}
+
+function zoomToCountry(id) {
+  const path = document.getElementById(`c${id}`);
+  if (!path || !gSvgSel || !gZoom) return;
+  const el = document.getElementById('map-area');
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+  try {
+    const b = path.getBBox();
+    if (b.width === 0 && b.height === 0) return;
+    const pad = 160;
+    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
+    const tx = (W - scale * (b.x * 2 + b.width)) / 2;
+    const ty = (H - scale * (b.y * 2 + b.height)) / 2;
+    gSvgSel.transition().duration(900)
+      .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  } catch (e) {}
+}
+
+function zoomToContinent() {
+  const cont = CONTINENT_POOLS[selectedContinent];
+  const el = document.getElementById('map-area');
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  cont.ids.forEach(id => {
+    const path = document.getElementById(`c${id}`);
+    if (!path) return;
+    try {
+      const b = path.getBBox();
+      if (b.width === 0 && b.height === 0) return;
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    } catch (e) {}
+  });
+
+  if (minX === Infinity) return;
+
+  const pad = 30;
+  const scale = Math.min(10, Math.min(W / (maxX - minX + pad * 2), H / (maxY - minY + pad * 2)));
+  const tx = (W - scale * (minX + maxX)) / 2;
+  const ty = (H - scale * (minY + maxY)) / 2;
+
+  gSvgSel.transition().duration(800)
+    .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+function paintQ(id, color) { d3.select(`#c${id}`).attr('fill', color).raise(); }
+function resetQ(id) { d3.select(`#c${id}`).attr('fill', 'var(--land)'); }
+
 function qTooltipHandler(id, event, phase) {
   const tooltip = document.getElementById('g-tooltip');
   const r = gs.results?.find(r => r.id === id);
@@ -1072,11 +1087,6 @@ function buildQMap() {
   gZoom = zoom; gSvgSel = svgSel;
 }
 
-function paintQ(id, color) {
-  d3.select(`#c${id}`).attr('fill', color).raise();
-}
-function resetQ(id) { d3.select(`#c${id}`).attr('fill', 'var(--land)'); }
-
 function startGame() {
   const levelNames = ['', 'Fácil', 'Médio', 'Difícil'];
   const modeName = `Modo Perguntas · ${levelNames[selectedLevel]}`;
@@ -1110,9 +1120,9 @@ function askQuestion() {
   const q = gs.qs[gs.idx];
   gs.wrongs = 0; gs.qPts = MAX_PTS; gs.answered = false;
 
-  document.getElementById('q-num').textContent   = `${gs.idx + 1}/${gs.total}`;
-  document.getElementById('g-score').textContent = fmt(gs.score);
-  document.getElementById('q-pts').textContent   = fmt(gs.qPts);
+  document.getElementById('q-num').textContent    = `${gs.idx + 1}/${gs.total}`;
+  document.getElementById('g-score').textContent  = fmt(gs.score);
+  document.getElementById('q-pts').textContent    = fmt(gs.qPts);
   document.getElementById('g-wrongs').textContent = '';
   setFeedback('feedback', '');
 
@@ -1168,7 +1178,6 @@ function wrongQ(q) {
 
   paintQ(q.id, 'var(--red)');
 
-  // Esgotou as tentativas — revelar resposta e avançar
   if (gs.wrongs >= MAX_TRIES) {
     gs.answered = true;
     gs.results.push({ id: q.id, country: q.pt, wrongs: gs.wrongs, pts: 0, gaveUp: false, failed: true });
@@ -1251,10 +1260,6 @@ function endGame() {
     container.appendChild(div);
   });
 }
-
-// ═════════════════════════════════════════════════════════════
-// ── MODO LIVRE ───────────────────────────────────────────────
-// ═════════════════════════════════════════════════════════════
 function startFreeMode() {
   fs = { answered: {}, selected: null, correct: 0, total: 0 };
   showScreen('free');
@@ -1274,19 +1279,15 @@ function buildFreeMap() {
   });
   fZoom = zoom; fSvgSel = svgSel;
 
-  // Re-highlight selected country after rebuild
   if (fs.selected !== null) {
     d3.select(`#fc${fs.selected}`).attr('fill', 'var(--gold)');
   }
 }
 
 function freeSelectCountry(id) {
-  // Answered = not selectable again
   if (fs.answered[id]) return;
-  // Not in our DB = ignore
   if (!DB[id]) return;
 
-  // Deselect previous
   if (fs.selected !== null && !fs.answered[fs.selected]) {
     d3.select(`#fc${fs.selected}`).attr('fill', 'var(--land)');
   }
@@ -1314,8 +1315,8 @@ function submitFree() {
   const val = norm(raw);
   if (!val) return;
 
-  const country    = DB[id];
-  const isCorrect  = country.a.some(a => norm(a) === val);
+  const country   = DB[id];
+  const isCorrect = country.a.some(a => norm(a) === val);
 
   fs.total++;
   fs.answered[id] = { correct: isCorrect, attempt: raw, name: country.pt };
@@ -1342,10 +1343,7 @@ function freeTooltipHandler(id, event, phase) {
   const tooltip = document.getElementById('f-tooltip');
   const ans     = fs.answered[id];
 
-  if (phase === 'out' || !ans) {
-    tooltip.style.opacity = '0';
-    return;
-  }
+  if (phase === 'out' || !ans) { tooltip.style.opacity = '0'; return; }
 
   if (phase === 'over') {
     if (ans.correct) {
@@ -1363,7 +1361,6 @@ function freeTooltipHandler(id, event, phase) {
     const rect = document.getElementById('free-map-area').getBoundingClientRect();
     let x = event.clientX - rect.left + 14;
     let y = event.clientY - rect.top  - 14;
-    // Keep inside bounds
     const tw = tooltip.offsetWidth  || 180;
     const th = tooltip.offsetHeight || 60;
     if (x + tw > rect.width  - 8) x = event.clientX - rect.left - tw - 14;
@@ -1382,19 +1379,6 @@ function resetFreeInput() {
   document.getElementById('f-hint').textContent = 'Clique em um país no mapa para adivinhar';
   setFeedback('f-feedback', '');
 }
-
-// ═════════════════════════════════════════════════════════════
-// SHARED HELPERS
-// ═════════════════════════════════════════════════════════════
-function setFeedback(elId, msg, cls) {
-  const el = document.getElementById(elId);
-  el.textContent = msg;
-  el.className   = 'feedback' + (cls ? ` ${cls}` : '');
-}
-
-// ═════════════════════════════════════════════════════════════
-// ── MODO DISPUTA ─────────────────────────────────────────────
-// ═════════════════════════════════════════════════════════════
 function paintD(id, color) { d3.select(`#d${id}`).attr('fill', color).raise(); }
 
 function duelTooltipHandler(id, event, phase) {
@@ -1434,19 +1418,19 @@ function buildDuelMap() {
 function startDuel() {
   const full = shuffle(poolForLevel(selectedDuelLevel));
   ds = {
-    qs:           full.slice(0, DUEL_Q),
-    tbPool:       full.slice(DUEL_Q),
-    tbIdx:        0,
-    idx:          0,
-    scores:       [0, 0],
-    phase:        'primary',   // 'primary' | 'steal' | 'tb-a' | 'tb-b'
+    qs:            full.slice(0, DUEL_Q),
+    tbPool:        full.slice(DUEL_Q),
+    tbIdx:         0,
+    idx:           0,
+    scores:        [0, 0],
+    phase:         'primary',
     primaryPlayer: 0,
-    wrongs:       0,
-    qPts:         MAX_PTS,
-    answered:     false,
-    inTiebreaker: false,
-    tbACorrect:   null,
-    results:      [],
+    wrongs:        0,
+    qPts:          MAX_PTS,
+    answered:      false,
+    inTiebreaker:  false,
+    tbACorrect:    null,
+    results:       [],
   };
   showScreen('duel');
   requestAnimationFrame(() => requestAnimationFrame(() => { buildDuelMap(); duelAsk(); }));
@@ -1589,7 +1573,6 @@ function duelWrong(q) {
     return;
   }
 
-  // 1 tentativa: wrong → steal imediatamente
   ds.answered = true;
   inp.disabled = true;
   document.getElementById('d-submit').disabled = true;
@@ -1665,82 +1648,21 @@ function duelEndGame(winner) {
   const winEl = document.getElementById('d-winner-text');
   winEl.textContent = winner === 'A' ? '🏆 Jogador A vence!' : '🏆 Jogador B vence!';
 }
-
-// ═════════════════════════════════════════════════════════════
-// ZOOM HELPERS
-// ═════════════════════════════════════════════════════════════
-function zoomBy(svgSel, zoom, factor) {
-  if (svgSel && zoom) svgSel.transition().duration(250).call(zoom.scaleBy, factor);
-}
-
-function zoomToCountry(id) {
-  const path = document.getElementById(`c${id}`);
-  if (!path || !gSvgSel || !gZoom) return;
-  const el = document.getElementById('map-area');
-  const W = el.clientWidth;
-  const H = el.clientHeight;
-  try {
-    const b = path.getBBox();
-    if (b.width === 0 && b.height === 0) return;
-    const pad = 160;
-    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
-    const tx = (W - scale * (b.x * 2 + b.width)) / 2;
-    const ty = (H - scale * (b.y * 2 + b.height)) / 2;
-    gSvgSel.transition().duration(900)
-      .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-  } catch (e) {}
-}
-
-function zoomToContinent() {
-  const cont = CONTINENT_POOLS[selectedContinent];
-  const el = document.getElementById('map-area');
-  const W = el.clientWidth;
-  const H = el.clientHeight;
-
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  cont.ids.forEach(id => {
-    const path = document.getElementById(`c${id}`);
-    if (!path) return;
-    try {
-      const b = path.getBBox();
-      if (b.width === 0 && b.height === 0) return;
-      minX = Math.min(minX, b.x);
-      minY = Math.min(minY, b.y);
-      maxX = Math.max(maxX, b.x + b.width);
-      maxY = Math.max(maxY, b.y + b.height);
-    } catch (e) {}
-  });
-
-  if (minX === Infinity) return;
-
-  const pad = 30;
-  const scale = Math.min(10, Math.min(W / (maxX - minX + pad * 2), H / (maxY - minY + pad * 2)));
-  const tx = (W - scale * (minX + maxX)) / 2;
-  const ty = (H - scale * (minY + maxY)) / 2;
-
-  gSvgSel.transition().duration(800)
-    .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-}
-
-// ═════════════════════════════════════════════════════════════
-// EVENT LISTENERS
-// ═════════════════════════════════════════════════════════════
-
-// Duel level picker
-document.querySelectorAll('.btn-level-duel').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.btn-level-duel').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedDuelLevel = +btn.dataset.level;
-  });
-});
-
-// Level picker
+// Level picker — Modo Perguntas
 document.querySelectorAll('.btn-level').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedLevel = +btn.dataset.level;
+  });
+});
+
+// Level picker — Modo Disputa
+document.querySelectorAll('.btn-level-duel').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level-duel').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDuelLevel = +btn.dataset.level;
   });
 });
 
@@ -1763,9 +1685,6 @@ document.getElementById('btn-free').addEventListener('click', startFreeMode);
 document.getElementById('btn-submit').addEventListener('click', submitQ);
 document.getElementById('btn-giveup').addEventListener('click', giveUpQ);
 document.getElementById('ans').addEventListener('keydown', e => { if (e.key === 'Enter') submitQ(); });
-function confirmQuit() {
-  if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
-}
 document.getElementById('g-logo').addEventListener('click', confirmQuit);
 document.getElementById('btn-quit').addEventListener('click', confirmQuit);
 document.getElementById('btn-zoom-in').addEventListener('click',  () => zoomBy(gSvgSel, gZoom, 1.5));
@@ -1800,7 +1719,6 @@ let lastResizeW = 0;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTO);
   resizeTO = setTimeout(() => {
-    // Keyboard open/close only changes height — ignore those events
     const currentW = window.innerWidth;
     if (currentW === lastResizeW) return;
     lastResizeW = currentW;
@@ -1821,9 +1739,6 @@ window.addEventListener('resize', () => {
   }, 250);
 });
 
-// ═════════════════════════════════════════════════════════════
-// START
-// ═════════════════════════════════════════════════════════════
 init();
 </script>
 </body>

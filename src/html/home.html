@@ -1,0 +1,100 @@
+<div id="home" class="screen">
+  <div class="logo">Contorno</div>
+  <div class="tagline">Reconheça o País. Ou Não.</div>
+
+  <div class="mode-cards">
+    <!-- Modo Perguntas -->
+    <div class="mode-card">
+      <div class="mode-card-icon">❓</div>
+      <h3>Modo Perguntas</h3>
+      <div class="card-desc">
+        <p>Um país é destacado no mapa a cada rodada. Adivinhe o nome antes que os pontos acabem!</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>10 países por rodada</li>
+            <li>Até 2.000 pts por acerto</li>
+            <li>–200 pts por resposta errada</li>
+            <li>Máximo de 3 tentativas por país</li>
+          </ul>
+        </details>
+      </div>
+      <div class="level-picker">
+        <button class="btn-level active" data-level="1">Fácil</button>
+        <button class="btn-level" data-level="2">Médio</button>
+        <button class="btn-level" data-level="3">Difícil</button>
+      </div>
+      <button class="btn-mode" id="btn-play">Jogar</button>
+    </div>
+
+    <!-- Modo Continentes -->
+    <div class="mode-card">
+      <div class="mode-card-icon">🌎</div>
+      <h3>Modo Continentes</h3>
+      <div class="card-desc">
+        <p>Escolha um continente e tente acertar todos os países que fazem parte dele!</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>Todos os países do continente</li>
+            <li>Até 2.000 pts por acerto</li>
+            <li>–200 pts por resposta errada</li>
+            <li>Máximo de 3 tentativas por país</li>
+          </ul>
+        </details>
+      </div>
+      <div class="continent-picker">
+        <button class="btn-continent active" data-continent="sul">América do Sul</button>
+        <button class="btn-continent" data-continent="central">América Central</button>
+        <button class="btn-continent" data-continent="norte">América do Norte</button>
+        <button class="btn-continent" data-continent="europa">Europa</button>
+        <button class="btn-continent" data-continent="asia">Ásia</button>
+        <button class="btn-continent" data-continent="oceania">Oceania</button>
+      </div>
+      <button class="btn-mode" id="btn-continent">Jogar</button>
+    </div>
+
+    <!-- Modo Disputa -->
+    <div class="mode-card">
+      <div class="mode-card-icon">⚔️</div>
+      <h3>Modo Disputa</h3>
+      <div class="card-desc">
+        <p>Dois jogadores se enfrentam! Cada pergunta é do jogador da vez — se errar, o adversário pode roubar os pontos.</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>10 perguntas, jogadores alternados</li>
+            <li>1 tentativa por pergunta</li>
+            <li>Roubo vale 1.000 pts</li>
+            <li>Empate: Rodadas de Fogo!</li>
+          </ul>
+        </details>
+      </div>
+      <div class="level-picker">
+        <button class="btn-level-duel active" data-level="1">Fácil</button>
+        <button class="btn-level-duel" data-level="2">Médio</button>
+        <button class="btn-level-duel" data-level="3">Difícil</button>
+      </div>
+      <button class="btn-mode" id="btn-duel">Jogar</button>
+    </div>
+
+    <!-- Modo Livre -->
+    <div class="mode-card">
+      <div class="mode-card-icon">🔍</div>
+      <h3>Modo Livre</h3>
+      <div class="card-desc">
+        <p>Explore o mapa e clique em qualquer país para tentar adivinhar o nome dele.</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>Clique em qualquer país</li>
+            <li>Uma tentativa por país</li>
+            <li>Acertos são contabilizados</li>
+            <li>Sem pressão de tempo</li>
+          </ul>
+        </details>
+      </div>
+      <button class="btn-mode" id="btn-free">Jogar</button>
+    </div>
+  </div>
+</div>
