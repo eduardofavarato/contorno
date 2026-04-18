@@ -17,6 +17,8 @@
   --text:     #e6edf3;
   --muted:    #8b949e;
   --gold:     #f0c040;
+  --player-a: #f0c040;
+  --player-b: #58a6ff;
   --green:    #3fb950;
   --red:      #f85149;
   --ocean:    #0a1628;
@@ -164,9 +166,13 @@ body {
   box-shadow: 0 4px 18px rgba(0,0,0,.55);
   opacity: 0; transition: opacity .12s;
 }
-.tt-ok   { color: var(--green); font-weight: 700; font-size: .78rem;
+.tt-ok   { color: var(--green);    font-weight: 700; font-size: .78rem;
            text-transform: uppercase; letter-spacing: .06em; }
-.tt-bad  { color: var(--red);   font-weight: 700; font-size: .78rem;
+.tt-bad  { color: var(--red);      font-weight: 700; font-size: .78rem;
+           text-transform: uppercase; letter-spacing: .06em; }
+.tt-pa   { color: var(--player-a); font-weight: 700; font-size: .78rem;
+           text-transform: uppercase; letter-spacing: .06em; }
+.tt-pb   { color: var(--player-b); font-weight: 700; font-size: .78rem;
            text-transform: uppercase; letter-spacing: .06em; }
 .tt-name    { color: var(--text);  font-weight: 700; margin-top: .15rem; }
 .tt-attempt { color: var(--muted); font-size: .8rem; margin-top: .15rem; }
@@ -299,13 +305,42 @@ body {
 .duel-score-bar { display: flex; align-items: center; gap: .6rem; }
 .duel-player-box {
   background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
-  padding: .3rem .7rem; text-align: center; transition: all .2s; min-width: 64px;
+  padding: .3rem .7rem; text-align: center; transition: all .25s; min-width: 64px;
 }
-.duel-player-box.active { border-color: var(--gold); background: rgba(240,192,64,.1); }
-.duel-pname  { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-.duel-pscore { font-size: 1.05rem; font-weight: 700; color: var(--gold); }
-.duel-sep    { font-size: .78rem; font-weight: 700; color: var(--muted); }
+#d-box-a.active {
+  border-color: var(--player-a); background: rgba(240,192,64,.15);
+  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(240,192,64,.25);
+}
+#d-box-b.active {
+  border-color: var(--player-b); background: rgba(88,166,255,.15);
+  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(88,166,255,.25);
+}
+.duel-pname   { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+#d-sa         { font-size: 1.05rem; font-weight: 700; color: var(--player-a); }
+#d-sb         { font-size: 1.05rem; font-weight: 700; color: var(--player-b); }
+.duel-sep     { font-size: .78rem; font-weight: 700; color: var(--muted); }
 .duel-turn-lbl { font-size: .9rem; font-weight: 600; color: var(--text); }
+.duel-active-banner {
+  display: flex; align-items: center; gap: .55rem;
+  padding: .55rem 1.25rem; border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+.duel-active-banner.pa { background: rgba(240,192,64,.07); }
+.duel-active-banner.pb { background: rgba(88,166,255,.07); }
+.duel-active-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  animation: duel-pulse 1.4s ease-in-out infinite;
+}
+.duel-active-banner.pa .duel-active-dot { background: var(--player-a); box-shadow: 0 0 0 3px rgba(240,192,64,.3); }
+.duel-active-banner.pb .duel-active-dot { background: var(--player-b); box-shadow: 0 0 0 3px rgba(88,166,255,.3); }
+@keyframes duel-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+.duel-active-name { font-size: 1rem; font-weight: 800; transition: color .3s; }
+.duel-active-banner.pa .duel-active-name { color: var(--player-a); }
+.duel-active-banner.pb .duel-active-name { color: var(--player-b); }
+.duel-active-sub  { font-size: .78rem; color: var(--muted); margin-left: auto; }
 
 #duel-results {
   min-height: 100vh; overflow-y: auto;
@@ -559,9 +594,13 @@ body {
     <div class="map-tooltip" id="d-tooltip"></div>
   </div>
 
-  <div class="g-bottom">
-    <div class="bottom-info">
-      <div class="duel-turn-lbl" id="d-turn">Jogador A · Pergunta 1/10</div>
+  <div class="g-bottom" style="padding-top:0">
+    <div class="duel-active-banner pa">
+      <div class="duel-active-dot"></div>
+      <div class="duel-active-name" id="d-active-name">Jogador A</div>
+      <div class="duel-active-sub"  id="d-turn">Pergunta 1/10</div>
+    </div>
+    <div class="bottom-info" style="margin-top:.6rem">
       <div class="pts-label">Disponível: <span id="d-pts">2.000</span></div>
     </div>
     <div class="input-row">
@@ -1364,10 +1403,11 @@ function duelTooltipHandler(id, event, phase) {
   if (phase === 'out' || !r) { tooltip.style.opacity = '0'; return; }
   if (phase === 'over') {
     const pname = r.player === 0 ? 'Jogador A' : r.player === 1 ? 'Jogador B' : null;
+    const pcls  = r.player === 0 ? 'tt-pa' : r.player === 1 ? 'tt-pb' : 'tt-ok';
     const tag = r.stolen
-      ? `<div class="tt-ok">🔥 Roubo — ${pname}</div>`
+      ? `<div class="${pcls}">🔥 Roubo — ${pname}</div>`
       : r.pts > 0
-        ? `<div class="tt-ok">✓ ${pname}</div>`
+        ? `<div class="${pcls}">✓ ${pname}</div>`
         : `<div class="tt-bad">✗ Sem ponto</div>`;
     const pts = r.pts > 0 ? `+${fmt(r.pts)} pts` : '0 pts';
     tooltip.innerHTML = `${tag}<div class="tt-name">${r.country}</div><div class="tt-attempt">${pts}</div>`;
@@ -1429,22 +1469,28 @@ function duelAsk() {
   document.getElementById('d-box-a').classList.toggle('active', pIdx === 0);
   document.getElementById('d-box-b').classList.toggle('active', pIdx === 1);
 
-  let turnLabel, ptsLabel;
+  let activeName, subLabel, ptsLabel;
   if (ds.inTiebreaker) {
-    turnLabel = `🔥 Rodada de Fogo — ${pname}`;
-    ptsLabel  = fmt(MAX_PTS);
+    activeName = `🔥 ${pname}`;
+    subLabel   = 'Rodada de Fogo';
+    ptsLabel   = fmt(MAX_PTS);
     document.getElementById('d-prog').style.width = '100%';
   } else if (ds.phase === 'steal') {
-    const sname = ['Jogador A', 'Jogador B'][1 - ds.primaryPlayer];
-    turnLabel = `🔥 ${sname} — Roubo!`;
-    ptsLabel  = fmt(STEAL_PTS);
+    activeName = `🔥 ${pname}`;
+    subLabel   = 'Roubo!';
+    ptsLabel   = fmt(STEAL_PTS);
   } else {
-    turnLabel = `${pname} · Pergunta ${ds.idx + 1}/${DUEL_Q}`;
-    ptsLabel  = fmt(ds.qPts);
+    activeName = pname;
+    subLabel   = `Pergunta ${ds.idx + 1}/${DUEL_Q}`;
+    ptsLabel   = fmt(ds.qPts);
     document.getElementById('d-prog').style.width = `${(ds.idx / DUEL_Q) * 100}%`;
   }
-  document.getElementById('d-turn').textContent = turnLabel;
-  document.getElementById('d-pts').textContent  = ptsLabel;
+  document.getElementById('d-active-name').textContent = activeName;
+  document.getElementById('d-turn').textContent        = subLabel;
+  document.getElementById('d-pts').textContent         = ptsLabel;
+  const banner = document.querySelector('.duel-active-banner');
+  banner.classList.toggle('pa', pIdx === 0);
+  banner.classList.toggle('pb', pIdx === 1);
 
   const inp = document.getElementById('d-ans');
   inp.value = ''; inp.disabled = false; inp.className = 'ans-input';
