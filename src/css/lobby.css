@@ -1,0 +1,72 @@
+#online-lobby {
+  min-height: 100vh; overflow-y: auto;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+}
+
+.lobby-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1.5rem; width: 100%; max-width: 680px;
+}
+
+.lobby-title { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+
+.lobby-cols {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  justify-content: center; width: 100%;
+}
+
+.lobby-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.6rem 1.5rem; flex: 1; min-width: 220px; max-width: 300px;
+  display: flex; flex-direction: column; gap: .9rem; text-align: left;
+}
+.lobby-card h3 { font-size: 1rem; font-weight: 800; color: var(--gold); }
+
+.ol-hint { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+
+.btn-level-online {
+  flex: 1; padding: .5rem .25rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-level-online.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
+.ol-input {
+  background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: .65rem .9rem;
+  font-size: 1.5rem; font-family: monospace; font-weight: 700;
+  letter-spacing: .25em; text-align: center; text-transform: uppercase;
+  width: 100%; transition: border-color .15s;
+}
+.ol-input:focus { outline: none; border-color: var(--player-b); }
+.ol-input::placeholder { letter-spacing: .1em; font-size: 1rem; }
+
+.lobby-waiting {
+  display: flex; flex-direction: column; align-items: center; gap: .75rem;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 2rem 2.5rem; width: 100%;
+}
+.ol-code-label {
+  font-size: .78rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.ol-code-box {
+  font-size: 3rem; font-weight: 900; font-family: monospace; letter-spacing: .3em;
+  color: var(--gold); background: var(--bg3); border-radius: 10px;
+  padding: .5rem 1.5rem; border: 2px solid rgba(240,192,64,.4);
+}
+.ol-status-text { font-size: .9rem; color: var(--muted); }
+
+.ol-error { font-size: .88rem; color: var(--red); min-height: 1.2em; }
+
+.ol-back { align-self: center; }
+
+.btn-mode-online {
+  background: transparent; border: 1px solid var(--player-b);
+  color: var(--player-b); border-radius: 8px;
+  padding: .65rem 1.5rem; font-size: .88rem; font-weight: 700;
+  cursor: pointer; transition: all .15s; text-align: center; width: 100%;
+}
+.btn-mode-online:hover { background: rgba(88,166,255,.12); }

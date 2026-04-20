@@ -1,0 +1,37 @@
+<div id="online-lobby" class="screen">
+  <div class="lobby-wrap">
+    <div class="g-logo" style="font-size:2rem;-webkit-text-fill-color:transparent">Contorno</div>
+    <h2 class="lobby-title">⚔️ Disputa Online</h2>
+
+    <div id="ol-setup" class="lobby-cols">
+      <div class="lobby-card">
+        <h3>Nova Sala</h3>
+        <p class="ol-hint">Escolha a dificuldade, crie a sala e compartilhe o código com seu adversário.</p>
+        <div class="level-picker">
+          <button class="btn-level-online active" data-level="1">Fácil</button>
+          <button class="btn-level-online" data-level="2">Médio</button>
+          <button class="btn-level-online" data-level="3">Difícil</button>
+        </div>
+        <button class="btn-mode" id="ol-btn-create">Criar Sala</button>
+      </div>
+
+      <div class="lobby-card">
+        <h3>Entrar em Sala</h3>
+        <p class="ol-hint">Digite o código de 4 caracteres enviado pelo criador da sala.</p>
+        <input id="ol-join-input" class="ol-input" type="text" maxlength="4"
+               placeholder="XXXX" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="btn-mode" id="ol-btn-join">Entrar</button>
+      </div>
+    </div>
+
+    <div id="ol-waiting" class="lobby-waiting" style="display:none">
+      <div class="ol-code-label">Código da sala</div>
+      <div class="ol-code-box" id="ol-room-code">----</div>
+      <div class="ol-status-text" id="ol-waiting-text">Aguardando adversário…</div>
+    </div>
+
+    <div id="ol-error" class="ol-error"></div>
+
+    <button class="btn-secondary ol-back" id="ol-btn-back">← Voltar</button>
+  </div>
+</div>

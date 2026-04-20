@@ -171,8 +171,9 @@ function duelWrong(q) {
     } else {
       if (!ds.tbACorrect) {
         paintD(q.id, 'var(--red)');
+        inp.value = q.pt;
         ds.results.push({ id: q.id, country: q.pt, pts: 0, player: -1, stolen: false });
-        setFeedback('d-feedback', '✗ Ambos erraram! Nova Rodada de Fogo…', 'bad');
+        setFeedback('d-feedback', `✗ Ambos erraram! Era ${q.pt}. Nova Rodada de Fogo…`, 'bad');
         setTimeout(() => duelTbNext(q, true), 2000);
       } else {
         paintD(q.id, 'var(--red)');
@@ -189,7 +190,8 @@ function duelWrong(q) {
     document.getElementById('d-submit').disabled = true;
     document.getElementById('d-giveup').disabled = true;
     paintD(q.id, 'var(--red)');
-    setFeedback('d-feedback', '✗ Incorreto. Nenhum ponto nesta pergunta.', 'bad');
+    inp.value = q.pt;
+    setFeedback('d-feedback', `✗ Incorreto. Era ${q.pt}. Nenhum ponto nesta pergunta.`, 'bad');
     ds.results.push({ id: q.id, country: q.pt, pts: 0, player: -1, stolen: false });
     setTimeout(duelAdvance, 2000);
     return;

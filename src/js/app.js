@@ -20,5 +20,8 @@ function showScreen(id) {
 }
 
 function confirmQuit() {
-  if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
+  if (confirm('Deseja sair? Seu progresso será perdido.')) {
+    if (isOnlineMode) disconnectOnline();
+    else showScreen('home');
+  }
 }

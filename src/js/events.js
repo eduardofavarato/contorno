@@ -28,6 +28,7 @@ document.querySelectorAll('.btn-continent').forEach(btn => {
 // Home
 document.getElementById('btn-play').addEventListener('click', startGame);
 document.getElementById('btn-duel').addEventListener('click', startDuel);
+document.getElementById('btn-duel-online').addEventListener('click', startOnlineDuel);
 document.getElementById('btn-continent').addEventListener('click', startContinentMode);
 document.getElementById('btn-free').addEventListener('click', startFreeMode);
 
@@ -45,15 +46,27 @@ document.getElementById('btn-again').addEventListener('click', () => { if (gs.re
 document.getElementById('btn-home').addEventListener('click',  () => showScreen('home'));
 
 // Modo Disputa
-document.getElementById('d-submit').addEventListener('click', duelSubmit);
-document.getElementById('d-giveup').addEventListener('click', duelGiveUp);
-document.getElementById('d-ans').addEventListener('keydown', e => { if (e.key === 'Enter') duelSubmit(); });
+document.getElementById('d-submit').addEventListener('click', () => isOnlineMode ? submitOnline() : duelSubmit());
+document.getElementById('d-giveup').addEventListener('click', () => isOnlineMode ? giveUpOnline() : duelGiveUp());
+document.getElementById('d-ans').addEventListener('keydown', e => { if (e.key === 'Enter') isOnlineMode ? submitOnline() : duelSubmit(); });
 document.getElementById('d-logo').addEventListener('click', confirmQuit);
 document.getElementById('d-quit').addEventListener('click', confirmQuit);
 document.getElementById('d-zoom-in').addEventListener('click',  () => zoomBy(dSvgSel, dZoom, 1.5));
 document.getElementById('d-zoom-out').addEventListener('click', () => zoomBy(dSvgSel, dZoom, 1 / 1.5));
-document.getElementById('d-btn-again').addEventListener('click', startDuel);
-document.getElementById('d-btn-home').addEventListener('click', () => showScreen('home'));
+document.getElementById('d-btn-again').addEventListener('click', () => isOnlineMode ? disconnectOnline() : startDuel());
+document.getElementById('d-btn-home').addEventListener('click', () => isOnlineMode ? disconnectOnline() : showScreen('home'));
+
+// Lobby Online
+document.getElementById('ol-btn-create').addEventListener('click', createRoom);
+document.getElementById('ol-btn-join').addEventListener('click', joinRoom);
+document.getElementById('ol-btn-back').addEventListener('click', () => { if (onlineSocket) { onlineSocket.close(); onlineSocket = null; } showScreen('home'); });
+document.getElementById('ol-join-input').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+document.querySelectorAll('.btn-level-online').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level-online').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 
 // Modo Livre
 document.getElementById('f-submit').addEventListener('click', submitFree);

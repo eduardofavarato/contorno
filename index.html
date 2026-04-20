@@ -348,6 +348,79 @@ body {
 }
 .duel-final-scores strong { color: var(--text); font-size: 1.25rem; }
 
+#online-lobby {
+  min-height: 100vh; overflow-y: auto;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+}
+
+.lobby-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1.5rem; width: 100%; max-width: 680px;
+}
+
+.lobby-title { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+
+.lobby-cols {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  justify-content: center; width: 100%;
+}
+
+.lobby-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.6rem 1.5rem; flex: 1; min-width: 220px; max-width: 300px;
+  display: flex; flex-direction: column; gap: .9rem; text-align: left;
+}
+.lobby-card h3 { font-size: 1rem; font-weight: 800; color: var(--gold); }
+
+.ol-hint { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+
+.btn-level-online {
+  flex: 1; padding: .5rem .25rem; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--muted); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-level-online.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
+.ol-input {
+  background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: .65rem .9rem;
+  font-size: 1.5rem; font-family: monospace; font-weight: 700;
+  letter-spacing: .25em; text-align: center; text-transform: uppercase;
+  width: 100%; transition: border-color .15s;
+}
+.ol-input:focus { outline: none; border-color: var(--player-b); }
+.ol-input::placeholder { letter-spacing: .1em; font-size: 1rem; }
+
+.lobby-waiting {
+  display: flex; flex-direction: column; align-items: center; gap: .75rem;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 2rem 2.5rem; width: 100%;
+}
+.ol-code-label {
+  font-size: .78rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.ol-code-box {
+  font-size: 3rem; font-weight: 900; font-family: monospace; letter-spacing: .3em;
+  color: var(--gold); background: var(--bg3); border-radius: 10px;
+  padding: .5rem 1.5rem; border: 2px solid rgba(240,192,64,.4);
+}
+.ol-status-text { font-size: .9rem; color: var(--muted); }
+
+.ol-error { font-size: .88rem; color: var(--red); min-height: 1.2em; }
+
+.ol-back { align-self: center; }
+
+.btn-mode-online {
+  background: transparent; border: 1px solid var(--player-b);
+  color: var(--player-b); border-radius: 8px;
+  padding: .65rem 1.5rem; font-size: .88rem; font-weight: 700;
+  cursor: pointer; transition: all .15s; text-align: center; width: 100%;
+}
+.btn-mode-online:hover { background: rgba(88,166,255,.12); }
+
 @media (max-width: 480px) {
   .g-stats { gap: .85rem; }
   .stat-val { font-size: 1rem; }
@@ -443,7 +516,8 @@ body {
         <button class="btn-level-duel" data-level="2">Médio</button>
         <button class="btn-level-duel" data-level="3">Difícil</button>
       </div>
-      <button class="btn-mode" id="btn-duel">Jogar</button>
+      <button class="btn-mode" id="btn-duel">Jogar (Local)</button>
+      <button class="btn-mode-online" id="btn-duel-online">🌐 Jogar Online</button>
     </div>
 
     <!-- Modo Livre -->
@@ -618,6 +692,44 @@ body {
   </div>
 </div>
 
+<div id="online-lobby" class="screen">
+  <div class="lobby-wrap">
+    <div class="g-logo" style="font-size:2rem;-webkit-text-fill-color:transparent">Contorno</div>
+    <h2 class="lobby-title">⚔️ Disputa Online</h2>
+
+    <div id="ol-setup" class="lobby-cols">
+      <div class="lobby-card">
+        <h3>Nova Sala</h3>
+        <p class="ol-hint">Escolha a dificuldade, crie a sala e compartilhe o código com seu adversário.</p>
+        <div class="level-picker">
+          <button class="btn-level-online active" data-level="1">Fácil</button>
+          <button class="btn-level-online" data-level="2">Médio</button>
+          <button class="btn-level-online" data-level="3">Difícil</button>
+        </div>
+        <button class="btn-mode" id="ol-btn-create">Criar Sala</button>
+      </div>
+
+      <div class="lobby-card">
+        <h3>Entrar em Sala</h3>
+        <p class="ol-hint">Digite o código de 4 caracteres enviado pelo criador da sala.</p>
+        <input id="ol-join-input" class="ol-input" type="text" maxlength="4"
+               placeholder="XXXX" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="btn-mode" id="ol-btn-join">Entrar</button>
+      </div>
+    </div>
+
+    <div id="ol-waiting" class="lobby-waiting" style="display:none">
+      <div class="ol-code-label">Código da sala</div>
+      <div class="ol-code-box" id="ol-room-code">----</div>
+      <div class="ol-status-text" id="ol-waiting-text">Aguardando adversário…</div>
+    </div>
+
+    <div id="ol-error" class="ol-error"></div>
+
+    <button class="btn-secondary ol-back" id="ol-btn-back">← Voltar</button>
+  </div>
+</div>
+
 <div id="results" class="screen">
   <div class="r-logo">Contorno</div>
 
@@ -642,6 +754,11 @@ body {
 
 
 <script>
+// For local dev: npm run dev (partykit dev runs on port 1999)
+// For production: update to your deployed PartyKit host, e.g. contorno.username.partykit.dev
+const PARTYKIT_HOST = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'localhost:1999'
+  : 'contorno.eduardofavarato.partykit.dev';
 const DB = {
   4:   { pt:"Afeganistão",               a:["afeganistao","afghanistan"] },
   8:   { pt:"Albânia",                   a:["albania"] },
@@ -899,6 +1016,8 @@ let dZoom, dSvgSel;
 let selectedLevel     = 1;
 let selectedContinent = 'sul';
 let selectedDuelLevel = 1;
+
+let isOnlineMode = false;
 async function init() {
   const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
   worldTopo = await resp.json();
@@ -921,7 +1040,10 @@ function showScreen(id) {
 }
 
 function confirmQuit() {
-  if (confirm('Deseja sair? Seu progresso será perdido.')) showScreen('home');
+  if (confirm('Deseja sair? Seu progresso será perdido.')) {
+    if (isOnlineMode) disconnectOnline();
+    else showScreen('home');
+  }
 }
 function buildMapInto(svgId, areaId, options = {}) {
   const el  = document.getElementById(areaId);
@@ -1570,8 +1692,9 @@ function duelWrong(q) {
     } else {
       if (!ds.tbACorrect) {
         paintD(q.id, 'var(--red)');
+        inp.value = q.pt;
         ds.results.push({ id: q.id, country: q.pt, pts: 0, player: -1, stolen: false });
-        setFeedback('d-feedback', '✗ Ambos erraram! Nova Rodada de Fogo…', 'bad');
+        setFeedback('d-feedback', `✗ Ambos erraram! Era ${q.pt}. Nova Rodada de Fogo…`, 'bad');
         setTimeout(() => duelTbNext(q, true), 2000);
       } else {
         paintD(q.id, 'var(--red)');
@@ -1588,7 +1711,8 @@ function duelWrong(q) {
     document.getElementById('d-submit').disabled = true;
     document.getElementById('d-giveup').disabled = true;
     paintD(q.id, 'var(--red)');
-    setFeedback('d-feedback', '✗ Incorreto. Nenhum ponto nesta pergunta.', 'bad');
+    inp.value = q.pt;
+    setFeedback('d-feedback', `✗ Incorreto. Era ${q.pt}. Nenhum ponto nesta pergunta.`, 'bad');
     ds.results.push({ id: q.id, country: q.pt, pts: 0, player: -1, stolen: false });
     setTimeout(duelAdvance, 2000);
     return;
@@ -1669,6 +1793,251 @@ function duelEndGame(winner) {
   const winEl = document.getElementById('d-winner-text');
   winEl.textContent = winner === 'A' ? '🏆 Jogador A vence!' : '🏆 Jogador B vence!';
 }
+let onlineRole         = null;  // 'a' or 'b'
+let onlineSocket       = null;
+let onlineAnswered     = false;
+let onlineActivePlayer = null;
+
+function generateRoomCode() {
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
+function startOnlineDuel() {
+  onlineRole = null; onlineAnswered = false;
+  document.getElementById('ol-setup').style.display = '';
+  document.getElementById('ol-waiting').style.display = 'none';
+  document.getElementById('ol-error').textContent = '';
+  document.getElementById('ol-join-input').value = '';
+  showScreen('online-lobby');
+}
+
+async function connectToRoom(roomCode, level, isCreator) {
+  if (onlineSocket) { onlineSocket.close(); onlineSocket = null; }
+  document.getElementById('ol-error').textContent = '';
+
+  try {
+    const { default: PartySocket } = await import('https://esm.sh/partysocket@1');
+    onlineSocket = new PartySocket({ host: PARTYKIT_HOST, room: roomCode.toLowerCase() });
+
+    onlineSocket.addEventListener('open', () => {
+      if (isCreator) onlineSocket.send(JSON.stringify({ type: 'set_level', level }));
+    });
+    onlineSocket.addEventListener('message', e => handleOnlineMessage(JSON.parse(e.data)));
+    onlineSocket.addEventListener('error', () => {
+      document.getElementById('ol-error').textContent = 'Erro de conexão. Tente novamente.';
+    });
+  } catch (_) {
+    document.getElementById('ol-error').textContent = 'Não foi possível conectar.';
+  }
+}
+
+function createRoom() {
+  const level = parseInt(document.querySelector('.btn-level-online.active')?.dataset.level || '1');
+  const code  = generateRoomCode();
+  document.getElementById('ol-room-code').textContent  = code;
+  document.getElementById('ol-waiting-text').textContent = 'Aguardando adversário…';
+  document.getElementById('ol-setup').style.display   = 'none';
+  document.getElementById('ol-waiting').style.display = 'block';
+  connectToRoom(code, level, true);
+}
+
+function joinRoom() {
+  const code = document.getElementById('ol-join-input').value.trim().toUpperCase();
+  if (!code) { document.getElementById('ol-error').textContent = 'Digite o código da sala.'; return; }
+  document.getElementById('ol-error').textContent = 'Conectando…';
+  connectToRoom(code, 1, false);
+}
+
+function handleOnlineMessage(msg) {
+  switch (msg.type) {
+    case 'assigned':
+      onlineRole = msg.role;
+      if (msg.role === 'b') {
+        document.getElementById('ol-setup').style.display   = 'none';
+        document.getElementById('ol-waiting').style.display = 'block';
+        document.getElementById('ol-waiting-text').textContent = 'Conectado! Aguardando início…';
+        document.getElementById('ol-error').textContent = '';
+      }
+      break;
+
+    case 'both_connected':
+      isOnlineMode = true;
+      showScreen('duel');
+      requestAnimationFrame(() => requestAnimationFrame(buildDuelMap));
+      break;
+
+    case 'question':      handleOnlineQuestion(msg);      break;
+    case 'answer_result': handleOnlineAnswerResult(msg);  break;
+    case 'tb_result':     handleOnlineTbResult(msg);      break;
+
+    case 'tb_switch':
+      paintD(msg.countryId, 'var(--gold)');
+      break;
+
+    case 'tiebreaker_start':
+      setFeedback('d-feedback', '🔥 Rodada de Fogo!', 'ok');
+      break;
+
+    case 'game_over':
+      handleOnlineGameOver(msg);
+      break;
+
+    case 'opponent_left':
+      setFeedback('d-feedback', '⚠️ Adversário desconectou!', 'bad');
+      setTimeout(disconnectOnline, 3000);
+      break;
+
+    case 'room_full':
+      document.getElementById('ol-error').textContent = 'Sala cheia! Tente outro código.';
+      break;
+  }
+}
+
+function handleOnlineQuestion(msg) {
+  const { countryId, activePlayer, gamePhase, idx, scores, inTiebreaker, qPts, subLabel } = msg;
+  onlineActivePlayer = activePlayer;
+  onlineAnswered     = false;
+
+  const myIdx    = onlineRole === 'a' ? 0 : 1;
+  const amActive = myIdx === activePlayer;
+  const pname    = ['Jogador A', 'Jogador B'][activePlayer];
+
+  document.getElementById('d-sa').textContent = fmt(scores[0]);
+  document.getElementById('d-sb').textContent = fmt(scores[1]);
+  document.getElementById('d-box-a').classList.toggle('active', activePlayer === 0);
+  document.getElementById('d-box-b').classList.toggle('active', activePlayer === 1);
+
+  document.getElementById('d-active-name').textContent = (inTiebreaker || gamePhase === 'steal') ? `🔥 ${pname}` : pname;
+  document.getElementById('d-turn').textContent        = subLabel;
+  document.getElementById('d-pts').textContent         = fmt(inTiebreaker ? MAX_PTS : qPts);
+
+  if (inTiebreaker) {
+    document.getElementById('d-prog').style.width = '100%';
+  } else if (gamePhase !== 'steal') {
+    document.getElementById('d-prog').style.width = `${(idx / DUEL_Q) * 100}%`;
+  }
+
+  const banner = document.querySelector('.duel-active-banner');
+  banner.classList.remove('pa', 'pb');
+  banner.classList.add(activePlayer === 0 ? 'pa' : 'pb');
+
+  const inp = document.getElementById('d-ans');
+  inp.value = ''; inp.className = 'ans-input';
+
+  if (amActive) {
+    inp.disabled = false;
+    inp.placeholder = 'Digite o nome do país…';
+    document.getElementById('d-submit').disabled = false;
+    document.getElementById('d-giveup').disabled = gamePhase !== 'primary' || inTiebreaker;
+    inp.focus();
+  } else {
+    inp.disabled = true;
+    inp.placeholder = 'Vez do adversário…';
+    document.getElementById('d-submit').disabled = true;
+    document.getElementById('d-giveup').disabled = true;
+  }
+
+  setFeedback('d-feedback', '');
+  paintD(countryId, 'var(--gold)');
+  zoomToCountryDuel(countryId);
+}
+
+function handleOnlineAnswerResult(msg) {
+  const { correct, countryId, pts, scorer, stolen, stealFailed, primaryFailed, gaveUp, stealer, scores } = msg;
+  onlineAnswered = true;
+
+  document.getElementById('d-sa').textContent = fmt(scores[0]);
+  document.getElementById('d-sb').textContent = fmt(scores[1]);
+  document.getElementById('d-ans').disabled   = true;
+  document.getElementById('d-submit').disabled = true;
+  document.getElementById('d-giveup').disabled = true;
+
+  if (correct) {
+    paintD(countryId, 'var(--green)');
+    const pname = ['Jogador A', 'Jogador B'][scorer];
+    setFeedback('d-feedback',
+      stolen ? `✓ Roubo de ${pname}! +${fmt(pts)} pts` : `✓ Correto! +${fmt(pts)} pts`,
+      'ok');
+  } else if (stealFailed) {
+    paintD(countryId, 'var(--red)');
+    setFeedback('d-feedback', '✗ Incorreto. Nenhum ponto nesta pergunta.', 'bad');
+  } else if (primaryFailed) {
+    paintD(countryId, 'var(--red)');
+    const sname = ['Jogador A', 'Jogador B'][stealer];
+    setFeedback('d-feedback',
+      gaveUp ? `${sname} pode roubar por ${fmt(STEAL_PTS)} pts!`
+             : `✗ Incorreto! ${sname} pode roubar por ${fmt(STEAL_PTS)} pts.`,
+      'bad');
+  }
+}
+
+function handleOnlineTbResult(msg) {
+  const { correct, phase, countryId, bothCorrect, bothMissed, winner } = msg;
+  onlineAnswered = true;
+  document.getElementById('d-ans').disabled    = true;
+  document.getElementById('d-submit').disabled = true;
+  document.getElementById('d-giveup').disabled = true;
+
+  if (phase === 'tb-a') {
+    setFeedback('d-feedback',
+      correct ? '✓ Correto! Vez do Jogador B…' : '✗ Incorreto! Vez do Jogador B…',
+      correct ? 'ok' : 'bad');
+  } else {
+    if (bothMissed) {
+      paintD(countryId, 'var(--red)');
+      setFeedback('d-feedback', '✗ Ambos erraram! Nova Rodada de Fogo…', 'bad');
+    } else if (bothCorrect) {
+      paintD(countryId, 'var(--green)');
+      setFeedback('d-feedback', '✓ Ambos acertaram! Nova Rodada de Fogo…', 'ok');
+    } else if (winner === 0) {
+      paintD(countryId, 'var(--red)');
+      setFeedback('d-feedback', '✗ Incorreto! Jogador A vence!', 'bad');
+    } else {
+      paintD(countryId, 'var(--green)');
+      setFeedback('d-feedback', '✓ Correto! Jogador B vence!', 'ok');
+    }
+  }
+}
+
+function handleOnlineGameOver(msg) {
+  const { winner, scores } = msg;
+  showScreen('duel-results');
+  document.getElementById('dr-sa').textContent = fmt(scores[0]);
+  document.getElementById('dr-sb').textContent = fmt(scores[1]);
+  document.getElementById('d-winner-text').textContent =
+    winner === 'A' ? '🏆 Jogador A vence!'
+  : winner === 'B' ? '🏆 Jogador B vence!'
+  :                  '🤝 Empate!';
+}
+
+function submitOnline() {
+  if (onlineAnswered) return;
+  const myIdx = onlineRole === 'a' ? 0 : 1;
+  if (myIdx !== onlineActivePlayer) return;
+  const val = document.getElementById('d-ans').value.trim();
+  if (!val) return;
+  onlineAnswered = true;
+  document.getElementById('d-ans').disabled    = true;
+  document.getElementById('d-submit').disabled = true;
+  document.getElementById('d-giveup').disabled = true;
+  onlineSocket.send(JSON.stringify({ type: 'answer', value: val }));
+}
+
+function giveUpOnline() {
+  if (onlineAnswered) return;
+  const myIdx = onlineRole === 'a' ? 0 : 1;
+  if (myIdx !== onlineActivePlayer) return;
+  onlineAnswered = true;
+  document.getElementById('d-giveup').disabled = true;
+  onlineSocket.send(JSON.stringify({ type: 'give_up' }));
+}
+
+function disconnectOnline() {
+  if (onlineSocket) { onlineSocket.close(); onlineSocket = null; }
+  isOnlineMode = false;
+  onlineRole   = null;
+  showScreen('home');
+}
 // Level picker — Modo Perguntas
 document.querySelectorAll('.btn-level').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1699,6 +2068,7 @@ document.querySelectorAll('.btn-continent').forEach(btn => {
 // Home
 document.getElementById('btn-play').addEventListener('click', startGame);
 document.getElementById('btn-duel').addEventListener('click', startDuel);
+document.getElementById('btn-duel-online').addEventListener('click', startOnlineDuel);
 document.getElementById('btn-continent').addEventListener('click', startContinentMode);
 document.getElementById('btn-free').addEventListener('click', startFreeMode);
 
@@ -1716,15 +2086,27 @@ document.getElementById('btn-again').addEventListener('click', () => { if (gs.re
 document.getElementById('btn-home').addEventListener('click',  () => showScreen('home'));
 
 // Modo Disputa
-document.getElementById('d-submit').addEventListener('click', duelSubmit);
-document.getElementById('d-giveup').addEventListener('click', duelGiveUp);
-document.getElementById('d-ans').addEventListener('keydown', e => { if (e.key === 'Enter') duelSubmit(); });
+document.getElementById('d-submit').addEventListener('click', () => isOnlineMode ? submitOnline() : duelSubmit());
+document.getElementById('d-giveup').addEventListener('click', () => isOnlineMode ? giveUpOnline() : duelGiveUp());
+document.getElementById('d-ans').addEventListener('keydown', e => { if (e.key === 'Enter') isOnlineMode ? submitOnline() : duelSubmit(); });
 document.getElementById('d-logo').addEventListener('click', confirmQuit);
 document.getElementById('d-quit').addEventListener('click', confirmQuit);
 document.getElementById('d-zoom-in').addEventListener('click',  () => zoomBy(dSvgSel, dZoom, 1.5));
 document.getElementById('d-zoom-out').addEventListener('click', () => zoomBy(dSvgSel, dZoom, 1 / 1.5));
-document.getElementById('d-btn-again').addEventListener('click', startDuel);
-document.getElementById('d-btn-home').addEventListener('click', () => showScreen('home'));
+document.getElementById('d-btn-again').addEventListener('click', () => isOnlineMode ? disconnectOnline() : startDuel());
+document.getElementById('d-btn-home').addEventListener('click', () => isOnlineMode ? disconnectOnline() : showScreen('home'));
+
+// Lobby Online
+document.getElementById('ol-btn-create').addEventListener('click', createRoom);
+document.getElementById('ol-btn-join').addEventListener('click', joinRoom);
+document.getElementById('ol-btn-back').addEventListener('click', () => { if (onlineSocket) { onlineSocket.close(); onlineSocket = null; } showScreen('home'); });
+document.getElementById('ol-join-input').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+document.querySelectorAll('.btn-level-online').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level-online').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 
 // Modo Livre
 document.getElementById('f-submit').addEventListener('click', submitFree);

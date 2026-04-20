@@ -17,3 +17,5 @@ let dZoom, dSvgSel;
 let selectedLevel     = 1;
 let selectedContinent = 'sul';
 let selectedDuelLevel = 1;
+
+let isOnlineMode = false;
