@@ -1,5 +1,14 @@
 function paintD(id, color) { d3.select(`#d${id}`).attr('fill', color).raise(); }
 
+function showTurnToast(name, sub) {
+  const toast = document.getElementById('duel-turn-toast');
+  document.getElementById('dtt-name').textContent = name;
+  document.getElementById('dtt-sub').textContent  = sub;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+}
+
 function duelTooltipHandler(id, event, phase) {
   const tooltip = document.getElementById('d-tooltip');
   const results = isOnlineMode ? onlineResults : ds.results;
@@ -95,6 +104,9 @@ function duelAsk() {
   const banner = document.querySelector('.duel-active-banner');
   banner.classList.toggle('pa', pIdx === 0);
   banner.classList.toggle('pb', pIdx === 1);
+  const duelEl = document.getElementById('duel');
+  duelEl.classList.toggle('pa', pIdx === 0);
+  duelEl.classList.toggle('pb', pIdx === 1);
 
   const inp = document.getElementById('d-ans');
   inp.value = ''; inp.disabled = false; inp.className = 'ans-input';
@@ -105,6 +117,7 @@ function duelAsk() {
 
   paintD(q.id, 'var(--gold)');
   zoomToCountryDuel(q.id);
+  showTurnToast(activeName, subLabel);
   inp.focus();
 }
 

@@ -2,14 +2,17 @@
 .duel-player-box {
   background: var(--bg3); border: 2px solid var(--border); border-radius: 8px;
   padding: .3rem .7rem; text-align: center; transition: all .25s; min-width: 64px;
+  opacity: .45;
 }
 #d-box-a.active {
-  border-color: var(--player-a); background: rgba(240,192,64,.15);
-  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(240,192,64,.25);
+  border-color: var(--player-a); background: rgba(240,192,64,.18);
+  transform: scale(1.13); box-shadow: 0 0 0 4px rgba(240,192,64,.3);
+  opacity: 1;
 }
 #d-box-b.active {
-  border-color: var(--player-b); background: rgba(88,166,255,.15);
-  transform: scale(1.1); box-shadow: 0 0 0 3px rgba(88,166,255,.25);
+  border-color: var(--player-b); background: rgba(88,166,255,.18);
+  transform: scale(1.13); box-shadow: 0 0 0 4px rgba(88,166,255,.3);
+  opacity: 1;
 }
 .duel-pname    { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
 #d-sa          { font-size: 1.05rem; font-weight: 700; color: var(--player-a); }
@@ -19,25 +22,66 @@
 
 .duel-active-banner {
   display: flex; align-items: center; gap: .55rem;
-  padding: .55rem 1.25rem; border-bottom: 1px solid var(--border);
-  transition: background .3s;
+  padding: .6rem 1.25rem; border-bottom: 1px solid var(--border);
+  border-left: 4px solid transparent;
+  transition: background .25s, border-color .25s;
 }
-.duel-active-banner.pa { background: rgba(240,192,64,.07); }
-.duel-active-banner.pb { background: rgba(88,166,255,.07); }
+.duel-active-banner.pa { background: rgba(240,192,64,.15); border-left-color: var(--player-a); }
+.duel-active-banner.pb { background: rgba(88,166,255,.15); border-left-color: var(--player-b); }
 .duel-active-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  animation: duel-pulse 1.4s ease-in-out infinite;
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  animation: duel-pulse 1.2s ease-in-out infinite;
 }
-.duel-active-banner.pa .duel-active-dot { background: var(--player-a); box-shadow: 0 0 0 3px rgba(240,192,64,.3); }
-.duel-active-banner.pb .duel-active-dot { background: var(--player-b); box-shadow: 0 0 0 3px rgba(88,166,255,.3); }
+.duel-active-banner.pa .duel-active-dot { background: var(--player-a); box-shadow: 0 0 0 4px rgba(240,192,64,.3); }
+.duel-active-banner.pb .duel-active-dot { background: var(--player-b); box-shadow: 0 0 0 4px rgba(88,166,255,.3); }
 @keyframes duel-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: .4; }
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%       { opacity: .5; transform: scale(.8); }
 }
-.duel-active-name { font-size: 1rem; font-weight: 800; transition: color .3s; }
+.duel-active-name { font-size: 1.15rem; font-weight: 800; transition: color .25s; }
 .duel-active-banner.pa .duel-active-name { color: var(--player-a); }
 .duel-active-banner.pb .duel-active-name { color: var(--player-b); }
-.duel-active-sub  { font-size: .78rem; color: var(--muted); margin-left: auto; }
+.duel-active-sub  { font-size: .8rem; color: var(--muted); margin-left: auto; }
+
+/* Input e borda do painel inferior refletem o jogador ativo */
+#duel.pa .g-bottom { border-top-color: rgba(240,192,64,.5); }
+#duel.pb .g-bottom { border-top-color: rgba(88,166,255,.5); }
+#duel.pa #d-ans:not(:disabled) { border-color: rgba(240,192,64,.55); }
+#duel.pb #d-ans:not(:disabled) { border-color: rgba(88,166,255,.55); }
+
+/* ── Turn toast ─────────────────────────────────────────────── */
+#duel-turn-toast {
+  position: absolute; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: 0;
+}
+#duel-turn-toast.show { animation: dtt-pop 1.3s ease forwards; }
+
+.dtt-card {
+  background: rgba(13,17,23,.92); backdrop-filter: blur(6px);
+  border: 2px solid; border-radius: 20px;
+  padding: 1.6rem 3.5rem; text-align: center;
+  box-shadow: 0 12px 50px rgba(0,0,0,.7);
+}
+#duel.pa .dtt-card { border-color: var(--player-a); box-shadow: 0 0 0 1px var(--player-a), 0 12px 50px rgba(0,0,0,.7); }
+#duel.pb .dtt-card { border-color: var(--player-b); box-shadow: 0 0 0 1px var(--player-b), 0 12px 50px rgba(0,0,0,.7); }
+
+.dtt-name { font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 900; line-height: 1; }
+#duel.pa .dtt-name { color: var(--player-a); }
+#duel.pb .dtt-name { color: var(--player-b); }
+
+.dtt-sub {
+  font-size: .8rem; color: var(--muted); margin-top: .5rem;
+  text-transform: uppercase; letter-spacing: .12em;
+}
+
+@keyframes dtt-pop {
+  0%   { opacity: 0; transform: scale(.7);  }
+  14%  { opacity: 1; transform: scale(1.04); }
+  22%  { opacity: 1; transform: scale(1);   }
+  68%  { opacity: 1; transform: scale(1);   }
+  100% { opacity: 0; transform: scale(.92); }
+}
 
 #duel-results {
   min-height: 100vh; overflow-y: auto;

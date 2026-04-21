@@ -128,6 +128,9 @@ function handleOnlineQuestion(msg) {
   const banner = document.querySelector('.duel-active-banner');
   banner.classList.remove('pa', 'pb');
   banner.classList.add(activePlayer === 0 ? 'pa' : 'pb');
+  const duelEl = document.getElementById('duel');
+  duelEl.classList.remove('pa', 'pb');
+  duelEl.classList.add(activePlayer === 0 ? 'pa' : 'pb');
 
   const inp = document.getElementById('d-ans');
   inp.value = ''; inp.className = 'ans-input';
@@ -148,6 +151,8 @@ function handleOnlineQuestion(msg) {
   setFeedback('d-feedback', '');
   paintD(countryId, 'var(--gold)');
   zoomToCountryDuel(countryId);
+  const displayName = (inTiebreaker || gamePhase === 'steal') ? `🔥 ${pname}` : pname;
+  showTurnToast(displayName, subLabel);
 }
 
 function handleOnlineAnswerResult(msg) {
