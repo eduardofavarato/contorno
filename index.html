@@ -1110,12 +1110,11 @@ function zoomBy(svgSel, zoom, factor) {
   if (svgSel && zoom) svgSel.transition().duration(250).call(zoom.scaleBy, factor);
 }
 
-function zoomToCountry(id) {
-  const path = document.getElementById(`c${id}`);
-  if (!path || !gSvgSel || !gZoom) return;
-  const el = document.getElementById('map-area');
-  const W = el.clientWidth;
-  const H = el.clientHeight;
+function zoomToCountryOn(id, prefix, svgSel, zoom, areaId) {
+  const path = document.getElementById(`${prefix}${id}`);
+  if (!path || !svgSel || !zoom) return;
+  const el = document.getElementById(areaId);
+  const W = el.clientWidth, H = el.clientHeight;
   try {
     const b = path.getBBox();
     if (b.width === 0 && b.height === 0) return;
@@ -1123,28 +1122,13 @@ function zoomToCountry(id) {
     const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
     const tx = (W - scale * (b.x * 2 + b.width)) / 2;
     const ty = (H - scale * (b.y * 2 + b.height)) / 2;
-    gSvgSel.transition().duration(900)
-      .call(gZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+    svgSel.transition().duration(900)
+      .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
   } catch (e) {}
 }
 
-function zoomToCountryDuel(id) {
-  const path = document.getElementById(`d${id}`);
-  if (!path || !dSvgSel || !dZoom) return;
-  const el = document.getElementById('duel-map-area');
-  const W = el.clientWidth;
-  const H = el.clientHeight;
-  try {
-    const b = path.getBBox();
-    if (b.width === 0 && b.height === 0) return;
-    const pad = 160;
-    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
-    const tx = (W - scale * (b.x * 2 + b.width)) / 2;
-    const ty = (H - scale * (b.y * 2 + b.height)) / 2;
-    dSvgSel.transition().duration(900)
-      .call(dZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-  } catch (e) {}
-}
+function zoomToCountry(id)     { zoomToCountryOn(id, 'c', gSvgSel, gZoom, 'map-area'); }
+function zoomToCountryDuel(id) { zoomToCountryOn(id, 'd', dSvgSel, dZoom, 'duel-map-area'); }
 
 function zoomToContinent() {
   const cont = CONTINENT_POOLS[selectedContinent];
