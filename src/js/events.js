@@ -90,14 +90,24 @@ window.addEventListener('resize', () => {
       const q = gs.qs?.[gs.idx];
       buildQMap();
       gs.results?.forEach(r => paintQ(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
-      if (q && !gs.answered) paintQ(q.id, 'var(--gold)');
+      if (q && !gs.answered) {
+        paintQ(q.id, 'var(--gold)');
+        if (gs.perQuestionZoom) zoomToCountry(q.id);
+        else zoomToContinent();
+      }
     } else if (document.getElementById('free').classList.contains('active')) {
       buildFreeMap();
     } else if (document.getElementById('duel').classList.contains('active')) {
-      const q = duelCurrentQ();
-      buildDuelMap();
-      ds.results?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
-      if (q && !ds.answered) paintD(q.id, 'var(--gold)');
+      if (isOnlineMode) {
+        buildDuelMap();
+        onlineResults?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+        if (onlineCurrentCountryId) { paintD(onlineCurrentCountryId, 'var(--gold)'); zoomToCountryDuel(onlineCurrentCountryId); }
+      } else {
+        const q = duelCurrentQ();
+        buildDuelMap();
+        ds.results?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+        if (q && !ds.answered) { paintD(q.id, 'var(--gold)'); zoomToCountryDuel(q.id); }
+      }
     }
   }, 250);
 });

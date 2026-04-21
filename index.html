@@ -1793,11 +1793,12 @@ function duelEndGame(winner) {
   const winEl = document.getElementById('d-winner-text');
   winEl.textContent = winner === 'A' ? '🏆 Jogador A vence!' : '🏆 Jogador B vence!';
 }
-let onlineRole         = null;  // 'a' or 'b'
-let onlineSocket       = null;
-let onlineAnswered     = false;
-let onlineActivePlayer = null;
-let onlineResults      = [];
+let onlineRole              = null;  // 'a' or 'b'
+let onlineSocket            = null;
+let onlineAnswered          = false;
+let onlineActivePlayer      = null;
+let onlineResults           = [];
+let onlineCurrentCountryId  = null;
 
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -1896,8 +1897,9 @@ function handleOnlineMessage(msg) {
 
 function handleOnlineQuestion(msg) {
   const { countryId, activePlayer, gamePhase, idx, scores, inTiebreaker, qPts, subLabel } = msg;
-  onlineActivePlayer = activePlayer;
-  onlineAnswered     = false;
+  onlineActivePlayer     = activePlayer;
+  onlineAnswered         = false;
+  onlineCurrentCountryId = countryId;
 
   const myIdx    = onlineRole === 'a' ? 0 : 1;
   const amActive = myIdx === activePlayer;
@@ -2040,8 +2042,9 @@ function giveUpOnline() {
 
 function disconnectOnline() {
   if (onlineSocket) { onlineSocket.close(); onlineSocket = null; }
-  isOnlineMode = false;
-  onlineRole   = null;
+  isOnlineMode           = false;
+  onlineRole             = null;
+  onlineCurrentCountryId = null;
   showScreen('home');
 }
 // Level picker — Modo Perguntas
@@ -2136,14 +2139,24 @@ window.addEventListener('resize', () => {
       const q = gs.qs?.[gs.idx];
       buildQMap();
       gs.results?.forEach(r => paintQ(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
-      if (q && !gs.answered) paintQ(q.id, 'var(--gold)');
+      if (q && !gs.answered) {
+        paintQ(q.id, 'var(--gold)');
+        if (gs.perQuestionZoom) zoomToCountry(q.id);
+        else zoomToContinent();
+      }
     } else if (document.getElementById('free').classList.contains('active')) {
       buildFreeMap();
     } else if (document.getElementById('duel').classList.contains('active')) {
-      const q = duelCurrentQ();
-      buildDuelMap();
-      ds.results?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
-      if (q && !ds.answered) paintD(q.id, 'var(--gold)');
+      if (isOnlineMode) {
+        buildDuelMap();
+        onlineResults?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+        if (onlineCurrentCountryId) { paintD(onlineCurrentCountryId, 'var(--gold)'); zoomToCountryDuel(onlineCurrentCountryId); }
+      } else {
+        const q = duelCurrentQ();
+        buildDuelMap();
+        ds.results?.forEach(r => paintD(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+        if (q && !ds.answered) { paintD(q.id, 'var(--gold)'); zoomToCountryDuel(q.id); }
+      }
     }
   }, 250);
 });

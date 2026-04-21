@@ -1,8 +1,9 @@
-let onlineRole         = null;  // 'a' or 'b'
-let onlineSocket       = null;
-let onlineAnswered     = false;
-let onlineActivePlayer = null;
-let onlineResults      = [];
+let onlineRole              = null;  // 'a' or 'b'
+let onlineSocket            = null;
+let onlineAnswered          = false;
+let onlineActivePlayer      = null;
+let onlineResults           = [];
+let onlineCurrentCountryId  = null;
 
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -101,8 +102,9 @@ function handleOnlineMessage(msg) {
 
 function handleOnlineQuestion(msg) {
   const { countryId, activePlayer, gamePhase, idx, scores, inTiebreaker, qPts, subLabel } = msg;
-  onlineActivePlayer = activePlayer;
-  onlineAnswered     = false;
+  onlineActivePlayer     = activePlayer;
+  onlineAnswered         = false;
+  onlineCurrentCountryId = countryId;
 
   const myIdx    = onlineRole === 'a' ? 0 : 1;
   const amActive = myIdx === activePlayer;
@@ -245,7 +247,8 @@ function giveUpOnline() {
 
 function disconnectOnline() {
   if (onlineSocket) { onlineSocket.close(); onlineSocket = null; }
-  isOnlineMode = false;
-  onlineRole   = null;
+  isOnlineMode           = false;
+  onlineRole             = null;
+  onlineCurrentCountryId = null;
   showScreen('home');
 }
