@@ -49,7 +49,7 @@
 }
 .btn-zoom:hover { background: var(--bg3); border-color: var(--muted); }
 .btn-zoom:active { transform: scale(.93); }
-.btn-locate { margin-bottom: .2rem; border-color: var(--muted) !important; }
+.btn-locate { margin-bottom: .2rem; }
 .btn-locate:hover { color: var(--gold); border-color: var(--gold) !important; }
 .btn-locate svg { width: 1em; height: 1em; }
 

@@ -51,7 +51,7 @@ function buildMapInto(svgId, areaId, options = {}) {
    .attr('stroke-width', .3).attr('d', path);
 
   const zoom = d3.zoom()
-    .scaleExtent([1, 10])
+    .scaleExtent([1, 20])
     .translateExtent([[0, 0], [W, H]])
     .on('zoom', (event) => g.attr('transform', event.transform));
 
@@ -72,7 +72,7 @@ function zoomToCountryOn(id, prefix, svgSel, zoom, areaId) {
     const b = path.getBBox();
     if (b.width === 0 && b.height === 0) return;
     const pad = Math.min(W, H) * 0.1;
-    const scale = Math.min(5, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
+    const scale = Math.min(15, Math.min(W / (b.width + pad * 2), H / (b.height + pad * 2)));
     const tx = (W - scale * (b.x * 2 + b.width)) / 2;
     const ty = (H - scale * (b.y * 2 + b.height)) / 2;
     svgSel.transition().duration(900)
@@ -107,7 +107,7 @@ function zoomToContinent() {
   if (minX === Infinity) return;
 
   const pad = 30;
-  const scale = Math.min(10, Math.min(W / (maxX - minX + pad * 2), H / (maxY - minY + pad * 2)));
+  const scale = Math.min(15, Math.min(W / (maxX - minX + pad * 2), H / (maxY - minY + pad * 2)));
   const tx = (W - scale * (minX + maxX)) / 2;
   const ty = (H - scale * (minY + maxY)) / 2;
 
