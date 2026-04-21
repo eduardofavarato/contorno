@@ -118,6 +118,40 @@ body {
 }
 .btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
 
+/* ── Mobile two-step home ───────────────────────────────────── */
+.mobile-home { display: none; }   /* shown via responsive.css on mobile */
+
+.m-mode-btn {
+  display: flex; align-items: center; gap: .85rem; width: 100%;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1rem 1.1rem; cursor: pointer; text-align: left;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.m-mode-btn:hover  { border-color: var(--gold); }
+.m-mode-btn:active { transform: scale(.98); }
+.m-mode-icon { font-size: 1.6rem; flex-shrink: 0; }
+.m-mode-info { flex: 1; min-width: 0; }
+.m-mode-name { font-size: .97rem; font-weight: 700; color: var(--text); }
+.m-mode-sub  { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+.m-chevron   { color: var(--muted); font-size: 1.2rem; flex-shrink: 0; }
+
+.m-back {
+  background: none; border: none; color: var(--muted); font-size: .88rem; font-weight: 600;
+  cursor: pointer; padding: 0; display: flex; align-items: center; gap: .3rem;
+  transition: color .15s; -webkit-tap-highlight-color: transparent;
+}
+.m-back:hover, .m-back:active { color: var(--text); }
+
+.m-config-header { display: flex; align-items: center; gap: .55rem; }
+.m-config-icon   { font-size: 1.75rem; flex-shrink: 0; }
+.m-config-name   { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+.m-config-section { display: flex; flex-direction: column; gap: .45rem; }
+.m-config-label  {
+  font-size: .72rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+}
+
 .g-header {
   background: var(--bg2); border-bottom: 1px solid var(--border);
   padding: .7rem 1.25rem;
@@ -428,6 +462,14 @@ body {
   .mode-badge { display: none; }
   .duel-score-bar { gap: .35rem; }
   .duel-player-box { min-width: 52px; padding: .25rem .45rem; }
+
+  /* Two-step home */
+  #home { justify-content: flex-start; padding: 1.75rem 1.25rem; gap: 1.25rem; }
+  .mode-cards { display: none; }
+  .mobile-home { display: flex; flex-direction: column; gap: .55rem; width: 100%; }
+  #m-step-1    { display: flex; flex-direction: column; gap: .55rem; }
+  #m-step-2    { display: flex; flex-direction: column; gap: 1.1rem; }
+  .m-config    { display: flex; flex-direction: column; gap: 1rem; }
 }
 
 </style>
@@ -538,6 +580,107 @@ body {
       </div>
       <button class="btn-mode" id="btn-free">Jogar</button>
     </div>
+  </div>
+
+  <!-- Mobile-only two-step home (hidden on desktop via CSS) -->
+  <div class="mobile-home">
+
+    <!-- Step 1: select mode -->
+    <div id="m-step-1">
+      <button class="m-mode-btn" data-mode="perguntas">
+        <span class="m-mode-icon">❓</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Perguntas</div>
+          <div class="m-mode-sub">Adivinhe países pelo contorno</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="continentes">
+        <span class="m-mode-icon">🌎</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Continentes</div>
+          <div class="m-mode-sub">Todos os países de um continente</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="disputa">
+        <span class="m-mode-icon">⚔️</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Disputa</div>
+          <div class="m-mode-sub">Dois jogadores, roubo de pontos</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="livre">
+        <span class="m-mode-icon">🔍</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Livre</div>
+          <div class="m-mode-sub">Explore o mapa sem pressão</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+    </div>
+
+    <!-- Step 2: mode config -->
+    <div id="m-step-2" style="display:none">
+      <button class="m-back" id="m-btn-back">← Voltar</button>
+
+      <!-- Perguntas -->
+      <div class="m-config" id="mc-perguntas" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">❓</span>
+          <span class="m-config-name">Modo Perguntas</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level active" data-level="1">Fácil</button>
+            <button class="btn-level" data-level="2">Médio</button>
+            <button class="btn-level" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-play">Jogar</button>
+      </div>
+
+      <!-- Continentes -->
+      <div class="m-config" id="mc-continentes" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">🌎</span>
+          <span class="m-config-name">Modo Continentes</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Continente</div>
+          <div class="continent-picker">
+            <button class="btn-continent active" data-continent="sul">América do Sul</button>
+            <button class="btn-continent" data-continent="central">América Central</button>
+            <button class="btn-continent" data-continent="norte">América do Norte</button>
+            <button class="btn-continent" data-continent="europa">Europa</button>
+            <button class="btn-continent" data-continent="asia">Ásia</button>
+            <button class="btn-continent" data-continent="oceania">Oceania</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-continent">Jogar</button>
+      </div>
+
+      <!-- Disputa -->
+      <div class="m-config" id="mc-disputa" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">⚔️</span>
+          <span class="m-config-name">Modo Disputa</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level-duel active" data-level="1">Fácil</button>
+            <button class="btn-level-duel" data-level="2">Médio</button>
+            <button class="btn-level-duel" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-duel">Jogar (Local)</button>
+        <button class="btn-mode-online" id="m-btn-duel-online">🌐 Jogar Online</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1037,6 +1180,7 @@ async function init() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (id === 'home') mobileShowStep1?.();
 }
 
 function confirmQuit() {
@@ -2031,6 +2175,34 @@ function disconnectOnline() {
   onlineCurrentCountryId = null;
   showScreen('home');
 }
+function mobileShowStep1() {
+  const s1 = document.getElementById('m-step-1');
+  const s2 = document.getElementById('m-step-2');
+  if (!s1 || !s2) return;
+  s1.style.display = '';
+  s2.style.display = 'none';
+}
+
+function mobileShowStep2(mode) {
+  document.getElementById('m-step-1').style.display = 'none';
+  document.getElementById('m-step-2').style.display = '';
+  document.querySelectorAll('.m-config').forEach(el => { el.style.display = 'none'; });
+  document.getElementById('mc-' + mode).style.display = '';
+}
+
+document.querySelectorAll('.m-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    if (mode === 'livre') { startFreeMode(); return; }
+    mobileShowStep2(mode);
+  });
+});
+
+document.getElementById('m-btn-back').addEventListener('click', mobileShowStep1);
+document.getElementById('m-btn-play').addEventListener('click', startGame);
+document.getElementById('m-btn-continent').addEventListener('click', startContinentMode);
+document.getElementById('m-btn-duel').addEventListener('click', startDuel);
+document.getElementById('m-btn-duel-online').addEventListener('click', startOnlineDuel);
 // Level picker — Modo Perguntas
 document.querySelectorAll('.btn-level').forEach(btn => {
   btn.addEventListener('click', () => {

@@ -98,4 +98,105 @@
       <button class="btn-mode" id="btn-free">Jogar</button>
     </div>
   </div>
+
+  <!-- Mobile-only two-step home (hidden on desktop via CSS) -->
+  <div class="mobile-home">
+
+    <!-- Step 1: select mode -->
+    <div id="m-step-1">
+      <button class="m-mode-btn" data-mode="perguntas">
+        <span class="m-mode-icon">❓</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Perguntas</div>
+          <div class="m-mode-sub">Adivinhe países pelo contorno</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="continentes">
+        <span class="m-mode-icon">🌎</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Continentes</div>
+          <div class="m-mode-sub">Todos os países de um continente</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="disputa">
+        <span class="m-mode-icon">⚔️</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Disputa</div>
+          <div class="m-mode-sub">Dois jogadores, roubo de pontos</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="livre">
+        <span class="m-mode-icon">🔍</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Livre</div>
+          <div class="m-mode-sub">Explore o mapa sem pressão</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+    </div>
+
+    <!-- Step 2: mode config -->
+    <div id="m-step-2" style="display:none">
+      <button class="m-back" id="m-btn-back">← Voltar</button>
+
+      <!-- Perguntas -->
+      <div class="m-config" id="mc-perguntas" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">❓</span>
+          <span class="m-config-name">Modo Perguntas</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level active" data-level="1">Fácil</button>
+            <button class="btn-level" data-level="2">Médio</button>
+            <button class="btn-level" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-play">Jogar</button>
+      </div>
+
+      <!-- Continentes -->
+      <div class="m-config" id="mc-continentes" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">🌎</span>
+          <span class="m-config-name">Modo Continentes</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Continente</div>
+          <div class="continent-picker">
+            <button class="btn-continent active" data-continent="sul">América do Sul</button>
+            <button class="btn-continent" data-continent="central">América Central</button>
+            <button class="btn-continent" data-continent="norte">América do Norte</button>
+            <button class="btn-continent" data-continent="europa">Europa</button>
+            <button class="btn-continent" data-continent="asia">Ásia</button>
+            <button class="btn-continent" data-continent="oceania">Oceania</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-continent">Jogar</button>
+      </div>
+
+      <!-- Disputa -->
+      <div class="m-config" id="mc-disputa" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">⚔️</span>
+          <span class="m-config-name">Modo Disputa</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level-duel active" data-level="1">Fácil</button>
+            <button class="btn-level-duel" data-level="2">Médio</button>
+            <button class="btn-level-duel" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-duel">Jogar (Local)</button>
+        <button class="btn-mode-online" id="m-btn-duel-online">🌐 Jogar Online</button>
+      </div>
+    </div>
+
+  </div>
 </div>

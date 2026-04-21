@@ -66,3 +66,37 @@
   cursor: pointer; transition: all .15s; text-align: center;
 }
 .btn-continent.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+
+/* ── Mobile two-step home ───────────────────────────────────── */
+.mobile-home { display: none; }   /* shown via responsive.css on mobile */
+
+.m-mode-btn {
+  display: flex; align-items: center; gap: .85rem; width: 100%;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1rem 1.1rem; cursor: pointer; text-align: left;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.m-mode-btn:hover  { border-color: var(--gold); }
+.m-mode-btn:active { transform: scale(.98); }
+.m-mode-icon { font-size: 1.6rem; flex-shrink: 0; }
+.m-mode-info { flex: 1; min-width: 0; }
+.m-mode-name { font-size: .97rem; font-weight: 700; color: var(--text); }
+.m-mode-sub  { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+.m-chevron   { color: var(--muted); font-size: 1.2rem; flex-shrink: 0; }
+
+.m-back {
+  background: none; border: none; color: var(--muted); font-size: .88rem; font-weight: 600;
+  cursor: pointer; padding: 0; display: flex; align-items: center; gap: .3rem;
+  transition: color .15s; -webkit-tap-highlight-color: transparent;
+}
+.m-back:hover, .m-back:active { color: var(--text); }
+
+.m-config-header { display: flex; align-items: center; gap: .55rem; }
+.m-config-icon   { font-size: 1.75rem; flex-shrink: 0; }
+.m-config-name   { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+.m-config-section { display: flex; flex-direction: column; gap: .45rem; }
+.m-config-label  {
+  font-size: .72rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+}
