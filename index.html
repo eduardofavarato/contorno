@@ -121,36 +121,52 @@ body {
 /* ── Mobile two-step home ───────────────────────────────────── */
 .mobile-home { display: none; }   /* shown via responsive.css on mobile */
 
+/* Step 1 — mode list */
 .m-mode-btn {
   display: flex; align-items: center; gap: .85rem; width: 100%;
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-  padding: 1rem 1.1rem; cursor: pointer; text-align: left;
+  padding: 1.25rem 1.1rem; cursor: pointer; text-align: left;
   transition: border-color .2s, box-shadow .2s;
   -webkit-tap-highlight-color: transparent;
 }
 .m-mode-btn:hover  { border-color: var(--gold); }
 .m-mode-btn:active { transform: scale(.98); }
-.m-mode-icon { font-size: 1.6rem; flex-shrink: 0; }
+.m-mode-icon { font-size: 1.8rem; flex-shrink: 0; }
 .m-mode-info { flex: 1; min-width: 0; }
-.m-mode-name { font-size: .97rem; font-weight: 700; color: var(--text); }
-.m-mode-sub  { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+.m-mode-name { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.m-mode-sub  { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
 .m-chevron   { color: var(--muted); font-size: 1.2rem; flex-shrink: 0; }
 
-.m-back {
-  background: none; border: none; color: var(--muted); font-size: .88rem; font-weight: 600;
-  cursor: pointer; padding: 0; display: flex; align-items: center; gap: .3rem;
-  transition: color .15s; -webkit-tap-highlight-color: transparent;
+/* Step 2 — config header */
+.m-config-header {
+  display: flex; align-items: center; justify-content: center; gap: .55rem;
+  text-align: center;
 }
-.m-back:hover, .m-back:active { color: var(--text); }
+.m-config-icon { font-size: 1.75rem; flex-shrink: 0; }
+.m-config-name { font-size: 1.4rem; font-weight: 800; color: var(--gold); }
 
-.m-config-header { display: flex; align-items: center; gap: .55rem; }
-.m-config-icon   { font-size: 1.75rem; flex-shrink: 0; }
-.m-config-name   { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
-.m-config-section { display: flex; flex-direction: column; gap: .45rem; }
+/* Step 2 — picker section (slightly narrower than Jogar button) */
+.m-config-section { display: flex; flex-direction: column; gap: .45rem; align-self: center; width: 90%; }
 .m-config-label  {
   font-size: .72rem; color: var(--muted);
   text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
 }
+
+/* Step 2 — single-column pickers */
+.m-config .level-picker,
+.m-config .continent-picker { flex-direction: column; gap: .45rem; margin-top: 0; }
+.m-config .btn-continent { min-width: unset; }
+
+/* Step 2 — back button as secondary, below Jogar */
+.m-back {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 9px;
+  color: var(--text); padding: .85rem 2rem; font-size: .95rem; font-weight: 600;
+  cursor: pointer; transition: background .15s; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: .3rem;
+  -webkit-tap-highlight-color: transparent;
+  order: 10;
+}
+.m-back:hover, .m-back:active { background: var(--border); }
 
 .g-header {
   background: var(--bg2); border-bottom: 1px solid var(--border);
