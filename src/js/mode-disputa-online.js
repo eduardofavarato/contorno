@@ -43,7 +43,7 @@ function createRoom() {
   document.getElementById('ol-room-code').textContent  = code;
   document.getElementById('ol-waiting-text').textContent = 'Aguardando adversário…';
   document.getElementById('ol-setup').style.display   = 'none';
-  document.getElementById('ol-waiting').style.display = 'block';
+  document.getElementById('ol-waiting').style.display = '';
   connectToRoom(code, level, true);
 }
 
@@ -60,7 +60,7 @@ function handleOnlineMessage(msg) {
       onlineRole = msg.role;
       if (msg.role === 'b') {
         document.getElementById('ol-setup').style.display   = 'none';
-        document.getElementById('ol-waiting').style.display = 'block';
+        document.getElementById('ol-waiting').style.display = '';
         document.getElementById('ol-waiting-text').textContent = 'Conectado! Aguardando início…';
         document.getElementById('ol-error').textContent = '';
       }
