@@ -2,13 +2,14 @@ let onlineRole         = null;  // 'a' or 'b'
 let onlineSocket       = null;
 let onlineAnswered     = false;
 let onlineActivePlayer = null;
+let onlineResults      = [];
 
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
 
 function startOnlineDuel() {
-  onlineRole = null; onlineAnswered = false;
+  onlineRole = null; onlineAnswered = false; onlineResults = [];
   document.getElementById('ol-setup').style.display = '';
   document.getElementById('ol-waiting').style.display = 'none';
   document.getElementById('ol-error').textContent = '';
@@ -158,14 +159,17 @@ function handleOnlineAnswerResult(msg) {
   document.getElementById('d-giveup').disabled = true;
 
   if (correct) {
+    if (msg.result) onlineResults.push(msg.result);
     paintD(countryId, 'var(--green)');
     const pname = ['Jogador A', 'Jogador B'][scorer];
     setFeedback('d-feedback',
       stolen ? `✓ Roubo de ${pname}! +${fmt(pts)} pts` : `✓ Correto! +${fmt(pts)} pts`,
       'ok');
   } else if (stealFailed) {
+    if (msg.result) onlineResults.push(msg.result);
     paintD(countryId, 'var(--red)');
-    setFeedback('d-feedback', '✗ Incorreto. Nenhum ponto nesta pergunta.', 'bad');
+    const countryName = msg.result?.country || DB[countryId]?.pt;
+    setFeedback('d-feedback', `✗ Incorreto. Era ${countryName}. Nenhum ponto nesta pergunta.`, 'bad');
   } else if (primaryFailed) {
     paintD(countryId, 'var(--red)');
     const sname = ['Jogador A', 'Jogador B'][stealer];
@@ -189,8 +193,10 @@ function handleOnlineTbResult(msg) {
       correct ? 'ok' : 'bad');
   } else {
     if (bothMissed) {
+      if (msg.result) onlineResults.push(msg.result);
       paintD(countryId, 'var(--red)');
-      setFeedback('d-feedback', '✗ Ambos erraram! Nova Rodada de Fogo…', 'bad');
+      const countryName = msg.result?.country || DB[countryId]?.pt;
+      setFeedback('d-feedback', `✗ Ambos erraram! Era ${countryName}. Nova Rodada de Fogo…`, 'bad');
     } else if (bothCorrect) {
       paintD(countryId, 'var(--green)');
       setFeedback('d-feedback', '✓ Ambos acertaram! Nova Rodada de Fogo…', 'ok');

@@ -2,7 +2,8 @@ function paintD(id, color) { d3.select(`#d${id}`).attr('fill', color).raise(); }
 
 function duelTooltipHandler(id, event, phase) {
   const tooltip = document.getElementById('d-tooltip');
-  const r = ds.results?.find(r => r.id === id);
+  const results = isOnlineMode ? onlineResults : ds.results;
+  const r = results?.find(r => r.id === id);
   if (phase === 'out' || !r) { tooltip.style.opacity = '0'; return; }
   if (phase === 'over') {
     const pname = r.player === 0 ? 'Jogador A' : r.player === 1 ? 'Jogador B' : null;
