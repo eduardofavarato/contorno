@@ -219,6 +219,9 @@ body {
 }
 .btn-zoom:hover { background: var(--bg3); border-color: var(--muted); }
 .btn-zoom:active { transform: scale(.93); }
+.btn-locate { margin-bottom: .2rem; border-color: var(--muted) !important; }
+.btn-locate:hover { color: var(--gold); border-color: var(--gold) !important; }
+.btn-locate svg { width: 1em; height: 1em; }
 
 .map-tooltip {
   position: absolute; pointer-events: none; z-index: 20;
@@ -835,6 +838,15 @@ body {
   <div class="map-area" id="map-area">
     <svg id="world-svg"></svg>
     <div class="zoom-controls">
+      <button class="btn-zoom btn-locate" id="btn-locate" title="Localizar país">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="2" x2="12" y2="4.5"/>
+          <line x1="12" y1="19.5" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="4.5" y2="12"/>
+          <line x1="19.5" y1="12" x2="22" y2="12"/>
+        </svg>
+      </button>
       <button class="btn-zoom" id="btn-zoom-in"  title="Aproximar (+)">+</button>
       <button class="btn-zoom" id="btn-zoom-out" title="Afastar (−)">−</button>
     </div>
@@ -965,6 +977,15 @@ body {
   <div class="map-area" id="duel-map-area">
     <svg id="duel-svg"></svg>
     <div class="zoom-controls">
+      <button class="btn-zoom btn-locate" id="d-btn-locate" title="Localizar país">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="2" x2="12" y2="4.5"/>
+          <line x1="12" y1="19.5" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="4.5" y2="12"/>
+          <line x1="19.5" y1="12" x2="22" y2="12"/>
+        </svg>
+      </button>
       <button class="btn-zoom" id="d-zoom-in"  title="Aproximar (+)">+</button>
       <button class="btn-zoom" id="d-zoom-out" title="Afastar (−)">−</button>
     </div>
@@ -2660,6 +2681,12 @@ document.getElementById('g-logo').addEventListener('click', confirmQuit);
 document.getElementById('btn-quit').addEventListener('click', confirmQuit);
 document.getElementById('btn-zoom-in').addEventListener('click',  () => zoomBy(gSvgSel, gZoom, 1.5));
 document.getElementById('btn-zoom-out').addEventListener('click', () => zoomBy(gSvgSel, gZoom, 1 / 1.5));
+document.getElementById('btn-locate').addEventListener('click', () => {
+  const q = gs.qs?.[gs.idx];
+  if (!q) return;
+  if (!gs.answered) paintQ(q.id, 'var(--gold)');
+  zoomToCountry(q.id);
+});
 
 // Resultados
 document.getElementById('btn-again').addEventListener('click', () => { if (gs.restartFn) gs.restartFn(); });
@@ -2673,6 +2700,18 @@ document.getElementById('d-logo').addEventListener('click', confirmQuit);
 document.getElementById('d-quit').addEventListener('click', confirmQuit);
 document.getElementById('d-zoom-in').addEventListener('click',  () => zoomBy(dSvgSel, dZoom, 1.5));
 document.getElementById('d-zoom-out').addEventListener('click', () => zoomBy(dSvgSel, dZoom, 1 / 1.5));
+document.getElementById('d-btn-locate').addEventListener('click', () => {
+  if (isOnlineMode) {
+    if (!onlineCurrentCountryId) return;
+    if (!onlineAnswered) paintD(onlineCurrentCountryId, 'var(--gold)');
+    zoomToCountryDuel(onlineCurrentCountryId);
+  } else {
+    const q = duelCurrentQ();
+    if (!q) return;
+    if (!ds.answered) paintD(q.id, 'var(--gold)');
+    zoomToCountryDuel(q.id);
+  }
+});
 document.getElementById('d-btn-again').addEventListener('click', () => isOnlineMode ? disconnectOnline() : startDuel());
 document.getElementById('d-btn-home').addEventListener('click', () => isOnlineMode ? disconnectOnline() : showScreen('home'));
 
