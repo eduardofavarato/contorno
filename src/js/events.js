@@ -50,6 +50,12 @@ document.getElementById('g-logo').addEventListener('click', confirmQuit);
 document.getElementById('btn-quit').addEventListener('click', confirmQuit);
 document.getElementById('btn-zoom-in').addEventListener('click',  () => zoomBy(gSvgSel, gZoom, 1.5));
 document.getElementById('btn-zoom-out').addEventListener('click', () => zoomBy(gSvgSel, gZoom, 1 / 1.5));
+document.getElementById('btn-locate').addEventListener('click', () => {
+  const q = gs.qs?.[gs.idx];
+  if (!q) return;
+  if (!gs.answered) paintQ(q.id, 'var(--gold)');
+  zoomToCountry(q.id);
+});
 
 // Resultados
 document.getElementById('btn-again').addEventListener('click', () => { if (gs.restartFn) gs.restartFn(); });
@@ -63,6 +69,18 @@ document.getElementById('d-logo').addEventListener('click', confirmQuit);
 document.getElementById('d-quit').addEventListener('click', confirmQuit);
 document.getElementById('d-zoom-in').addEventListener('click',  () => zoomBy(dSvgSel, dZoom, 1.5));
 document.getElementById('d-zoom-out').addEventListener('click', () => zoomBy(dSvgSel, dZoom, 1 / 1.5));
+document.getElementById('d-btn-locate').addEventListener('click', () => {
+  if (isOnlineMode) {
+    if (!onlineCurrentCountryId) return;
+    if (!onlineAnswered) paintD(onlineCurrentCountryId, 'var(--gold)');
+    zoomToCountryDuel(onlineCurrentCountryId);
+  } else {
+    const q = duelCurrentQ();
+    if (!q) return;
+    if (!ds.answered) paintD(q.id, 'var(--gold)');
+    zoomToCountryDuel(q.id);
+  }
+});
 document.getElementById('d-btn-again').addEventListener('click', () => isOnlineMode ? disconnectOnline() : startDuel());
 document.getElementById('d-btn-home').addEventListener('click', () => isOnlineMode ? disconnectOnline() : showScreen('home'));
 
