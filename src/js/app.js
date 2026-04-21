@@ -1,7 +1,4 @@
 async function init() {
-  const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  worldTopo = await resp.json();
-
   const inData = new Set(
     topojson.feature(worldTopo, worldTopo.objects.countries)
             .features.map(f => +f.id)

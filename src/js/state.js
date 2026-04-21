@@ -1,4 +1,3 @@
-let worldTopo = null;
 let pool      = [];
 
 // Modo Perguntas / Continentes
