@@ -1,5 +1,4 @@
 function paintQ(id, color) { d3.select(`#c${id}`).attr('fill', color).raise(); }
-function resetQ(id) { d3.select(`#c${id}`).attr('fill', 'var(--land)'); }
 
 function qTooltipHandler(id, event, phase) {
   const tooltip = document.getElementById('g-tooltip');
