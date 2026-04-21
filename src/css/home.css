@@ -50,13 +50,13 @@
 .btn-mode:hover { opacity: .9; }
 
 .level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
-.btn-level, .btn-level-duel {
+.btn-level, .btn-level-duel, .btn-level-localizar {
   flex: 1; padding: .5rem .25rem; border-radius: 6px;
   background: var(--bg3); border: 1px solid var(--border);
   color: var(--muted); font-size: .82rem; font-weight: 600;
   cursor: pointer; transition: all .15s;
 }
-.btn-level.active, .btn-level-duel.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+.btn-level.active, .btn-level-duel.active, .btn-level-localizar.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
 
 .continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
 .btn-continent {

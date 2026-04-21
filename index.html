@@ -35,7 +35,7 @@ body {
 
 .screen { display: none; }
 .screen.active { display: flex; flex-direction: column; }
-#game.active, #free.active, #duel.active { position: fixed; inset: 0; overflow: hidden; }
+#game.active, #free.active, #duel.active, #localizar.active { position: fixed; inset: 0; overflow: hidden; }
 
 #loading {
   position: fixed; inset: 0; background: var(--bg);
@@ -101,13 +101,13 @@ body {
 .btn-mode:hover { opacity: .9; }
 
 .level-picker { display: flex; gap: .4rem; margin-top: .25rem; }
-.btn-level, .btn-level-duel {
+.btn-level, .btn-level-duel, .btn-level-localizar {
   flex: 1; padding: .5rem .25rem; border-radius: 6px;
   background: var(--bg3); border: 1px solid var(--border);
   color: var(--muted); font-size: .82rem; font-weight: 600;
   cursor: pointer; transition: all .15s;
 }
-.btn-level.active, .btn-level-duel.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
+.btn-level.active, .btn-level-duel.active, .btn-level-localizar.active { background: var(--gold); color: #0d1117; border-color: var(--gold); }
 
 .continent-picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .25rem; }
 .btn-continent {
@@ -442,6 +442,24 @@ body {
 }
 .duel-final-scores strong { color: var(--text); font-size: 1.25rem; }
 
+.l-target {
+  padding: .6rem 1.25rem .2rem;
+  text-align: center;
+}
+.l-target-lbl {
+  font-size: .72rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.l-country-name {
+  font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 900;
+  color: var(--gold); line-height: 1.1; margin-top: .15rem;
+}
+.l-actions {
+  display: flex; justify-content: center;
+  padding: .4rem 1.25rem 0;
+}
+#localizar-svg .cp { cursor: crosshair; }
+
 #online-lobby {
   min-height: 100vh; overflow-y: auto;
   align-items: center; justify-content: center;
@@ -622,6 +640,30 @@ body {
       <button class="btn-mode-online" id="btn-duel-online">🌐 Jogar Online</button>
     </div>
 
+    <!-- Modo Localizar -->
+    <div class="mode-card">
+      <div class="mode-card-icon">🎯</div>
+      <h3>Modo Localizar</h3>
+      <div class="card-desc">
+        <p>O nome do país é revelado — encontre-o no mapa clicando no lugar certo!</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>10 países por rodada</li>
+            <li>Até 2.000 pts por acerto</li>
+            <li>–200 pts por clique errado</li>
+            <li>Máximo de 3 tentativas por país</li>
+          </ul>
+        </details>
+      </div>
+      <div class="level-picker">
+        <button class="btn-level-localizar active" data-level="1">Fácil</button>
+        <button class="btn-level-localizar" data-level="2">Médio</button>
+        <button class="btn-level-localizar" data-level="3">Difícil</button>
+      </div>
+      <button class="btn-mode" id="btn-localizar">Jogar</button>
+    </div>
+
     <!-- Modo Livre -->
     <div class="mode-card">
       <div class="mode-card-icon">🔍</div>
@@ -668,6 +710,14 @@ body {
         <div class="m-mode-info">
           <div class="m-mode-name">Modo Disputa</div>
           <div class="m-mode-sub">Dois jogadores, roubo de pontos</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="localizar">
+        <span class="m-mode-icon">🎯</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Localizar</div>
+          <div class="m-mode-sub">Encontre o país no mapa pelo nome</div>
         </div>
         <span class="m-chevron">›</span>
       </button>
@@ -720,6 +770,23 @@ body {
           </div>
         </div>
         <button class="btn-mode" id="m-btn-continent">Jogar</button>
+      </div>
+
+      <!-- Localizar -->
+      <div class="m-config" id="mc-localizar" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">🎯</span>
+          <span class="m-config-name">Modo Localizar</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level-localizar active" data-level="1">Fácil</button>
+            <button class="btn-level-localizar" data-level="2">Médio</button>
+            <button class="btn-level-localizar" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-localizar">Jogar</button>
       </div>
 
       <!-- Disputa -->
@@ -825,6 +892,52 @@ body {
       <button class="btn-confirm" id="f-submit" disabled>Confirmar</button>
     </div>
     <div class="feedback" id="f-feedback"></div>
+  </div>
+</div>
+
+<div id="localizar" class="screen">
+  <div class="g-header">
+    <div class="g-logo" id="l-logo">Contorno</div>
+    <span class="mode-badge">Modo Localizar</span>
+    <div class="g-stats">
+      <div class="stat">
+        <div class="stat-lbl">Pergunta</div>
+        <div class="stat-val" id="l-q-num">1/10</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Pontuação</div>
+        <div class="stat-val gold" id="l-score">0</div>
+      </div>
+    </div>
+    <button class="g-quit" id="l-quit">Sair</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="l-prog" style="width:0%"></div>
+  </div>
+
+  <div class="map-area" id="localizar-map-area">
+    <svg id="localizar-svg"></svg>
+    <div class="zoom-controls">
+      <button class="btn-zoom" id="l-zoom-in"  title="Aproximar (+)">+</button>
+      <button class="btn-zoom" id="l-zoom-out" title="Afastar (−)">−</button>
+    </div>
+    <div class="map-tooltip" id="l-tooltip"></div>
+  </div>
+
+  <div class="g-bottom">
+    <div class="l-target">
+      <div class="l-target-lbl">Encontre no mapa:</div>
+      <div class="l-country-name" id="l-country-name">—</div>
+    </div>
+    <div class="bottom-info">
+      <div class="pts-label">Pontos disponíveis: <span id="l-pts">2.000</span></div>
+      <div class="wrongs" id="l-wrongs"></div>
+    </div>
+    <div class="l-actions">
+      <button class="btn-giveup" id="l-giveup">Desistir</button>
+    </div>
+    <div class="feedback" id="l-feedback"></div>
   </div>
 </div>
 
@@ -1222,10 +1335,15 @@ let fZoom, fSvgSel;
 let ds = {};
 let dZoom, dSvgSel;
 
+// Modo Localizar
+let ls = {};
+let lZoom, lSvgSel;
+
 // User selections
-let selectedLevel     = 1;
-let selectedContinent = 'sul';
-let selectedDuelLevel = 1;
+let selectedLevel          = 1;
+let selectedContinent      = 'sul';
+let selectedDuelLevel      = 1;
+let selectedLocalizarLevel = 1;
 
 let isOnlineMode = false;
 async function init() {
@@ -1338,8 +1456,9 @@ function zoomToCountryOn(id, prefix, svgSel, zoom, areaId) {
   } catch (e) {}
 }
 
-function zoomToCountry(id)     { zoomToCountryOn(id, 'c', gSvgSel, gZoom, 'map-area'); }
-function zoomToCountryDuel(id) { zoomToCountryOn(id, 'd', dSvgSel, dZoom, 'duel-map-area'); }
+function zoomToCountry(id)          { zoomToCountryOn(id, 'c', gSvgSel, gZoom, 'map-area'); }
+function zoomToCountryDuel(id)      { zoomToCountryOn(id, 'd', dSvgSel, dZoom, 'duel-map-area'); }
+function zoomToCountryLocalizar(id) { zoomToCountryOn(id, 'l', lSvgSel, lZoom, 'localizar-map-area'); }
 
 function zoomToContinent() {
   const cont = CONTINENT_POOLS[selectedContinent];
@@ -1712,6 +1831,206 @@ function resetFreeInput() {
   document.getElementById('f-submit').disabled = true;
   document.getElementById('f-hint').textContent = 'Clique em um país no mapa para adivinhar';
   setFeedback('f-feedback', '');
+}
+function paintL(id, color) { d3.select(`#l${id}`).attr('fill', color).raise(); }
+
+function lTooltipHandler(id, event, phase) {
+  const tooltip = document.getElementById('l-tooltip');
+  const r = ls.results?.find(r => r.id === id);
+
+  if (phase === 'out' || !r) { tooltip.style.opacity = '0'; return; }
+
+  if (phase === 'over') {
+    if (r.pts > 0) {
+      const attempt = r.wrongs === 0 ? 'De primeira!' : `${r.wrongs} erro${r.wrongs > 1 ? 's' : ''}`;
+      tooltip.innerHTML =
+        `<div class="tt-ok">✓ Correto</div>` +
+        `<div class="tt-name">${r.country}</div>` +
+        `<div class="tt-attempt">${attempt} · +${fmt(r.pts)} pts</div>`;
+    } else if (r.gaveUp) {
+      tooltip.innerHTML =
+        `<div class="tt-bad">✗ Desistiu</div>` +
+        `<div class="tt-name">${r.country}</div>`;
+    } else {
+      tooltip.innerHTML =
+        `<div class="tt-bad">✗ Incorreto</div>` +
+        `<div class="tt-name">${r.country}</div>` +
+        `<div class="tt-attempt">Tentativas esgotadas</div>`;
+    }
+    tooltip.style.opacity = '1';
+  }
+
+  if (phase === 'move' || phase === 'over') {
+    const rect = document.getElementById('localizar-map-area').getBoundingClientRect();
+    let x = event.clientX - rect.left + 14;
+    let y = event.clientY - rect.top  - 14;
+    const tw = tooltip.offsetWidth  || 180;
+    const th = tooltip.offsetHeight || 60;
+    if (x + tw > rect.width  - 8) x = event.clientX - rect.left - tw - 14;
+    if (y + th > rect.height - 8) y = event.clientY - rect.top  - th - 14;
+    if (y < 4) y = 4;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top  = `${y}px`;
+  }
+}
+
+function buildLocalizarMap() {
+  const { zoom, svgSel } = buildMapInto('localizar-svg', 'localizar-map-area', {
+    prefix: 'l',
+    onCountryClick: localizarClickCountry,
+    onCountryHover: lTooltipHandler,
+  });
+  lZoom = zoom; lSvgSel = svgSel;
+}
+
+function startLocalizarMode() {
+  const levelNames = ['', 'Fácil', 'Médio', 'Difícil'];
+  const modeName = `Modo Localizar · ${levelNames[selectedLocalizarLevel]}`;
+  ls = {
+    qs: shuffle(poolForLevel(selectedLocalizarLevel)).slice(0, TOTAL_Q),
+    idx: 0, score: 0, results: [],
+    wrongs: 0, qPts: MAX_PTS, answered: false,
+    total: TOTAL_Q, modeName,
+  };
+  document.querySelector('#localizar .mode-badge').textContent = modeName;
+  showScreen('localizar');
+  requestAnimationFrame(() => requestAnimationFrame(() => { buildLocalizarMap(); localizarAsk(); }));
+}
+
+function localizarAsk() {
+  const q = ls.qs[ls.idx];
+  ls.wrongs = 0; ls.qPts = MAX_PTS; ls.answered = false;
+
+  document.getElementById('l-country-name').textContent = q.pt;
+  document.getElementById('l-q-num').textContent  = `${ls.idx + 1}/${ls.total}`;
+  document.getElementById('l-score').textContent  = fmt(ls.score);
+  document.getElementById('l-pts').textContent    = fmt(ls.qPts);
+  document.getElementById('l-wrongs').textContent = '';
+  setFeedback('l-feedback', '');
+  document.getElementById('l-giveup').disabled = false;
+  document.getElementById('l-prog').style.width = `${(ls.idx / ls.total) * 100}%`;
+
+  ls.results.forEach(r => paintL(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
+
+  if (lSvgSel && lZoom)
+    lSvgSel.transition().duration(600).call(lZoom.transform, d3.zoomIdentity);
+}
+
+function localizarClickCountry(id) {
+  if (ls.answered) return;
+  if (ls.results.some(r => r.id === id)) return;
+
+  const q = ls.qs[ls.idx];
+  if (id === q.id) localizarCorrect(q);
+  else localizarWrong(q, id);
+}
+
+function localizarCorrect(q) {
+  const pts = Math.max(0, ls.qPts);
+  ls.score += pts; ls.answered = true;
+  ls.results.push({ id: q.id, country: q.pt, wrongs: ls.wrongs, pts, gaveUp: false });
+
+  paintL(q.id, 'var(--green)');
+  zoomToCountryLocalizar(q.id);
+  document.getElementById('l-giveup').disabled = true;
+  document.getElementById('l-score').textContent = fmt(ls.score);
+
+  const msg = ls.wrongs === 0
+    ? `✓ Correto! +${fmt(pts)} pontos`
+    : `✓ Correto! +${fmt(pts)} pontos (${ls.wrongs} erro${ls.wrongs > 1 ? 's' : ''})`;
+  setFeedback('l-feedback', msg, 'ok');
+  setTimeout(localizarAdvance, 1600);
+}
+
+function localizarWrong(q, clickedId) {
+  ls.wrongs++;
+  ls.qPts = Math.max(0, MAX_PTS - ls.wrongs * PENALTY);
+
+  paintL(clickedId, 'var(--red)');
+
+  if (ls.wrongs >= MAX_TRIES) {
+    ls.answered = true;
+    ls.results.push({ id: q.id, country: q.pt, wrongs: ls.wrongs, pts: 0, gaveUp: false, failed: true });
+    document.getElementById('l-giveup').disabled = true;
+    setFeedback('l-feedback', `✗ Era: ${q.pt}. Tentativas esgotadas.`, 'bad');
+    setTimeout(() => {
+      paintL(clickedId, 'var(--land)');
+      paintL(q.id, 'var(--red)');
+      zoomToCountryLocalizar(q.id);
+    }, 650);
+    setTimeout(localizarAdvance, 2500);
+    return;
+  }
+
+  const snap = ls;
+  setTimeout(() => {
+    if (ls === snap && !snap.answered) paintL(clickedId, 'var(--land)');
+  }, 600);
+
+  document.getElementById('l-pts').textContent = fmt(ls.qPts);
+  const restantes = MAX_TRIES - ls.wrongs;
+  document.getElementById('l-wrongs').textContent =
+    `${ls.wrongs} erro${ls.wrongs > 1 ? 's' : ''} · ${restantes} restante${restantes > 1 ? 's' : ''}`;
+  setFeedback('l-feedback',
+    `✗ Não é esse! ${restantes} tentativa${restantes > 1 ? 's' : ''} restante${restantes > 1 ? 's' : ''}.`, 'bad');
+}
+
+function localizarGiveUp() {
+  if (ls.answered) return;
+  const q = ls.qs[ls.idx];
+  ls.answered = true;
+  ls.results.push({ id: q.id, country: q.pt, wrongs: ls.wrongs, pts: 0, gaveUp: true });
+
+  paintL(q.id, 'var(--gold)');
+  zoomToCountryLocalizar(q.id);
+  document.getElementById('l-giveup').disabled = true;
+  setFeedback('l-feedback', `Revelado: ${q.pt}. +0 pontos`, 'bad');
+  setTimeout(localizarAdvance, 2500);
+}
+
+function localizarAdvance() {
+  ls.idx++;
+  if (ls.idx >= ls.total) localizarEndGame();
+  else localizarAsk();
+}
+
+function localizarEndGame() {
+  showScreen('results');
+  document.getElementById('l-prog').style.width = '100%';
+  const total = ls.score;
+  const pct   = total / (ls.total * MAX_PTS);
+  document.getElementById('r-score').textContent    = fmt(total);
+  document.getElementById('r-score-of').textContent = `de ${fmt(ls.total * MAX_PTS)} pontos possíveis`;
+  document.getElementById('r-mode-lbl').textContent = `Pontuação Final — ${ls.modeName}`;
+
+  let rating, stars;
+  if      (pct >= 1.00) { rating = 'Perfeito! Gênio Geográfico'; stars = '⭐⭐⭐⭐⭐'; }
+  else if (pct >= 0.90) { rating = 'Excelente!';                 stars = '⭐⭐⭐⭐⭐'; }
+  else if (pct >= 0.75) { rating = 'Muito Bom';                  stars = '⭐⭐⭐⭐';  }
+  else if (pct >= 0.50) { rating = 'Bom';                        stars = '⭐⭐⭐';   }
+  else if (pct >= 0.25) { rating = 'Em Desenvolvimento';         stars = '⭐⭐';    }
+  else                  { rating = 'Iniciante';                  stars = '⭐';     }
+  document.getElementById('r-rating').textContent = rating;
+  document.getElementById('r-stars').textContent  = stars;
+
+  const container = document.getElementById('r-items');
+  container.innerHTML = '';
+  ls.results.forEach((r, i) => {
+    const cls     = r.pts === MAX_PTS ? 'pmax' : r.pts >= 1500 ? 'pgood' : r.pts > 0 ? 'plow' : 'pzero';
+    const attempt = r.gaveUp ? 'Desistiu' : r.failed ? 'Tentativas esgotadas' : r.wrongs === 0 ? 'Acertou de primeira!' : `${r.wrongs} erro${r.wrongs > 1 ? 's' : ''}`;
+    const div = document.createElement('div');
+    div.className = 'r-item';
+    div.innerHTML = `
+      <div class="r-num">${i + 1}</div>
+      <div class="r-info">
+        <div class="r-country">${r.country}</div>
+        <div class="r-attempt">${attempt}</div>
+      </div>
+      <div class="r-pts ${cls}">${fmt(r.pts)}</div>`;
+    container.appendChild(div);
+  });
+
+  gs = { restartFn: startLocalizarMode };
 }
 function paintD(id, color) { d3.select(`#d${id}`).attr('fill', color).raise(); }
 
@@ -2286,6 +2605,7 @@ document.querySelectorAll('.m-mode-btn').forEach(btn => {
 document.getElementById('m-btn-back').addEventListener('click', mobileShowStep1);
 document.getElementById('m-btn-play').addEventListener('click', startGame);
 document.getElementById('m-btn-continent').addEventListener('click', startContinentMode);
+document.getElementById('m-btn-localizar').addEventListener('click', startLocalizarMode);
 document.getElementById('m-btn-duel').addEventListener('click', startDuel);
 document.getElementById('m-btn-duel-online').addEventListener('click', startOnlineDuel);
 // Level picker — Modo Perguntas
@@ -2306,6 +2626,15 @@ document.querySelectorAll('.btn-level-duel').forEach(btn => {
   });
 });
 
+// Level picker — Modo Localizar
+document.querySelectorAll('.btn-level-localizar').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level-localizar').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedLocalizarLevel = +btn.dataset.level;
+  });
+});
+
 // Continent picker
 document.querySelectorAll('.btn-continent').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -2321,6 +2650,7 @@ document.getElementById('btn-duel').addEventListener('click', startDuel);
 document.getElementById('btn-duel-online').addEventListener('click', startOnlineDuel);
 document.getElementById('btn-continent').addEventListener('click', startContinentMode);
 document.getElementById('btn-free').addEventListener('click', startFreeMode);
+document.getElementById('btn-localizar').addEventListener('click', startLocalizarMode);
 
 // Modo Perguntas
 document.getElementById('btn-submit').addEventListener('click', submitQ);
@@ -2358,6 +2688,13 @@ document.querySelectorAll('.btn-level-online').forEach(btn => {
   });
 });
 
+// Modo Localizar
+document.getElementById('l-logo').addEventListener('click', confirmQuit);
+document.getElementById('l-quit').addEventListener('click', confirmQuit);
+document.getElementById('l-giveup').addEventListener('click', localizarGiveUp);
+document.getElementById('l-zoom-in').addEventListener('click',  () => zoomBy(lSvgSel, lZoom, 1.5));
+document.getElementById('l-zoom-out').addEventListener('click', () => zoomBy(lSvgSel, lZoom, 1 / 1.5));
+
 // Modo Livre
 document.getElementById('f-submit').addEventListener('click', submitFree);
 document.getElementById('f-ans').addEventListener('keydown', e => { if (e.key === 'Enter') submitFree(); });
@@ -2385,6 +2722,9 @@ window.addEventListener('resize', () => {
         if (gs.perQuestionZoom) zoomToCountry(q.id);
         else zoomToContinent();
       }
+    } else if (document.getElementById('localizar').classList.contains('active')) {
+      buildLocalizarMap();
+      ls.results?.forEach(r => paintL(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
     } else if (document.getElementById('free').classList.contains('active')) {
       buildFreeMap();
     } else if (document.getElementById('duel').classList.contains('active')) {

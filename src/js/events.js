@@ -16,6 +16,15 @@ document.querySelectorAll('.btn-level-duel').forEach(btn => {
   });
 });
 
+// Level picker — Modo Localizar
+document.querySelectorAll('.btn-level-localizar').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-level-localizar').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedLocalizarLevel = +btn.dataset.level;
+  });
+});
+
 // Continent picker
 document.querySelectorAll('.btn-continent').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -31,6 +40,7 @@ document.getElementById('btn-duel').addEventListener('click', startDuel);
 document.getElementById('btn-duel-online').addEventListener('click', startOnlineDuel);
 document.getElementById('btn-continent').addEventListener('click', startContinentMode);
 document.getElementById('btn-free').addEventListener('click', startFreeMode);
+document.getElementById('btn-localizar').addEventListener('click', startLocalizarMode);
 
 // Modo Perguntas
 document.getElementById('btn-submit').addEventListener('click', submitQ);
@@ -68,6 +78,13 @@ document.querySelectorAll('.btn-level-online').forEach(btn => {
   });
 });
 
+// Modo Localizar
+document.getElementById('l-logo').addEventListener('click', confirmQuit);
+document.getElementById('l-quit').addEventListener('click', confirmQuit);
+document.getElementById('l-giveup').addEventListener('click', localizarGiveUp);
+document.getElementById('l-zoom-in').addEventListener('click',  () => zoomBy(lSvgSel, lZoom, 1.5));
+document.getElementById('l-zoom-out').addEventListener('click', () => zoomBy(lSvgSel, lZoom, 1 / 1.5));
+
 // Modo Livre
 document.getElementById('f-submit').addEventListener('click', submitFree);
 document.getElementById('f-ans').addEventListener('keydown', e => { if (e.key === 'Enter') submitFree(); });
@@ -95,6 +112,9 @@ window.addEventListener('resize', () => {
         if (gs.perQuestionZoom) zoomToCountry(q.id);
         else zoomToContinent();
       }
+    } else if (document.getElementById('localizar').classList.contains('active')) {
+      buildLocalizarMap();
+      ls.results?.forEach(r => paintL(r.id, r.pts > 0 ? 'var(--green)' : 'var(--red)'));
     } else if (document.getElementById('free').classList.contains('active')) {
       buildFreeMap();
     } else if (document.getElementById('duel').classList.contains('active')) {

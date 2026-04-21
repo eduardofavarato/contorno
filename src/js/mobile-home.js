@@ -24,5 +24,6 @@ document.querySelectorAll('.m-mode-btn').forEach(btn => {
 document.getElementById('m-btn-back').addEventListener('click', mobileShowStep1);
 document.getElementById('m-btn-play').addEventListener('click', startGame);
 document.getElementById('m-btn-continent').addEventListener('click', startContinentMode);
+document.getElementById('m-btn-localizar').addEventListener('click', startLocalizarMode);
 document.getElementById('m-btn-duel').addEventListener('click', startDuel);
 document.getElementById('m-btn-duel-online').addEventListener('click', startOnlineDuel);

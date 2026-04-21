@@ -1,0 +1,45 @@
+<div id="localizar" class="screen">
+  <div class="g-header">
+    <div class="g-logo" id="l-logo">Contorno</div>
+    <span class="mode-badge">Modo Localizar</span>
+    <div class="g-stats">
+      <div class="stat">
+        <div class="stat-lbl">Pergunta</div>
+        <div class="stat-val" id="l-q-num">1/10</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Pontuação</div>
+        <div class="stat-val gold" id="l-score">0</div>
+      </div>
+    </div>
+    <button class="g-quit" id="l-quit">Sair</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="l-prog" style="width:0%"></div>
+  </div>
+
+  <div class="map-area" id="localizar-map-area">
+    <svg id="localizar-svg"></svg>
+    <div class="zoom-controls">
+      <button class="btn-zoom" id="l-zoom-in"  title="Aproximar (+)">+</button>
+      <button class="btn-zoom" id="l-zoom-out" title="Afastar (−)">−</button>
+    </div>
+    <div class="map-tooltip" id="l-tooltip"></div>
+  </div>
+
+  <div class="g-bottom">
+    <div class="l-target">
+      <div class="l-target-lbl">Encontre no mapa:</div>
+      <div class="l-country-name" id="l-country-name">—</div>
+    </div>
+    <div class="bottom-info">
+      <div class="pts-label">Pontos disponíveis: <span id="l-pts">2.000</span></div>
+      <div class="wrongs" id="l-wrongs"></div>
+    </div>
+    <div class="l-actions">
+      <button class="btn-giveup" id="l-giveup">Desistir</button>
+    </div>
+    <div class="feedback" id="l-feedback"></div>
+  </div>
+</div>

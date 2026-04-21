@@ -1,0 +1,17 @@
+.l-target {
+  padding: .6rem 1.25rem .2rem;
+  text-align: center;
+}
+.l-target-lbl {
+  font-size: .72rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.l-country-name {
+  font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 900;
+  color: var(--gold); line-height: 1.1; margin-top: .15rem;
+}
+.l-actions {
+  display: flex; justify-content: center;
+  padding: .4rem 1.25rem 0;
+}
+#localizar-svg .cp { cursor: crosshair; }

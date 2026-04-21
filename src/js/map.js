@@ -80,8 +80,9 @@ function zoomToCountryOn(id, prefix, svgSel, zoom, areaId) {
   } catch (e) {}
 }
 
-function zoomToCountry(id)     { zoomToCountryOn(id, 'c', gSvgSel, gZoom, 'map-area'); }
-function zoomToCountryDuel(id) { zoomToCountryOn(id, 'd', dSvgSel, dZoom, 'duel-map-area'); }
+function zoomToCountry(id)          { zoomToCountryOn(id, 'c', gSvgSel, gZoom, 'map-area'); }
+function zoomToCountryDuel(id)      { zoomToCountryOn(id, 'd', dSvgSel, dZoom, 'duel-map-area'); }
+function zoomToCountryLocalizar(id) { zoomToCountryOn(id, 'l', lSvgSel, lZoom, 'localizar-map-area'); }
 
 function zoomToContinent() {
   const cont = CONTINENT_POOLS[selectedContinent];

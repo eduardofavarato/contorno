@@ -79,6 +79,30 @@
       <button class="btn-mode-online" id="btn-duel-online">🌐 Jogar Online</button>
     </div>
 
+    <!-- Modo Localizar -->
+    <div class="mode-card">
+      <div class="mode-card-icon">🎯</div>
+      <h3>Modo Localizar</h3>
+      <div class="card-desc">
+        <p>O nome do país é revelado — encontre-o no mapa clicando no lugar certo!</p>
+        <details class="card-details">
+          <summary>Detalhes</summary>
+          <ul>
+            <li>10 países por rodada</li>
+            <li>Até 2.000 pts por acerto</li>
+            <li>–200 pts por clique errado</li>
+            <li>Máximo de 3 tentativas por país</li>
+          </ul>
+        </details>
+      </div>
+      <div class="level-picker">
+        <button class="btn-level-localizar active" data-level="1">Fácil</button>
+        <button class="btn-level-localizar" data-level="2">Médio</button>
+        <button class="btn-level-localizar" data-level="3">Difícil</button>
+      </div>
+      <button class="btn-mode" id="btn-localizar">Jogar</button>
+    </div>
+
     <!-- Modo Livre -->
     <div class="mode-card">
       <div class="mode-card-icon">🔍</div>
@@ -125,6 +149,14 @@
         <div class="m-mode-info">
           <div class="m-mode-name">Modo Disputa</div>
           <div class="m-mode-sub">Dois jogadores, roubo de pontos</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </button>
+      <button class="m-mode-btn" data-mode="localizar">
+        <span class="m-mode-icon">🎯</span>
+        <div class="m-mode-info">
+          <div class="m-mode-name">Modo Localizar</div>
+          <div class="m-mode-sub">Encontre o país no mapa pelo nome</div>
         </div>
         <span class="m-chevron">›</span>
       </button>
@@ -177,6 +209,23 @@
           </div>
         </div>
         <button class="btn-mode" id="m-btn-continent">Jogar</button>
+      </div>
+
+      <!-- Localizar -->
+      <div class="m-config" id="mc-localizar" style="display:none">
+        <div class="m-config-header">
+          <span class="m-config-icon">🎯</span>
+          <span class="m-config-name">Modo Localizar</span>
+        </div>
+        <div class="m-config-section">
+          <div class="m-config-label">Dificuldade</div>
+          <div class="level-picker">
+            <button class="btn-level-localizar active" data-level="1">Fácil</button>
+            <button class="btn-level-localizar" data-level="2">Médio</button>
+            <button class="btn-level-localizar" data-level="3">Difícil</button>
+          </div>
+        </div>
+        <button class="btn-mode" id="m-btn-localizar">Jogar</button>
       </div>
 
       <!-- Disputa -->
