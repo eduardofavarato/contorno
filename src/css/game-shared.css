@@ -87,7 +87,8 @@
 .input-row { display: flex; gap: .6rem; }
 
 .ans-input {
-  flex: 1; background: var(--bg3); border: 2px solid var(--border);
+  /* min-width: 0 lets the field shrink; otherwise its intrinsic width pushes "Desistir" off narrow screens. */
+  flex: 1; min-width: 0; background: var(--bg3); border: 2px solid var(--border);
   border-radius: 8px; padding: .7rem 1rem;
   font-size: 1rem; color: var(--text); outline: none; transition: border-color .2s;
 }

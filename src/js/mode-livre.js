@@ -37,7 +37,7 @@ function freeSelectCountry(id) {
   inp.disabled    = false;
   inp.value       = '';
   inp.className   = 'ans-input';
-  inp.placeholder = 'Digite o nome do país…';
+  inp.placeholder = 'Nome do país…';
   document.getElementById('f-submit').disabled = false;
   document.getElementById('f-hint').textContent = 'País selecionado — qual é o nome dele?';
   setFeedback('f-feedback', '');

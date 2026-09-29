@@ -110,7 +110,7 @@ function duelAsk() {
 
   const inp = document.getElementById('d-ans');
   inp.value = ''; inp.disabled = false; inp.className = 'ans-input';
-  inp.placeholder = 'Digite o nome do país…';
+  inp.placeholder = 'Nome do país…';
   document.getElementById('d-submit').disabled = false;
   document.getElementById('d-giveup').disabled = ds.phase !== 'primary' || ds.inTiebreaker;
   setFeedback('d-feedback', '');

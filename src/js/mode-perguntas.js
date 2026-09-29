@@ -89,7 +89,7 @@ function askQuestion() {
 
   const inp = document.getElementById('ans');
   inp.value = ''; inp.disabled = false; inp.className = 'ans-input';
-  inp.placeholder = 'Digite o nome do país…';
+  inp.placeholder = 'Nome do país…';
   document.getElementById('btn-submit').disabled = false;
   document.getElementById('btn-giveup').disabled = false;
   document.getElementById('prog').style.width = `${(gs.idx / gs.total) * 100}%`;

@@ -158,7 +158,7 @@ function handleOnlineQuestion(msg) {
 
   if (amActive) {
     inp.disabled = false;
-    inp.placeholder = 'Digite o nome do país…';
+    inp.placeholder = 'Nome do país…';
     document.getElementById('d-submit').disabled = false;
     document.getElementById('d-giveup').disabled = gamePhase !== 'primary' || inTiebreaker;
     inp.focus();
