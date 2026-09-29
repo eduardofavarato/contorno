@@ -45,6 +45,8 @@ src/
 server/
   src/          # Servidor: serve o index.html e o Modo Disputa Online (WebSocket em /ws)
   test/         # Testes (node --test)
+android/        # Projeto Android (Capacitor) do app
+assets/         # Fontes do ícone do app (scripts/generate-icon.mjs)
 build.js        # Compila tudo (incluindo d3/topojson, sem CDN) em index.html
 Dockerfile      # Imagem de produção: build do cliente + servidor
 ```
@@ -69,6 +71,21 @@ npm test      # testes do servidor (lógica do duelo e WebSocket de ponta a pont
 ```
 
 Para testar o modo online, abra duas abas em `http://localhost:8080`.
+
+### App Android
+
+O app (`br.com.fvrt.contorno`) empacota o mesmo `index.html` com [Capacitor](https://capacitorjs.com/) e é distribuído
+pelo [WalduApps](https://walduapps.fvrt.com.br). O `server.hostname` do `capacitor.config.json` faz o app se apresentar como
+`https://contorno.fvrt.com.br`, então o Modo Disputa Online usa o mesmo servidor e a mesma lista de origens da web.
+
+```bash
+npm run build:app                       # build em www/ + cap sync
+cd android && ./gradlew assembleDebug   # JDK 21; APK em app/build/outputs/apk/debug/
+```
+
+- **Ícone:** gerado do próprio mapa por `node scripts/generate-icon.mjs` (contorno do Brasil) e depois `npx capacitor-assets generate --android`.
+- **Publicar:** `git tag -a v1.2.3 -m "Novidades desta versão" && git push origin v1.2.3`. O workflow `android-release.yml`
+  gera o APK assinado (versionCode 10203) e publica no WalduApps; a mensagem da tag aparece para os usuários.
 
 ### Deploy
 

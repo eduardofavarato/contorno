@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same as the bg variable in src/css/variables.css: fills the system bar areas around the web content. -->
+    <color name="contorno_background">#0D1117</color>
+</resources>

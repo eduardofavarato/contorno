@@ -1,0 +1,15 @@
+{
+  "appId": "br.com.fvrt.contorno",
+  "appName": "Contorno",
+  "webDir": "www",
+  "server": {
+    "hostname": "contorno.fvrt.com.br",
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#0d1117",
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK"
+    }
+  }
+}

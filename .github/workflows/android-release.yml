@@ -1,0 +1,65 @@
+name: Android release
+
+# Tag `v1.2.3` -> signed release APK published to WalduApps (walduapps.fvrt.com.br).
+# The annotated tag message becomes the release notes users read ("Novidades").
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build web app into the native project
+        run: npm run build:app
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          IFS=. read -r MAJOR MINOR PATCH <<< "$VERSION"
+          # 1.2.3 -> 10203: monotonic as long as minor/patch stay below 100.
+          echo "name=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "code=$((MAJOR * 10000 + MINOR * 100 + PATCH))" >> "$GITHUB_OUTPUT"
+
+      # Same release key as the WalduApps store (one key for all of Eduardo's apps).
+      - name: Restore release keystore
+        run: echo "${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
+
+      - name: Build signed release APK
+        working-directory: android
+        env:
+          ANDROID_RELEASE_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: >
+          ./gradlew assembleRelease
+          -Pcontorno.versionCode=${{ steps.version.outputs.code }}
+          -Pcontorno.versionName=${{ steps.version.outputs.name }}
+
+      - name: Publish to WalduApps
+        env:
+          WALDUAPPS_TOKEN: ${{ secrets.WALDUAPPS_TOKEN }}
+        run: |
+          # actions/checkout turns annotated tags into lightweight ones; fetch the real tag object first.
+          git fetch --quiet --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+          CHANGELOG="$(git for-each-ref --format='%(if:equals=tag)%(objecttype)%(then)%(contents)%(end)' "refs/tags/$GITHUB_REF_NAME")"
+          [ -n "$CHANGELOG" ] || CHANGELOG="Versão ${{ steps.version.outputs.name }}"
+          curl --fail-with-body \
+            -H "Authorization: Bearer $WALDUAPPS_TOKEN" \
+            -F "apk=@android/app/build/outputs/apk/release/app-release.apk" \
+            -F "changelog=$CHANGELOG" \
+            https://walduapps.fvrt.com.br/api/releases
