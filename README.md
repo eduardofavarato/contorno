@@ -61,7 +61,7 @@ npm run build
 
 `@include` insere o arquivo como está; `@include-module` também remove os `export` (usado para `shared/`). Nada é carregado de CDN, então todos os modos, exceto o online, funcionam sem internet.
 
-> `index.html` é gerado: edite os arquivos em `src/` e `shared/`, nunca o `index.html` diretamente.
+> `index.html` é gerado (e não é versionado): edite os arquivos em `src/` e `shared/`.
 
 ### Desenvolvimento
 
@@ -91,7 +91,8 @@ cd android && ./gradlew assembleDebug   # JDK 21; APK em app/build/outputs/apk/d
 
 Push na `main` roda `.github/workflows/cd.yml`: testes, depois imagem no GHCR (`ghcr.io/eduardofavarato/contorno`),
 depois deploy no mini PC `fvrt` via Tailscale. Em produção, o container entra na rede da home-server e o Cloudflare
-Tunnel publica `https://contorno.fvrt.com.br` (página e `/ws`).
+Tunnel publica `https://contorno.fvrt.com.br` (página e `/ws`). O antigo endereço do GitHub Pages
+(`eduardofavarato.github.io/contorno`) só redireciona para lá, a partir de `docs/index.html`.
 
 ---
 
