@@ -1,0 +1,20 @@
+# Production on the fvrt mini PC, next to Golzinho: joins home-server's network so its Cloudflare Tunnel
+# routes contorno.fvrt.com.br -> http://contorno:8080 (web app + /ws). Stateless, nothing to configure.
+#
+#   docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
+name: contorno
+
+services:
+  contorno:
+    image: ghcr.io/eduardofavarato/contorno:latest
+    restart: unless-stopped
+    environment:
+      # github.io stays allowed until the GitHub Pages copy is retired.
+      ALLOWED_ORIGINS: https://contorno.fvrt.com.br,https://eduardofavarato.github.io
+    networks:
+      - shared
+
+networks:
+  shared:
+    name: home-server_default
+    external: true

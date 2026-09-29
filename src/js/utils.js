@@ -1,9 +1,3 @@
-function norm(s) {
-  return s.toLowerCase()
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
 function fmt(n) { return n.toLocaleString('pt-BR'); }
 
 function shuffle(arr) {

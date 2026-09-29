@@ -16,7 +16,7 @@ Igual ao Modo Perguntas, mas todos os países de um continente escolhido.
 Dois jogadores no mesmo dispositivo. Alterna perguntas entre os jogadores — quem errar dá chance de roubo ao adversário. Empate aciona Rodada de Fogo.
 
 ### Modo Disputa Online
-Igual ao Modo Disputa, mas cada jogador no seu próprio dispositivo via WebSocket (PartyKit). Um jogador cria a sala e compartilha o código de 4 caracteres com o adversário.
+Igual ao Modo Disputa, mas cada jogador no seu próprio dispositivo, via WebSocket com o servidor próprio do Contorno (`server/`). Um jogador cria a sala, recebe um código de 4 caracteres e compartilha com o adversário.
 
 ### Modo Livre
 Exploração sem pressão: clique em qualquer país para tentar adivinhar.
@@ -28,61 +28,58 @@ Exploração sem pressão: clique em qualquer país para tentar adivinhar.
 ### Pré-requisitos
 
 ```
-node >= 18
-npm install
+node >= 22
+npm install && npm install --prefix server
 ```
 
 ### Estrutura do projeto
 
 ```
+shared/
+  countries.js  # Países, sinônimos e níveis: fonte única para o cliente e o servidor
 src/
   css/          # Folhas de estilo separadas por contexto
   html/         # Partials HTML (telas e componentes)
-  js/           # Módulos JavaScript
+  js/           # Módulos JavaScript do cliente
   template.html # Shell com diretivas @include
-party/
-  disputa.js    # Servidor PartyKit (Modo Disputa Online)
-build.js        # Script de build — compila tudo em index.html
-index.html      # Saída compilada (não editar diretamente)
-partykit.json   # Configuração do servidor PartyKit
+server/
+  src/          # Servidor: serve o index.html e o Modo Disputa Online (WebSocket em /ws)
+  test/         # Testes (node --test)
+build.js        # Compila tudo (incluindo d3/topojson, sem CDN) em index.html
+Dockerfile      # Imagem de produção: build do cliente + servidor
 ```
 
 ### Build
 
-Compila todos os arquivos de `src/` em um único `index.html`:
+Compila `src/`, `shared/` e as bibliotecas do mapa em um único `index.html`:
 
 ```bash
 npm run build
 ```
 
-O build resolve as diretivas `@include` do `src/template.html` e concatena CSS, HTML e JS em linha. Sempre rode o build antes de testar ou commitar mudanças no `index.html`.
+`@include` insere o arquivo como está; `@include-module` também remove os `export` (usado para `shared/`). Nada é carregado de CDN, então todos os modos, exceto o online, funcionam sem internet.
 
-> `index.html` é gerado — edite os arquivos em `src/`, nunca o `index.html` diretamente.
+> `index.html` é gerado: edite os arquivos em `src/` e `shared/`, nunca o `index.html` diretamente.
 
-### Servidor local (Modo Disputa Online)
-
-Para testar o modo online localmente, suba o servidor PartyKit:
+### Desenvolvimento
 
 ```bash
-npm run dev
+npm run dev   # build + servidor em http://localhost:8080 (página e WebSocket juntos)
+npm test      # testes do servidor (lógica do duelo e WebSocket de ponta a ponta)
 ```
 
-O servidor roda em `localhost:1999`. O `index.html` já detecta automaticamente se está em localhost e aponta para esse endereço.
+Para testar o modo online, abra duas abas em `http://localhost:8080`.
 
-Abra dois abas do navegador com o `index.html` para simular dois jogadores.
+### Deploy
 
-### Deploy do servidor online
-
-```bash
-npm run deploy
-```
-
-Publica o servidor em `contorno.eduardofavarato.partykit.dev`. Requer login (`npx partykit login`).
+Push na `main` roda `.github/workflows/cd.yml`: testes, depois imagem no GHCR (`ghcr.io/eduardofavarato/contorno`),
+depois deploy no mini PC `fvrt` via Tailscale. Em produção, o container entra na rede da home-server e o Cloudflare
+Tunnel publica `https://contorno.fvrt.com.br` (página e `/ws`).
 
 ---
 
 ## Tecnologias
 
 - [D3.js v7](https://d3js.org/) + [TopoJSON](https://github.com/topojson/topojson) + [world-atlas](https://github.com/topojson/world-atlas) — mapa interativo
-- [PartyKit](https://partykit.io/) — WebSocket para o modo online
+- Node.js + [ws](https://github.com/websockets/ws): servidor próprio do modo online
 - HTML, CSS e JavaScript puros no cliente — sem framework

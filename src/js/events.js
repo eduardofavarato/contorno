@@ -87,7 +87,7 @@ document.getElementById('d-btn-home').addEventListener('click', () => isOnlineMo
 // Lobby Online
 document.getElementById('ol-btn-create').addEventListener('click', createRoom);
 document.getElementById('ol-btn-join').addEventListener('click', joinRoom);
-document.getElementById('ol-btn-back').addEventListener('click', () => { if (onlineSocket) { onlineSocket.close(); onlineSocket = null; } showScreen('home'); });
+document.getElementById('ol-btn-back').addEventListener('click', () => { closeOnlineSocket(); showScreen('home'); });
 document.getElementById('ol-join-input').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
 document.querySelectorAll('.btn-level-online').forEach(btn => {
   btn.addEventListener('click', () => {

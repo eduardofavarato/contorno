@@ -1,4 +1,7 @@
-const DB = {
+// Single source of truth for country data, shared by the web client and the online server.
+// ES module: the server imports it; build.js inlines it into index.html with the `export`s stripped.
+
+export const DB = {
   4:   { pt:"Afeganistão",               a:["afeganistao","afghanistan"] },
   8:   { pt:"Albânia",                   a:["albania"] },
   12:  { pt:"Argélia",                   a:["argelia","algeria"] },
@@ -164,3 +167,45 @@ const DB = {
   854: { pt:"Burkina Faso",              a:["burkina faso","burkina"] },
   254: { pt:"Guiana Francesa",           a:["guiana francesa","french guiana","guyana francesa"] },
 };
+
+export const TIER1 = new Set([
+  // Americas
+  76,840,124,484,32,170,152,604,192,858,68,862,
+  // Europe
+  276,250,826,380,724,643,528,620,752,756,300,40,56,616,208,
+  // Africa
+  818,566,710,404,504,231,800,
+  // Middle East / Turkey
+  682,784,376,364,368,792,
+  // Asia
+  156,356,392,410,586,360,764,458,
+  // Oceania
+  36,
+  // Extra
+  348,
+]);
+
+export const TIER2 = new Set([
+  // Americas
+  84,188,214,218,222,320,332,340,558,591,600,740,
+  // Europe
+  31,51,70,100,112,191,203,233,246,268,352,372,383,428,440,498,499,578,642,688,703,705,807,
+  // Africa
+  12,24,72,120,140,148,180,204,226,232,266,288,324,384,430,434,450,454,466,478,508,516,562,646,686,694,706,716,728,729,768,788,834,854,894,
+  // Middle East
+  4,400,414,422,634,760,887,
+  // Asia / Oceania
+  50,64,104,116,144,158,262,304,328,398,408,417,418,496,512,524,554,608,626,704,762,795,860,
+]);
+
+/** Normalizes typed answers: case, accents and punctuation don't matter. */
+export function norm(s) {
+  return s.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+export function isCorrectAnswer(countryId, answer) {
+  const typed = norm(answer);
+  return (DB[countryId]?.a || []).some(alias => norm(alias) === typed);
+}

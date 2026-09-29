@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <title>Contorno — Quiz de Países</title>
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<!-- Map libraries are bundled (not loaded from a CDN) so every offline mode works without internet. -->
+<script>/* @include node_modules/d3/dist/d3.min.js */</script>
+<script>/* @include node_modules/topojson-client/dist/topojson-client.min.js */</script>
 <style>
 /* @include src/css/variables.css */
 /* @include src/css/base.css */
@@ -32,7 +33,7 @@
 const worldTopo = // @include src/js/map-data.json
 ;
 // @include src/js/config.js
-// @include src/js/data.js
+// @include-module shared/countries.js
 // @include src/js/constants.js
 // @include src/js/tiers.js
 // @include src/js/utils.js

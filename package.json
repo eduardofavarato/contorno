@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "build": "node build.js",
-    "dev": "partykit dev",
-    "deploy": "partykit deploy"
+    "test": "npm --prefix server test",
+    "dev": "npm run build && npm --prefix server run dev"
   },
   "devDependencies": {
-    "partykit": "^0.0.115"
+    "d3": "7.9.0",
+    "topojson-client": "3.1.0"
   }
 }
