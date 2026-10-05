@@ -2,24 +2,30 @@
 
 Quiz de geografia interativo onde o jogador identifica países pelo contorno no mapa-múndi.
 
-## Modos de jogo
+## Modos e formatos
 
-### Modo Perguntas
-Um país é destacado no mapa a cada rodada. O jogador digita o nome e tenta acertar antes que os pontos acabem.
-- 10 países por rodada
-- Até **2.000 pts** por acerto, **–200 pts** por erro, máximo de 3 tentativas
+Cada modo (menos o Livre) pode ser jogado em dois **formatos**: **Individual** ou **Disputa**.
 
-### Modo Continentes
-Igual ao Modo Perguntas, mas todos os países de um continente escolhido.
+| Modo            | Como se responde                               | De onde vêm os países                  |
+| --------------- | ---------------------------------------------- | -------------------------------------- |
+| **Perguntas**   | Digitando o nome do país destacado no mapa     | Nível Fácil, Médio ou Difícil          |
+| **Continentes** | Digitando o nome do país destacado no mapa     | Um continente escolhido                |
+| **Localizar**   | Clicando no país cujo nome é mostrado          | Nível Fácil, Médio ou Difícil          |
+| **Livre**       | Clicando em qualquer país e digitando o nome   | Todo o mapa, sem pressão               |
 
-### Modo Disputa
-Dois jogadores no mesmo dispositivo. Alterna perguntas entre os jogadores — quem errar dá chance de roubo ao adversário. Empate aciona Rodada de Fogo.
+### Individual
 
-### Modo Disputa Online
-Igual ao Modo Disputa, mas cada jogador no seu próprio dispositivo, via WebSocket com o servidor próprio do Contorno (`server/`). Um jogador cria a sala, recebe um código de 4 caracteres e compartilha com o adversário.
+- 10 países por rodada (em Continentes, todos os do continente).
+- Até **2.000 pts** por acerto, **–200 pts** por erro, no máximo 3 tentativas por país.
 
-### Modo Livre
-Exploração sem pressão: clique em qualquer país para tentar adivinhar.
+### Disputa
+
+Dois jogadores alternam as perguntas: quem errar (ou desistir) dá ao adversário uma chance de **roubo** de 1.000 pts.
+
+- 10 perguntas, 1 tentativa cada (em Continentes, até 10 países sorteados do continente).
+- Empate: **Rodada de Fogo** — os dois respondem o mesmo país; quem acertar sozinho vence.
+- **Local** (no mesmo dispositivo) ou **Online**: cada jogador no seu aparelho, via WebSocket. Quem cria a sala recebe um
+  código de 4 caracteres para o adversário entrar.
 
 ---
 
@@ -29,75 +35,74 @@ Exploração sem pressão: clique em qualquer país para tentar adivinhar.
 
 ```
 node >= 22
-npm install && npm install --prefix server
+npm install
 ```
 
-### Estrutura do projeto
+### Estrutura (monorepo npm workspaces)
 
 ```
-shared/
-  countries.js  # Países, sinônimos e níveis: fonte única para o cliente e o servidor
-src/
-  css/          # Folhas de estilo separadas por contexto
-  html/         # Partials HTML (telas e componentes)
-  js/           # Módulos JavaScript do cliente
-  template.html # Shell com diretivas @include
-server/
-  src/          # Servidor: serve o index.html e o Modo Disputa Online (WebSocket em /ws)
-  test/         # Testes (node --test)
-android/        # Projeto Android (Capacitor) do app
-assets/         # Fontes do ícone do app (scripts/generate-icon.mjs)
-build.js        # Compila tudo (incluindo d3/topojson, sem CDN) em index.html
-Dockerfile      # Imagem de produção: build do cliente + servidor
+packages/
+  core/       # Regras do jogo em TypeScript puro (sem DOM): países, pools, motores Individual/Disputa/Livre, protocolo online
+apps/
+  web/        # Cliente React + Vite (mapa em d3-geo) e o app Android (Capacitor)
+  server/     # Fastify: serve o cliente e hospeda a Disputa Online (WebSocket em /ws), com o duelo autoritativo
+Dockerfile    # Imagem de produção: servidor + cliente
 ```
 
-### Build
+Princípios:
 
-Compila `src/`, `shared/` e as bibliotecas do mapa em um único `index.html`:
+- **Uma só implementação das regras.** `core` define os motores como funções puras (`reducer(estado, evento) → estado`);
+  o jogo local roda no cliente e a Disputa Online roda no servidor com o mesmo código.
+- **Modo = desafio × pool × formato.** Digitar ou clicar, nível ou continente, individual ou disputa: um novo modo é
+  uma nova combinação, não uma nova cópia da tela.
+- O servidor só envia ao cliente o que a tela precisa (`DuelView`), nunca as perguntas futuras.
+
+### Comandos
 
 ```bash
-npm run build
+npm run dev:server   # servidor em http://localhost:8080 (WebSocket em /ws)
+npm run dev:web      # cliente em http://localhost:5173 (proxy de /ws para o servidor)
+npm test             # testes de core, server e web (Vitest)
+npm run lint         # ESLint (strict, com tipos)
+npm run typecheck    # tsc em cada pacote
+npm run format       # Prettier
+npm run build        # core/web/server
 ```
 
-`@include` insere o arquivo como está; `@include-module` também remove os `export` (usado para `shared/`). Nada é carregado de CDN, então todos os modos, exceto o online, funcionam sem internet.
+Para testar a Disputa Online, rode servidor e cliente e abra duas abas em `http://localhost:5173`.
 
-> `index.html` é gerado (e não é versionado): edite os arquivos em `src/` e `shared/`.
-
-### Desenvolvimento
-
-```bash
-npm run dev   # build + servidor em http://localhost:8080 (página e WebSocket juntos)
-npm test      # testes do servidor (lógica do duelo e WebSocket de ponta a ponta)
-```
-
-Para testar o modo online, abra duas abas em `http://localhost:8080`.
+Variáveis do servidor: `PORT` (8080), `HOST`, `PUBLIC_DIR` (pasta do cliente compilado, para servir a página) e
+`ALLOWED_ORIGINS` (origens aceitas no WebSocket, separadas por vírgula; vazio aceita qualquer uma).
 
 ### App Android
 
-O app (`br.com.fvrt.contorno`) empacota o mesmo `index.html` com [Capacitor](https://capacitorjs.com/) e é distribuído
+O app (`br.com.fvrt.contorno`) empacota o mesmo cliente com [Capacitor](https://capacitorjs.com/) e é distribuído
 pelo [WalduApps](https://walduapps.fvrt.com.br). O `server.hostname` do `capacitor.config.json` faz o app se apresentar como
-`https://contorno.fvrt.com.br`, então o Modo Disputa Online usa o mesmo servidor e a mesma lista de origens da web.
+`https://contorno.fvrt.com.br`, então a Disputa Online usa o mesmo servidor e a mesma lista de origens da web.
+O botão voltar do sistema anda pelas telas (e sai do app na tela inicial).
 
 ```bash
-npm run build:app                       # build em www/ + cap sync
-cd android && ./gradlew assembleDebug   # JDK 21; APK em app/build/outputs/apk/debug/
+npm run build:app -w @contorno/web      # build do cliente + cap sync
+cd apps/web/android && ./gradlew assembleDebug   # JDK 21; APK em app/build/outputs/apk/debug/
 ```
 
-- **Ícone:** gerado do próprio mapa por `node scripts/generate-icon.mjs` (contorno do Brasil) e depois `npx capacitor-assets generate --android`.
+- **Ícone:** `npm run icons -w @contorno/web` desenha o contorno do Brasil a partir do próprio mapa e gera os PNGs.
 - **Publicar:** `git tag -a v1.2.3 -m "Novidades desta versão" && git push origin v1.2.3`. O workflow `android-release.yml`
   gera o APK assinado (versionCode 10203) e publica no WalduApps; a mensagem da tag aparece para os usuários.
 
 ### Deploy
 
-Push na `main` roda `.github/workflows/cd.yml`: testes, depois imagem no GHCR (`ghcr.io/eduardofavarato/contorno`),
-depois deploy no mini PC `fvrt` via Tailscale. Em produção, o container entra na rede da home-server e o Cloudflare
-Tunnel publica `https://contorno.fvrt.com.br` (página e `/ws`). O antigo endereço do GitHub Pages
-(`eduardofavarato.github.io/contorno`) só redireciona para lá, a partir de `docs/index.html`.
+Push na `main` roda `.github/workflows/cd.yml`: verificação (`ci.yml`: formato, lint, tipos, testes e build), depois imagem
+no GHCR (`ghcr.io/eduardofavarato/contorno`), depois deploy no mini PC `fvrt` via Tailscale. Em produção, o container
+entra na rede da home-server e o Cloudflare Tunnel publica `https://contorno.fvrt.com.br` (página e `/ws`). O antigo
+endereço do GitHub Pages (`eduardofavarato.github.io/contorno`) só redireciona para lá, a partir de `docs/index.html`.
 
 ---
 
 ## Tecnologias
 
-- [D3.js v7](https://d3js.org/) + [TopoJSON](https://github.com/topojson/topojson) + [world-atlas](https://github.com/topojson/world-atlas) — mapa interativo
-- Node.js + [ws](https://github.com/websockets/ws): servidor próprio do modo online
-- HTML, CSS e JavaScript puros no cliente — sem framework
+- TypeScript (strict), npm workspaces, Vitest, ESLint + Prettier
+- [React](https://react.dev/) + [Vite](https://vite.dev/) — cliente; [d3-geo](https://d3js.org/d3-geo) +
+  [d3-zoom](https://d3js.org/d3-zoom) + [TopoJSON](https://github.com/topojson/topojson) — mapa interativo
+- [Fastify](https://fastify.dev/) + [ws](https://github.com/websockets/ws) + [zod](https://zod.dev/) — servidor e protocolo
+- [Capacitor](https://capacitorjs.com/) — app Android

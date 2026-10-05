@@ -5,7 +5,16 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths: ["src/**", "shared/**", "server/**", "build.js", "package*.json", "Dockerfile", "docker-compose.prod.yml", ".github/workflows/cd.yml"]
+    paths:
+      - "packages/**"
+      - "apps/**"
+      - "!apps/web/android/**"
+      - "package*.json"
+      - "tsconfig.base.json"
+      - "Dockerfile"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/cd.yml"
+      - ".github/workflows/ci.yml"
   workflow_dispatch:
 
 concurrency:
@@ -14,19 +23,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            server/package-lock.json
-      - run: npm ci && npm ci --prefix server
-      - run: npm run build
-      - run: npm test
+    uses: ./.github/workflows/ci.yml
 
   publish:
     needs: test

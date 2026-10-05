@@ -17,7 +17,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build web app into the native project
-        run: npm run build:app
+        run: npm run build:app --workspace @contorno/web
 
       - uses: actions/setup-java@v4
         with:
@@ -39,7 +39,7 @@ jobs:
         run: echo "${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
 
       - name: Build signed release APK
-        working-directory: android
+        working-directory: apps/web/android
         env:
           ANDROID_RELEASE_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
@@ -60,6 +60,6 @@ jobs:
           [ -n "$CHANGELOG" ] || CHANGELOG="Versão ${{ steps.version.outputs.name }}"
           curl --fail-with-body \
             -H "Authorization: Bearer $WALDUAPPS_TOKEN" \
-            -F "apk=@android/app/build/outputs/apk/release/app-release.apk" \
+            -F "apk=@apps/web/android/app/build/outputs/apk/release/app-release.apk" \
             -F "changelog=$CHANGELOG" \
             https://walduapps.fvrt.com.br/api/releases
