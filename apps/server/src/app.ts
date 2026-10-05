@@ -1,7 +1,15 @@
+import fastifyCookie from '@fastify/cookie';
+import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import fastifyWebsocket from '@fastify/websocket';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import type { ServerConfig } from '@contorno/core';
+import { registerAuthRoutes } from './auth/routes';
+import { registerGameRoutes } from './games/routes';
+import { registerErrorHandler } from './http/errors';
+import { registerRankingRoutes } from './ranking/routes';
 import { RoomRegistry } from './rooms/RoomRegistry';
+import type { AccountServices } from './services';
 import { handleGameSocket, type AliveSocket } from './ws/gameSocket';
 
 /** Messages are tiny (a guess is well under 200 bytes); anything bigger is not from this game. */
@@ -18,6 +26,10 @@ export interface AppOptions {
   readonly publicDir?: string | undefined;
   readonly allowedOrigins?: readonly string[];
   readonly registry?: RoomRegistry;
+  /** Login and ranking; without them the server only hosts the game. */
+  readonly accounts?: AccountServices | null;
+  /** Mark the refresh cookie `Secure`; leave off only for plain-HTTP development. */
+  readonly secureCookies?: boolean;
   readonly logger?: FastifyServerOptions['logger'];
   readonly heartbeatMs?: number;
   readonly sweepMs?: number;
@@ -27,9 +39,19 @@ export interface AppOptions {
  * One process serves the web app and the online duel (WebSocket at /ws), so the browser talks to a single origin.
  */
 export async function buildApp(options: AppOptions = {}): Promise<FastifyInstance> {
-  const { publicDir, allowedOrigins = [], logger = false, heartbeatMs = 30_000, sweepMs = 60_000 } = options;
+  const {
+    publicDir,
+    allowedOrigins = [],
+    logger = false,
+    heartbeatMs = 30_000,
+    sweepMs = 60_000,
+    accounts = null,
+    secureCookies = true,
+  } = options;
   const registry = options.registry ?? new RoomRegistry();
-  const app = Fastify({ logger });
+  // Behind Cloudflare's tunnel the client address arrives in X-Forwarded-For, which rate limits must use.
+  const app = Fastify({ logger, trustProxy: true });
+  registerErrorHandler(app);
 
   app.addHook('onSend', (_request, reply, payload, done) => {
     reply.headers(SECURITY_HEADERS);
@@ -37,6 +59,18 @@ export async function buildApp(options: AppOptions = {}): Promise<FastifyInstanc
   });
 
   app.get('/healthz', () => ({ status: 'ok', rooms: registry.size }));
+
+  app.get('/api/v1/config', (): ServerConfig => ({
+    auth: { enabled: accounts !== null, googleClientId: accounts?.googleClientId ?? null },
+  }));
+
+  if (accounts) {
+    await app.register(fastifyCookie);
+    await app.register(fastifyRateLimit, { global: false });
+    registerAuthRoutes(app, { auth: accounts.auth, tokens: accounts.tokens, allowedOrigins, secureCookies });
+    registerGameRoutes(app, accounts.games, accounts.tokens);
+    registerRankingRoutes(app, accounts.ranking, accounts.tokens);
+  }
 
   await app.register(fastifyWebsocket, { options: { maxPayload: MAX_MESSAGE_BYTES } });
   app.get(
