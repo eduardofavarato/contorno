@@ -1,0 +1,65 @@
+.root {
+  --accent: var(--player-a);
+  --accent-soft: rgb(240 192 64 / 15%);
+  --answer-accent: var(--accent);
+}
+
+.playerB {
+  --accent: var(--player-b);
+  --accent-soft: rgb(88 166 255 / 15%);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1rem;
+  margin: -0.9rem -1.25rem 0.6rem;
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  transition:
+    background 0.25s,
+    border-color 0.25s;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.player {
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.label {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}

@@ -1,0 +1,29 @@
+.stat {
+  text-align: center;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.gold {
+  color: var(--gold);
+}
+
+.green {
+  color: var(--green);
+}
+
+@media (width <= 480px) {
+  .value {
+    font-size: 1rem;
+  }
+}

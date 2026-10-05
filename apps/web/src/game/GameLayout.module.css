@@ -1,0 +1,107 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1.25rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #f0c040, #ff8c00);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.6rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.quit {
+  flex-shrink: 0;
+  padding: 0.4rem 1rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.quit:hover {
+  color: var(--text);
+  background: var(--bg3);
+}
+
+.progress {
+  flex-shrink: 0;
+  height: 3px;
+  background: var(--border);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #ff8c00);
+  transition: width 0.6s ease;
+}
+
+.bottom {
+  flex-shrink: 0;
+  padding: 0.9rem 1.25rem max(0.9rem, env(safe-area-inset-bottom));
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+
+@media (width <= 480px) {
+  .header {
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  .stats {
+    gap: 0.85rem;
+  }
+
+  .badge {
+    display: none;
+  }
+}

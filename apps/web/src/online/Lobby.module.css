@@ -1,0 +1,116 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem 1.25rem;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #f0c040, #ff8c00);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.setup {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+.card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 240px;
+  padding: 1.5rem;
+  text-align: left;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.card h2 {
+  color: var(--gold);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.hint {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.input {
+  padding: 0.7rem 1rem;
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-align: center;
+  text-indent: 0.4em;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--gold);
+}
+
+.codeLabel {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.code {
+  padding: 1rem 2rem;
+  color: var(--gold);
+  font-size: 3rem;
+  font-weight: 900;
+  text-indent: 0.3em;
+  letter-spacing: 0.3em;
+  background: var(--bg2);
+  border: 2px dashed var(--gold);
+  border-radius: 14px;
+}
+
+.status {
+  color: var(--muted);
+}
+
+.error {
+  min-height: 1.3rem;
+  color: var(--red);
+  font-weight: 600;
+}
+
+.back {
+  width: auto;
+  min-width: 160px;
+}

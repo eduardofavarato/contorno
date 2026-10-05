@@ -1,0 +1,173 @@
+.info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.points {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.points span {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.wrongs {
+  color: var(--red);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.input {
+  /* min-width: 0 lets the field shrink; otherwise its intrinsic width pushes the buttons off narrow screens. */
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input::placeholder {
+  color: var(--muted);
+}
+
+.input:focus {
+  border-color: var(--answer-accent, var(--gold));
+}
+
+.input:disabled {
+  opacity: 0.65;
+}
+
+.ok {
+  border-color: var(--green);
+}
+
+.bad {
+  border-color: var(--red);
+}
+
+.shake {
+  animation: shake 0.35s ease;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-7px);
+  }
+
+  75% {
+    transform: translateX(7px);
+  }
+}
+
+.confirm,
+.giveUp {
+  padding: 0.7rem 1.3rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirm {
+  width: auto;
+  color: var(--bg);
+  font-weight: 800;
+  background: var(--gold-gradient);
+  border: 0;
+  transition: opacity 0.15s;
+}
+
+.confirm:hover {
+  opacity: 0.9;
+}
+
+.giveUp {
+  padding: 0.7rem 1rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  background: none;
+  border: 1px solid var(--border);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.giveUp:hover {
+  color: var(--text);
+  background: var(--bg3);
+}
+
+.confirm:disabled,
+.giveUp:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@media (width <= 480px) {
+  .confirm,
+  .giveUp {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.85rem;
+  }
+}
+
+.feedback {
+  min-height: 1.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.feedbackOk {
+  color: var(--green);
+}
+
+.feedbackBad {
+  color: var(--red);
+}
+
+.target {
+  padding: 0 0 0.4rem;
+  text-align: center;
+}
+
+.targetLabel {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.targetName {
+  margin-top: 0.15rem;
+  color: var(--gold);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+}
