@@ -11,7 +11,17 @@ Cada modo (menos o Livre) pode ser jogado em dois **formatos**: **Individual** o
 | **Perguntas**   | Digitando o nome do país destacado no mapa     | Nível Fácil, Médio ou Difícil          |
 | **Continentes** | Digitando o nome do país destacado no mapa     | Um continente escolhido                |
 | **Localizar**   | Clicando no país cujo nome é mostrado          | Nível Fácil, Médio ou Difícil          |
+| **Especial Brasil** | Estados e Capitais: digitando; Cidades: clicando no estado | Tema: Estados, Capitais ou Cidades (mapa do Brasil) |
 | **Livre**       | Clicando em qualquer país e digitando o nome   | Todo o mapa, sem pressão               |
+
+### Especial Brasil
+
+Usa o mapa dos 27 estados (malha oficial do IBGE) no lugar do mapa-múndi. Em vez de dificuldade, escolhe-se o tema:
+
+- **Estados:** um estado é destacado; digite o nome ou a sigla (`SP`).
+- **Capitais:** um estado é destacado; digite a capital.
+- **Cidades:** o nome de uma cidade é mostrado; clique no estado a que ela pertence. São as 3 mais populosas de cada
+  estado depois da capital (Censo 2022); o Distrito Federal não entra, pois só tem a capital.
 
 ### Individual
 
@@ -55,7 +65,19 @@ Princípios:
   o jogo local roda no cliente e a Disputa Online roda no servidor com o mesmo código.
 - **Modo = desafio × pool × formato.** Digitar ou clicar, nível ou continente, individual ou disputa: um novo modo é
   uma nova combinação, não uma nova cópia da tela.
-- O servidor só envia ao cliente o que a tela precisa (`DuelView`), nunca as perguntas futuras.
+- **Pergunta como unidade.** Os motores trabalham com `Question` (região do mapa, texto perguntado, resposta e respostas
+  aceitas), não com países: mundo, estados, capitais e cidades são só quizzes diferentes que produzem perguntas.
+- O servidor só envia ao cliente o que a tela precisa (`DuelView`): nunca as perguntas futuras nem as respostas aceitas,
+  e a resposta só vai depois que ninguém mais precisa respondê-la.
+
+### Dados do Brasil
+
+Gerados a partir das APIs públicas do IBGE, para serem reproduzíveis:
+
+```bash
+node packages/core/scripts/generate-brasil-data.mjs   # estados, capitais e as 3 maiores cidades de cada estado
+node apps/web/scripts/generate-brasil-map.mjs         # malha dos estados em TopoJSON
+```
 
 ### Comandos
 
