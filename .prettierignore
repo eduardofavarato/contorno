@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+**/android
+docs
+package-lock.json
+.github
+.idea
+**/scripts
+README.md
+apps/web/src/map/world.json
