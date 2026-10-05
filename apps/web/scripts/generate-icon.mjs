@@ -1,7 +1,7 @@
 // Draws the app icon (Brazil's outline in the app's gold, on its dark background) from the game's own map data.
 // Output: assets/*.svg; the PNGs for @capacitor/assets are rendered from them (see README).
 import { readFileSync, writeFileSync } from 'node:fs';
-import { geoMercator, geoPath } from 'd3';
+import { geoMercator, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
 
 const BRAZIL = 76;
@@ -9,7 +9,7 @@ const BACKGROUND = '#0d1117';
 const GOLD = '#f0c040';
 const SIZE = 1024;
 
-const topology = JSON.parse(readFileSync(new URL('../src/js/map-data.json', import.meta.url)));
+const topology = JSON.parse(readFileSync(new URL('../src/map/world.json', import.meta.url)));
 const brazil = feature(topology, topology.objects.countries).features.find(country => Number(country.id) === BRAZIL);
 
 function outline(margin, strokeWidth) {

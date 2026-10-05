@@ -1,7 +1,7 @@
 {
   "appId": "br.com.fvrt.contorno",
   "appName": "Contorno",
-  "webDir": "www",
+  "webDir": "dist",
   "server": {
     "hostname": "contorno.fvrt.com.br",
     "androidScheme": "https"
