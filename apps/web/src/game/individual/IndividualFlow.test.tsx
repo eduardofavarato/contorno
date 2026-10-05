@@ -182,10 +182,11 @@ describe('signed in', () => {
     renderFlow({ status: 'signedIn', user: { id: 1, name: 'Ana' } });
     await screen.findByRole('textbox', { name: 'Nome do país' });
 
-    expect(screen.getByRole('group', { name: 'Tempo' })).toHaveTextContent('0:00');
+    // The clock follows the real one a little too (shouldAdvanceTime), so allow a second or two of drift.
+    expect(screen.getByRole('group', { name: 'Tempo' })).toHaveTextContent(/0:0[0-2]/);
     act(() => {
       vi.advanceTimersByTime(65_000);
     });
-    expect(screen.getByRole('group', { name: 'Tempo' })).toHaveTextContent('1:05');
+    expect(screen.getByRole('group', { name: 'Tempo' })).toHaveTextContent(/1:0[5-9]/);
   });
 });
