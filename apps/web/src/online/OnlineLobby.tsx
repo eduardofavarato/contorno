@@ -2,7 +2,7 @@ import type { GameSetup } from '@contorno/core';
 import { useState, type SubmitEvent } from 'react';
 import { describeSetup } from '../copy';
 import { Button } from '../ui/Button';
-import { LobbyShell } from './LobbyShell';
+import { ScreenShell } from '../ui/ScreenShell';
 import styles from './Lobby.module.css';
 
 interface OnlineLobbyProps {
@@ -28,7 +28,7 @@ export function OnlineLobby({ setup, onCreate, onJoin, onBack }: OnlineLobbyProp
   };
 
   return (
-    <LobbyShell backLabel="← Voltar" onBack={onBack}>
+    <ScreenShell title="⚔️ Disputa Online" backLabel="← Voltar" onBack={onBack}>
       <div className={styles.cards}>
         <section className={styles.card} aria-label="Nova sala">
           <h2>Nova Sala</h2>
@@ -61,6 +61,6 @@ export function OnlineLobby({ setup, onCreate, onJoin, onBack }: OnlineLobbyProp
       <div className={styles.error} role="alert">
         {error}
       </div>
-    </LobbyShell>
+    </ScreenShell>
   );
 }

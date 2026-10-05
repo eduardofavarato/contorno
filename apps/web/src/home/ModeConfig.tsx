@@ -69,7 +69,7 @@ export function ModeConfig({ mode, selection, onChange, onPlay, layout = 'row' }
   );
 }
 
-interface PoolPickerProps {
+export interface PoolPickerProps {
   readonly mode: GameMode;
   readonly selection: ModeSelection;
   readonly onChange: (selection: ModeSelection) => void;
@@ -77,7 +77,7 @@ interface PoolPickerProps {
 }
 
 /** What the games of a mode draw from: a difficulty level, a continent or a Brazilian topic. */
-function PoolPicker({ mode, selection, onChange, layout }: PoolPickerProps) {
+export function PoolPicker({ mode, selection, onChange, layout }: PoolPickerProps) {
   switch (mode) {
     case 'continentes':
       return (

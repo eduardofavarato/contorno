@@ -2,15 +2,19 @@ import { MAX_POINTS, type IndividualResult } from '@contorno/core';
 import { useBackAction } from '../hooks/useBackAction';
 import { Button } from '../ui/Button';
 import { cx } from '../ui/cx';
-import { formatPoints, plural } from '../utils/format';
+import { formatDuration, formatPoints, plural } from '../utils/format';
 import { questionTitle } from '../utils/question';
 import { ratingFor } from './rating';
+import { RankingNotice, type RankingOutcome } from './RankingOutcome';
 import styles from './ResultsScreen.module.css';
 
 interface ResultsScreenProps {
   readonly modeName: string;
   readonly score: number;
   readonly results: readonly IndividualResult[];
+  /** How long the game took: the server's measure for ranked games, the player's own clock otherwise. */
+  readonly durationMs: number;
+  readonly ranking: RankingOutcome;
   readonly onPlayAgain: () => void;
   readonly onHome: () => void;
 }
@@ -27,7 +31,15 @@ function pointsClass(points: number): string | undefined {
   return points > 0 ? styles.low : styles.none;
 }
 
-export function ResultsScreen({ modeName, score, results, onPlayAgain, onHome }: ResultsScreenProps) {
+export function ResultsScreen({
+  modeName,
+  score,
+  results,
+  durationMs,
+  ranking,
+  onPlayAgain,
+  onHome,
+}: ResultsScreenProps) {
   useBackAction(onHome);
   const possible = results.length * MAX_POINTS;
   const rating = ratingFor(score / possible);
@@ -41,10 +53,13 @@ export function ResultsScreen({ modeName, score, results, onPlayAgain, onHome }:
         <div className={styles.score}>{formatPoints(score)}</div>
         <div className={styles.scoreOf}>de {formatPoints(possible)} pontos possíveis</div>
         <div className={styles.rating}>{rating.label}</div>
+        <div className={styles.time}>Tempo: {formatDuration(durationMs)}</div>
         <div className={styles.stars} aria-label={plural(rating.stars, 'estrela')}>
           {'⭐'.repeat(rating.stars)}
         </div>
       </section>
+
+      <RankingNotice outcome={ranking} />
 
       <section className={styles.review}>
         <h2>Resultado por País</h2>

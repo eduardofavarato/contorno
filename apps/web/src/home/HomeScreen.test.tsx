@@ -1,12 +1,17 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { WithAuth } from '../test-auth';
 import { HomeScreen } from './HomeScreen';
 
 function renderHome() {
   const onPlay = vi.fn();
   const onPlayFree = vi.fn();
-  render(<HomeScreen onPlay={onPlay} onPlayFree={onPlayFree} />);
+  render(
+    <WithAuth>
+      <HomeScreen onPlay={onPlay} onPlayFree={onPlayFree} onLogin={vi.fn()} onOpenRanking={vi.fn()} />
+    </WithAuth>,
+  );
   return { onPlay, onPlayFree };
 }
 

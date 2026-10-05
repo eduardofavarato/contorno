@@ -1,4 +1,5 @@
 import type { GameMode } from '@contorno/core';
+import { AccountBar } from '../auth/AccountBar';
 import { cx } from '../ui/cx';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import type { GameRequest } from '../navigation/types';
@@ -12,13 +13,16 @@ const MODES: readonly GameMode[] = ['perguntas', 'continentes', 'localizar', 'br
 interface HomeScreenProps {
   readonly onPlay: (request: GameRequest) => void;
   readonly onPlayFree: () => void;
+  readonly onLogin: () => void;
+  readonly onOpenRanking: () => void;
 }
 
-export function HomeScreen({ onPlay, onPlayFree }: HomeScreenProps) {
+export function HomeScreen({ onPlay, onPlayFree, onLogin, onOpenRanking }: HomeScreenProps) {
   const compact = useMediaQuery('(max-width: 480px)');
 
   return (
     <main className={cx(styles.home, compact && styles.homeCompact)}>
+      <AccountBar onLogin={onLogin} onOpenRanking={onOpenRanking} />
       <h1 className={styles.logo}>Contorno</h1>
       <p className={styles.tagline}>Reconheça o País. Ou Não.</p>
 

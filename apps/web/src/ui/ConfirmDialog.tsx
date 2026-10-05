@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useBackAction } from '../hooks/useBackAction';
 import { Button } from './Button';
 import styles from './ConfirmDialog.module.css';
@@ -10,10 +10,20 @@ interface ConfirmDialogProps {
   readonly cancelLabel: string;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
+  /** Extra content between the message and the buttons. */
+  readonly extra?: ReactNode;
 }
 
 /** Modal yes/no question. Focus starts on the safe choice and Escape cancels. */
-export function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  title,
+  message,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  onCancel,
+  extra,
+}: ConfirmDialogProps) {
   const titleId = useId();
   useBackAction(onCancel);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -36,6 +46,7 @@ export function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onCon
           {title}
         </h2>
         <p className={styles.message}>{message}</p>
+        {extra}
         <div className={styles.actions}>
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}

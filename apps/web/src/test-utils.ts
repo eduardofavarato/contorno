@@ -1,5 +1,6 @@
 import { quizFor, type GameSetup, type Guess, type Question } from '@contorno/core';
 import { vi } from 'vitest';
+import type { AuthContextValue } from './auth/authContext';
 
 /** Like `querySelector`, but fails the test loudly when the element is missing. */
 export function queryRequired(root: ParentNode, selector: string): Element {
@@ -109,5 +110,21 @@ export function seededRandom(seed: number): () => number {
     let t = Math.imul(state ^ (state >>> 15), 1 | state);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** An auth context for tests: no accounts available unless the test says otherwise. */
+export function fakeAuth(overrides: Partial<AuthContextValue> = {}): AuthContextValue {
+  return {
+    status: 'unavailable',
+    user: null,
+    googleClientId: null,
+    signup: vi.fn(() => Promise.resolve()),
+    login: vi.fn(() => Promise.resolve()),
+    loginWithGoogle: vi.fn(() => Promise.resolve()),
+    logout: vi.fn(() => Promise.resolve()),
+    deleteAccount: vi.fn(() => Promise.resolve()),
+    withToken: <T>(run: (token: string) => Promise<T>) => run('test-token'),
+    ...overrides,
   };
 }
