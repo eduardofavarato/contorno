@@ -66,9 +66,9 @@ class Client {
   }
 }
 
-function currentCountry(view: { countryId: CountryId | null }): CountryId {
-  if (view.countryId === null) throw new Error('The duel has no current country');
-  return view.countryId;
+function currentCountry(view: { question: { regionId: CountryId } | null }): CountryId {
+  if (view.question === null) throw new Error('The duel has no current question');
+  return view.question.regionId;
 }
 
 async function roomWithTwoPlayers() {
@@ -131,7 +131,7 @@ describe('online duel over WebSocket', () => {
     const { view } = await host.next('state');
     await guest.next('state');
 
-    guest.send({ type: 'guess', guess: { type: 'country', id: currentCountry(view) } });
+    guest.send({ type: 'guess', guess: { type: 'region', id: currentCountry(view) } });
     host.send({ type: 'give_up' });
 
     // The first thing the server reports is the host's give up, so the guest's guess was dropped.

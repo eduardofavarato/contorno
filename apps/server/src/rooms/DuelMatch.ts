@@ -1,6 +1,7 @@
 import {
   duelReducer,
   duelResolutionDelayMs,
+  quizFor,
   selectDuelSetup,
   startDuel,
   toDuelView,
@@ -38,7 +39,7 @@ export class DuelMatch {
   private ended = false;
 
   constructor(private readonly options: MatchOptions) {
-    this.state = startDuel(selectDuelSetup(options.setup.pool, options.random));
+    this.state = startDuel(selectDuelSetup(quizFor(options.setup), options.random));
   }
 
   get isRunning(): boolean {

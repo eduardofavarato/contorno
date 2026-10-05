@@ -131,7 +131,7 @@ describe('playing', () => {
     expect(onFinished).not.toHaveBeenCalled();
     vi.advanceTimersByTime(2000);
 
-    expect(host.view).toMatchObject({ status: 'finished', winner: 0, countryId: null });
+    expect(host.view).toMatchObject({ status: 'finished', winner: 0, question: null });
     expect(onFinished).toHaveBeenCalledExactlyOnceWith({ setup, winner: 0, scores: [10000, 10000] });
   });
 });

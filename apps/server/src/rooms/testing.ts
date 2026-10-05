@@ -32,9 +32,9 @@ export function correctAnswer(id: CountryId): { type: 'text'; value: string } {
 
 /** The country this player is currently being asked about. */
 export function currentCountry(connection: FakeConnection): CountryId {
-  const { countryId } = connection.view;
-  if (countryId === null) throw new Error('The duel has no current country');
-  return countryId;
+  const { question } = connection.view;
+  if (question === null) throw new Error('The duel has no current question');
+  return question.regionId;
 }
 
 /** Narrows `T | undefined` for values a test knows exist, failing loudly otherwise. */
