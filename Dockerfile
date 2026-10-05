@@ -26,6 +26,7 @@ ENV NODE_ENV=production PORT=8080 PUBLIC_DIR=/app/public
 WORKDIR /app
 COPY --from=runtime-deps /app/node_modules node_modules
 COPY --from=build /app/apps/server/dist dist
+COPY --from=build /app/apps/server/drizzle drizzle
 COPY --from=build /app/apps/web/dist public
 USER node
 EXPOSE 8080

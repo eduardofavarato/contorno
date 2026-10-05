@@ -1,5 +1,5 @@
 # Production on the fvrt mini PC, next to Golzinho: joins home-server's network so its Cloudflare Tunnel
-# routes contorno.fvrt.com.br -> http://contorno:8080 (web app + /ws). Stateless, nothing to configure.
+# routes contorno.fvrt.com.br -> http://contorno:8080 (web app, /ws and /api). Needs the `.env` described in .env.example.
 #
 #   docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
 name: contorno
@@ -10,6 +10,11 @@ services:
     restart: unless-stopped
     environment:
       ALLOWED_ORIGINS: https://contorno.fvrt.com.br
+      # Login and ranking: the shared MySQL of home-server (database and user created once, see README) and the
+      # secrets from the `.env` next to this file (never committed). Without a database the server runs with neither.
+      DATABASE_URL: mysql://contorno:${CONTORNO_DB_PASSWORD:?}@mysql:3306/contorno
+      JWT_SECRET: ${CONTORNO_JWT_SECRET:?}
+      GOOGLE_CLIENT_ID: ${CONTORNO_GOOGLE_CLIENT_ID:-}
     networks:
       - shared
 
