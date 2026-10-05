@@ -3,3 +3,6 @@ dist/
 coverage/
 www/
 *.tsbuildinfo
+.env
+.env.*
+!.env.example

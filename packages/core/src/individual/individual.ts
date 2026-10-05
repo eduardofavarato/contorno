@@ -21,6 +21,8 @@ export interface IndividualState {
   /** `resolved`: the question is settled and waits for `next`. */
   readonly status: 'asking' | 'resolved' | 'finished';
   readonly results: readonly IndividualResult[];
+  /** Every event the game accepted, in order: what a server needs to replay and verify the game. */
+  readonly events: readonly IndividualEvent[];
 }
 
 export type IndividualEvent =
@@ -34,7 +36,7 @@ export function selectIndividualQuestions(quiz: Quiz, random: Random): Question[
 
 export function startIndividual(questions: readonly Question[]): IndividualState {
   if (questions.length === 0) throw new Error('An individual game needs at least one question');
-  return { questions, index: 0, score: 0, wrongs: 0, status: 'asking', results: [] };
+  return { questions, index: 0, score: 0, wrongs: 0, status: 'asking', results: [], events: [] };
 }
 
 export function currentIndividualQuestion(state: IndividualState): Question {
@@ -49,6 +51,12 @@ export function currentIndividualPoints(state: IndividualState): number {
 }
 
 export function individualReducer(state: IndividualState, event: IndividualEvent): IndividualState {
+  const next = apply(state, event);
+  // Events the game ignores leave no trace, so the log only holds moves that really happened.
+  return next === state ? state : { ...next, events: [...state.events, event] };
+}
+
+function apply(state: IndividualState, event: IndividualEvent): IndividualState {
   switch (event.type) {
     case 'guess':
       return state.status === 'asking' ? guess(state, event.guess) : state;

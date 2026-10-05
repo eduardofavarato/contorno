@@ -34,13 +34,13 @@ export {
   type IndividualResult,
   type IndividualState,
 } from './individual/individual';
+export { MAX_ANSWER_LENGTH } from './api/schemas';
 export { duelResolutionDelayMs } from './duel/timing';
 export { toDuelView, type DuelView } from './duel/view';
 export {
   decodeClientMessage,
   decodeServerMessage,
   encodeMessage,
-  MAX_ANSWER_LENGTH,
   ROOM_CODE_ALPHABET,
   ROOM_CODE_LENGTH,
   type ClientMessage,
@@ -62,7 +62,7 @@ export {
   type QuestionPrompt,
   type RegionId,
 } from './quiz/question';
-export { quizFor, type MapKind, type Quiz } from './quiz/quiz';
+export { questionsFor, quizFor, type MapKind, type Quiz } from './quiz/quiz';
 export { shuffle, type Random } from './random';
 export {
   MAX_ATTEMPTS,
@@ -73,3 +73,7 @@ export {
   WRONG_GUESS_PENALTY,
 } from './scoring';
 export { normalize } from './text/normalize';
+export * from './api/contracts';
+export { gameSetupSchema, guessSchema, individualEventSchema } from './api/schemas';
+export { ALL_BOARDS, boardKeyFor, setupForBoard, type BoardKey } from './ranking/board';
+export { replayIndividual, type ReplayResult } from './individual/replay';

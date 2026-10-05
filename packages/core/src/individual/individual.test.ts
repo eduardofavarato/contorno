@@ -87,6 +87,29 @@ describe('individual game', () => {
   });
 });
 
+describe('event log', () => {
+  it('records the events the game accepted, in order', () => {
+    const state = play(
+      start(),
+      { type: 'guess', guess: typed('peru') },
+      { type: 'guess', guess: typed('brasil') },
+      { type: 'next' },
+    );
+
+    expect(state.events).toEqual([
+      { type: 'guess', guess: typed('peru') },
+      { type: 'guess', guess: typed('brasil') },
+      { type: 'next' },
+    ]);
+  });
+
+  it('leaves out events the game ignored', () => {
+    const state = play(start(), { type: 'next' }, { type: 'guess', guess: typed('brasil') }, { type: 'give_up' });
+
+    expect(state.events).toEqual([{ type: 'guess', guess: typed('brasil') }]);
+  });
+});
+
 describe('selectIndividualQuestions', () => {
   it('samples 10 countries from a level quiz', () => {
     const quiz = quizFor({ mode: 'perguntas', pool: { kind: 'level', level: 1 } });

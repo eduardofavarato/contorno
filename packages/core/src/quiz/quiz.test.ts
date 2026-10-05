@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { quizFor } from './quiz';
+import { questionsFor, quizFor } from './quiz';
 
 describe('quizFor', () => {
   it('turns a level setup into typing questions about countries', () => {
@@ -33,5 +33,18 @@ describe('quizFor', () => {
 
     expect(quiz.soloCount).toBeNull();
     expect(quiz.questions).toHaveLength(4);
+  });
+});
+
+describe('questionsFor', () => {
+  const setup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } } as const;
+
+  it('returns the questions in the order of the ids', () => {
+    expect(questionsFor(setup, [32, 76])?.map((question) => question.answer)).toEqual(['Argentina', 'Brasil']);
+  });
+
+  it('refuses ids that are not in the quiz', () => {
+    expect(questionsFor(setup, [76, 4])).toBeNull();
+    expect(questionsFor(setup, [-1])).toBeNull();
   });
 });
