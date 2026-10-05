@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { duelReducer, startDuel } from '../duel/duel';
 import { toDuelView } from '../duel/view';
-import { BRASIL, CHILE } from '../test-support';
+import { BRASIL, CHILE, typedQuestion } from '../test-support';
 import {
   decodeClientMessage,
   decodeServerMessage,
@@ -19,9 +19,10 @@ describe('client messages', () => {
     const messages: ClientMessage[] = [
       { type: 'create', setup },
       { type: 'create', setup: { mode: 'continentes', pool: { kind: 'continent', continent: 'asia' } } },
+      { type: 'create', setup: { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } } },
       { type: 'join', room: 'AB23' },
       { type: 'guess', guess: { type: 'text', value: 'brasil' } },
-      { type: 'guess', guess: { type: 'country', id: BRASIL } },
+      { type: 'guess', guess: { type: 'region', id: BRASIL } },
       { type: 'give_up' },
     ];
 
@@ -51,7 +52,7 @@ describe('client messages', () => {
       json({ type: 'create', setup: { mode: 'continentes', pool: { kind: 'continent', continent: 'atlantis' } } }),
     ],
     ['an over-long answer', json({ type: 'guess', guess: { type: 'text', value: 'a'.repeat(MAX_ANSWER_LENGTH + 1) } })],
-    ['a non-integer country', json({ type: 'guess', guess: { type: 'country', id: 1.5 } })],
+    ['a non-integer region', json({ type: 'guess', guess: { type: 'region', id: 1.5 } })],
     ['extra fields', json({ type: 'give_up', admin: true })],
   ])('rejects %s', (_label, raw) => {
     expect(decodeClientMessage(raw)).toBeNull();
@@ -60,11 +61,14 @@ describe('client messages', () => {
 
 describe('server messages', () => {
   it('round-trips a duel view', () => {
-    const state = duelReducer(startDuel({ questions: [BRASIL], tiebreakOrder: [CHILE] }), {
-      type: 'guess',
-      player: 0,
-      guess: { type: 'text', value: 'peru' },
-    });
+    const state = duelReducer(
+      startDuel({ questions: [typedQuestion(BRASIL)], tiebreakOrder: [typedQuestion(CHILE)] }),
+      {
+        type: 'guess',
+        player: 0,
+        guess: { type: 'text', value: 'peru' },
+      },
+    );
     const messages: ServerMessage[] = [
       { type: 'room', code: 'AB23', player: 1, setup },
       { type: 'opponent_joined' },

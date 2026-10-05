@@ -1,5 +1,5 @@
 import { findCountry, getCountry } from '../countries/catalog';
-import { isCorrectGuess } from '../countries/guess';
+import { matchesAnswer } from '../quiz/question';
 import type { CountryId } from '../countries/types';
 import { normalize } from '../text/normalize';
 
@@ -35,7 +35,7 @@ export function freeReducer(state: FreeState, event: FreeEvent): FreeState {
     case 'answer': {
       if (state.selected === null || normalize(event.text) === '') return state;
       const answer: FreeAnswer = {
-        correct: isCorrectGuess(getCountry(state.selected), { type: 'text', value: event.text }),
+        correct: matchesAnswer(getCountry(state.selected).aliases, event.text),
         attempt: event.text.trim(),
       };
       return { selected: null, answers: new Map(state.answers).set(state.selected, answer) };

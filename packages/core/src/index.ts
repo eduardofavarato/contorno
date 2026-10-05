@@ -1,14 +1,17 @@
 export { findCountry, getCountry, countriesForContinent, countriesForLevel } from './countries/catalog';
 export { CONTINENT_IDS, CONTINENTS, type Continent, type ContinentInfo } from './countries/continents';
+export { BRASIL_STATES, BRASIL_CITIES } from './brasil/data';
+export { BRASIL_TOPICS, brasilChallenge, type BrasilTopic } from './brasil/topics';
+export type { BrasilCity, BrasilState, StateCode } from './brasil/types';
 export { COUNTRIES } from './countries/data';
-export { isCorrectGuess, type Guess } from './countries/guess';
 export type { Country, CountryId, Level } from './countries/types';
 export {
   activePlayer,
   canGiveUp,
-  currentDuelCountryId,
+  currentDuelQuestion,
   currentDuelPoints,
   duelReducer,
+  revealsAnswer,
   selectDuelSetup,
   startDuel,
   type DuelEvent,
@@ -21,7 +24,7 @@ export {
 } from './duel/duel';
 export { freeReducer, freeStats, startFree, type FreeAnswer, type FreeEvent, type FreeState } from './free/free';
 export {
-  currentIndividualCountryId,
+  currentIndividualQuestion,
   currentIndividualPoints,
   individualReducer,
   selectIndividualQuestions,
@@ -44,8 +47,22 @@ export {
   type ErrorCode,
   type ServerMessage,
 } from './online/protocol';
-export { challengeFor, type Challenge, type GameFormat, type GameMode, type GameSetup } from './modes';
-export { resolvePool, type ContinentPool, type LevelPool, type Pool } from './pool/pool';
+export { challengeFor, mapFor, type GameFormat, type GameMode, type GameSetup } from './modes';
+export type { BrasilPool, ContinentPool, LevelPool } from './pool/pool';
+export {
+  isCorrectGuess,
+  matchesAnswer,
+  toQuestionInfo,
+  toQuestionPrompt,
+  type Challenge,
+  type Guess,
+  type Question,
+  type QuestionId,
+  type QuestionInfo,
+  type QuestionPrompt,
+  type RegionId,
+} from './quiz/question';
+export { quizFor, type MapKind, type Quiz } from './quiz/quiz';
 export { shuffle, type Random } from './random';
 export {
   MAX_ATTEMPTS,

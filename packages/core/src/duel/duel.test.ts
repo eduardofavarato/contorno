@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { ARGENTINA, BRASIL, CHILE, seededRandom, typed } from '../test-support';
+import { quizFor } from '../quiz/quiz';
+import { ARGENTINA, BRASIL, CHILE, seededRandom, typed, typedQuestion } from '../test-support';
 import {
   activePlayer,
   canGiveUp,
-  currentDuelCountryId,
+  currentDuelQuestion,
   currentDuelPoints,
   duelReducer,
   selectDuelSetup,
@@ -14,6 +15,7 @@ import {
 } from './duel';
 
 const URUGUAI = 858;
+const regionOf = (state: DuelState) => currentDuelQuestion(state).regionId;
 
 function play(state: DuelState, ...events: DuelEvent[]): DuelState {
   return events.reduce(duelReducer, state);
@@ -23,7 +25,8 @@ const answer = (player: PlayerIndex, value: string): DuelEvent => ({ type: 'gues
 const next: DuelEvent = { type: 'next' };
 
 /** Two main questions (Brasil, Argentina) and a tiebreak queue (Chile, Uruguai). */
-const start = () => startDuel({ questions: [BRASIL, ARGENTINA], tiebreakOrder: [CHILE, URUGUAI] });
+const start = () =>
+  startDuel({ questions: [BRASIL, ARGENTINA].map(typedQuestion), tiebreakOrder: [CHILE, URUGUAI].map(typedQuestion) });
 
 /** Both questions answered by their turn owner: 2000 each, tied, tiebreak about to start. */
 const tiedAtTiebreak = () => play(start(), answer(0, 'brasil'), next, answer(1, 'argentina'), next);
@@ -34,14 +37,21 @@ describe('main rounds', () => {
 
     expect(state.scores).toEqual([2000, 0]);
     expect(state.resolution).toEqual({ kind: 'scored', player: 0, points: 2000, stolen: false });
-    expect(state.results).toEqual([{ countryId: BRASIL, player: 0, points: 2000, stolen: false }]);
+    expect(state.results).toEqual([
+      {
+        question: { id: BRASIL, regionId: BRASIL, prompt: null, subject: 'Brasil', answer: 'Brasil' },
+        player: 0,
+        points: 2000,
+        stolen: false,
+      },
+    ]);
   });
 
   it('alternates who opens each question', () => {
     const second = play(start(), answer(0, 'brasil'), next);
 
     expect(activePlayer(second)).toBe(1);
-    expect(currentDuelCountryId(second)).toBe(ARGENTINA);
+    expect(regionOf(second)).toBe(ARGENTINA);
   });
 
   it('offers a steal worth 1000 after a wrong answer', () => {
@@ -52,11 +62,16 @@ describe('main rounds', () => {
     expect(steal).toMatchObject({ stage: 'steal', status: 'asking' });
     expect(activePlayer(steal)).toBe(1);
     expect(currentDuelPoints(steal)).toBe(1000);
-    expect(currentDuelCountryId(steal)).toBe(BRASIL);
+    expect(regionOf(steal)).toBe(BRASIL);
 
     const stolen = play(steal, answer(1, 'brasil'));
     expect(stolen.scores).toEqual([0, 1000]);
-    expect(stolen.results[0]).toEqual({ countryId: BRASIL, player: 1, points: 1000, stolen: true });
+    expect(stolen.results[0]).toEqual({
+      question: { id: BRASIL, regionId: BRASIL, prompt: null, subject: 'Brasil', answer: 'Brasil' },
+      player: 1,
+      points: 1000,
+      stolen: true,
+    });
   });
 
   it('gives nobody points when the steal fails too', () => {
@@ -64,7 +79,12 @@ describe('main rounds', () => {
 
     expect(state.resolution).toEqual({ kind: 'nobody_scored' });
     expect(state.scores).toEqual([0, 0]);
-    expect(state.results[0]).toEqual({ countryId: BRASIL, player: null, points: 0, stolen: false });
+    expect(state.results[0]).toEqual({
+      question: { id: BRASIL, regionId: BRASIL, prompt: null, subject: 'Brasil', answer: 'Brasil' },
+      player: null,
+      points: 0,
+      stolen: false,
+    });
   });
 
   it('lets only the turn owner give up, handing the steal to the rival', () => {
@@ -114,7 +134,7 @@ describe('Rodada de Fogo', () => {
 
     expect(state).toMatchObject({ status: 'asking', stage: 'tiebreak-first', winner: null });
     expect(activePlayer(state)).toBe(0);
-    expect(currentDuelCountryId(state)).toBe(CHILE);
+    expect(regionOf(state)).toBe(CHILE);
     expect(currentDuelPoints(state)).toBe(2000);
   });
 
@@ -127,7 +147,7 @@ describe('Rodada de Fogo', () => {
 
     expect(second).toMatchObject({ stage: 'tiebreak-second', status: 'asking' });
     expect(activePlayer(second)).toBe(1);
-    expect(currentDuelCountryId(second)).toBe(CHILE);
+    expect(regionOf(second)).toBe(CHILE);
   });
 
   it('is won by the player who got it right when only one did', () => {
@@ -144,7 +164,7 @@ describe('Rodada de Fogo', () => {
 
     const bothWrong = play(tiedAtTiebreak(), answer(0, 'peru'), next, answer(1, 'peru'), next);
     expect(bothWrong).toMatchObject({ stage: 'tiebreak-first', status: 'asking' });
-    expect(currentDuelCountryId(bothWrong)).toBe(URUGUAI);
+    expect(regionOf(bothWrong)).toBe(URUGUAI);
     expect(activePlayer(bothWrong)).toBe(0);
   });
 
@@ -152,7 +172,7 @@ describe('Rodada de Fogo', () => {
     const miss = [answer(0, 'peru'), next, answer(1, 'peru'), next];
     const state = play(tiedAtTiebreak(), ...miss, ...miss);
 
-    expect(currentDuelCountryId(state)).toBe(CHILE);
+    expect(regionOf(state)).toBe(CHILE);
     expect(state.tiebreakRound).toBe(2);
   });
 
@@ -166,29 +186,34 @@ describe('Rodada de Fogo', () => {
 
 describe('setup', () => {
   it('refuses to start without questions or tiebreak countries', () => {
-    expect(() => startDuel({ questions: [], tiebreakOrder: [BRASIL] })).toThrow();
-    expect(() => startDuel({ questions: [BRASIL], tiebreakOrder: [] })).toThrow();
+    expect(() => startDuel({ questions: [], tiebreakOrder: [typedQuestion(BRASIL)] })).toThrow();
+    expect(() => startDuel({ questions: [typedQuestion(BRASIL)], tiebreakOrder: [] })).toThrow();
   });
 
-  it('samples 10 questions and keeps the rest of the pool for the tiebreak', () => {
-    const setup = selectDuelSetup({ kind: 'level', level: 1 }, seededRandom(5));
+  it('samples 10 questions and keeps the rest of the quiz for the tiebreak', () => {
+    const setup = selectDuelSetup(quizFor({ mode: 'perguntas', pool: { kind: 'level', level: 1 } }), seededRandom(5));
+    const ids = [...setup.questions, ...setup.tiebreakOrder].map((question) => question.id);
 
     expect(setup.questions).toHaveLength(10);
     expect(setup.tiebreakOrder).toHaveLength(40);
-    expect(new Set([...setup.questions, ...setup.tiebreakOrder]).size).toBe(50);
+    expect(new Set(ids).size).toBe(50);
   });
 
   it('uses the whole continent when it has fewer than 10 countries and replays it for the tiebreak', () => {
-    const setup = selectDuelSetup({ kind: 'continent', continent: 'oceania' }, seededRandom(5));
+    const quiz = quizFor({ mode: 'continentes', pool: { kind: 'continent', continent: 'oceania' } });
+    const setup = selectDuelSetup(quiz, seededRandom(5));
+    const ids = (questions: typeof setup.questions) => questions.map((question) => question.id).sort((a, b) => a - b);
 
     expect(setup.questions).toHaveLength(4);
-    expect([...setup.tiebreakOrder].sort((a, b) => a - b)).toEqual([...setup.questions].sort((a, b) => a - b));
+    expect(ids(setup.tiebreakOrder)).toEqual(ids(setup.questions));
   });
 
-  it('keeps asked countries out of the tiebreak queue', () => {
-    const setup = selectDuelSetup({ kind: 'continent', continent: 'south-america' }, seededRandom(9));
+  it('keeps asked questions out of the tiebreak queue', () => {
+    const quiz = quizFor({ mode: 'continentes', pool: { kind: 'continent', continent: 'south-america' } });
+    const setup = selectDuelSetup(quiz, seededRandom(9));
+    const asked = new Set(setup.questions.map((question) => question.id));
 
-    expect(setup.tiebreakOrder.filter((id) => setup.questions.includes(id))).toEqual([]);
+    expect(setup.tiebreakOrder.filter((question) => asked.has(question.id))).toEqual([]);
     expect(setup.questions.length + setup.tiebreakOrder.length).toBe(14);
   });
 });

@@ -1,25 +1,29 @@
-import type { ContinentPool, LevelPool } from './pool/pool';
+import { brasilChallenge } from './brasil/topics';
+import type { BrasilPool, ContinentPool, LevelPool } from './pool/pool';
+import type { Challenge } from './quiz/question';
+import type { MapKind } from './quiz/quiz';
 
-/** How the player answers: typing the country's name or clicking it on the map. */
-export type Challenge = 'type' | 'click';
+export type { Challenge };
 
 /** Who plays: one person alone, or two competing. */
 export type GameFormat = 'individual' | 'duel';
 
-/** Each mode pairs a challenge with a kind of pool; the type system keeps the pairing valid. */
+/** Each mode pairs with a kind of pool; the type system keeps the pairing valid. */
 export type GameSetup =
   | { readonly mode: 'perguntas'; readonly pool: LevelPool }
   | { readonly mode: 'continentes'; readonly pool: ContinentPool }
-  | { readonly mode: 'localizar'; readonly pool: LevelPool };
+  | { readonly mode: 'localizar'; readonly pool: LevelPool }
+  | { readonly mode: 'brasil'; readonly pool: BrasilPool };
 
 export type GameMode = GameSetup['mode'];
 
-const CHALLENGES: Record<GameMode, Challenge> = {
-  perguntas: 'type',
-  continentes: 'type',
-  localizar: 'click',
-};
+/** Which map a setup is played on. */
+export function mapFor(setup: GameSetup): MapKind {
+  return setup.mode === 'brasil' ? 'brasil' : 'world';
+}
 
-export function challengeFor(mode: GameMode): Challenge {
-  return CHALLENGES[mode];
+/** How the player answers in this setup: Localizar and Brazilian cities click, everything else types. */
+export function challengeFor(setup: GameSetup): Challenge {
+  if (setup.mode === 'brasil') return brasilChallenge(setup.pool.topic);
+  return setup.mode === 'localizar' ? 'click' : 'type';
 }

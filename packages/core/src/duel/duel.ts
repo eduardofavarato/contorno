@@ -1,7 +1,5 @@
-import { getCountry } from '../countries/catalog';
-import { isCorrectGuess, type Guess } from '../countries/guess';
-import type { CountryId } from '../countries/types';
-import { resolvePool, type Pool } from '../pool/pool';
+import { isCorrectGuess, toQuestionInfo, type Guess, type Question, type QuestionInfo } from '../quiz/question';
+import type { Quiz } from '../quiz/quiz';
 import { shuffle, type Random } from '../random';
 import { MAX_POINTS, QUESTIONS_PER_GAME, STEAL_POINTS } from '../scoring';
 
@@ -23,7 +21,7 @@ export type DuelResolution =
   | { readonly kind: 'tiebreak_decided'; readonly winner: PlayerIndex };
 
 export interface DuelResult {
-  readonly countryId: CountryId;
+  readonly question: QuestionInfo;
   /** Who scored it; `null` when nobody did. */
   readonly player: PlayerIndex | null;
   readonly points: number;
@@ -31,9 +29,9 @@ export interface DuelResult {
 }
 
 export interface DuelState {
-  readonly questions: readonly CountryId[];
-  /** Countries for the Rodada de Fogo; replayed from the start if the tie outlasts them. */
-  readonly tiebreakOrder: readonly CountryId[];
+  readonly questions: readonly Question[];
+  /** Questions for the Rodada de Fogo; replayed from the start if the tie outlasts them. */
+  readonly tiebreakOrder: readonly Question[];
   readonly round: number;
   readonly tiebreakRound: number;
   readonly stage: DuelStage;
@@ -53,18 +51,18 @@ export type DuelEvent =
   | { readonly type: 'next' };
 
 export interface DuelSetup {
-  readonly questions: readonly CountryId[];
-  readonly tiebreakOrder: readonly CountryId[];
+  readonly questions: readonly Question[];
+  readonly tiebreakOrder: readonly Question[];
 }
 
 /**
- * Main questions are sampled from the pool; the leftovers feed the Rodada de Fogo.
- * If the pool has no leftovers (small continents) the tiebreak replays the main questions.
+ * Main questions are sampled from the quiz; the leftovers feed the Rodada de Fogo.
+ * If there are no leftovers (small continents) the tiebreak replays the main questions.
  */
-export function selectDuelSetup(pool: Pool, random: Random): DuelSetup {
-  const ids = shuffle(resolvePool(pool), random).map((country) => country.id);
-  const questions = ids.slice(0, QUESTIONS_PER_GAME);
-  const leftovers = ids.slice(QUESTIONS_PER_GAME);
+export function selectDuelSetup(quiz: Quiz, random: Random): DuelSetup {
+  const shuffled = shuffle(quiz.questions, random);
+  const questions = shuffled.slice(0, QUESTIONS_PER_GAME);
+  const leftovers = shuffled.slice(QUESTIONS_PER_GAME);
   return { questions, tiebreakOrder: leftovers.length > 0 ? leftovers : shuffle(questions, random) };
 }
 
@@ -112,12 +110,20 @@ export function activePlayer(state: DuelState): PlayerIndex {
   }
 }
 
-export function currentDuelCountryId(state: DuelState): CountryId {
+export function currentDuelQuestion(state: DuelState): Question {
   const order = isTiebreak(state.stage) ? state.tiebreakOrder : state.questions;
   const index = isTiebreak(state.stage) ? state.tiebreakRound % order.length : state.round;
-  const id = order[index];
-  if (id === undefined) throw new Error('No current question');
-  return id;
+  const question = order[index];
+  if (question === undefined) throw new Error('No current question');
+  return question;
+}
+
+/**
+ * Whether the answer may be shown once `resolution` is on screen. After a miss on the player's own turn, or after the
+ * first answer of the Rodada de Fogo, someone is still about to answer the same question, so it stays hidden.
+ */
+export function revealsAnswer(resolution: DuelResolution): boolean {
+  return resolution.kind !== 'primary_failed' && resolution.kind !== 'tiebreak_first_answered';
 }
 
 /** Points the active player can win with the current question. */
@@ -148,7 +154,7 @@ function resolve(state: DuelState, resolution: DuelResolution): DuelState {
 }
 
 function answer(state: DuelState, guess: Guess): DuelState {
-  const correct = isCorrectGuess(getCountry(currentDuelCountryId(state)), guess);
+  const correct = isCorrectGuess(currentDuelQuestion(state), guess);
   switch (state.stage) {
     case 'primary':
       return correct
@@ -166,12 +172,17 @@ function answer(state: DuelState, guess: Guess): DuelState {
 function score(state: DuelState, player: PlayerIndex, points: number, stolen: boolean): DuelState {
   const scores: [number, number] = [state.scores[0], state.scores[1]];
   scores[player] += points;
-  const result: DuelResult = { countryId: currentDuelCountryId(state), player, points, stolen };
+  const result: DuelResult = { question: toQuestionInfo(currentDuelQuestion(state)), player, points, stolen };
   return { ...resolve(state, { kind: 'scored', player, points, stolen }), scores, results: [...state.results, result] };
 }
 
 function miss(state: DuelState): DuelState {
-  const result: DuelResult = { countryId: currentDuelCountryId(state), player: null, points: 0, stolen: false };
+  const result: DuelResult = {
+    question: toQuestionInfo(currentDuelQuestion(state)),
+    player: null,
+    points: 0,
+    stolen: false,
+  };
   return { ...resolve(state, { kind: 'nobody_scored' }), results: [...state.results, result] };
 }
 

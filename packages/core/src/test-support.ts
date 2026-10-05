@@ -1,4 +1,7 @@
-import type { Guess } from './countries/guess';
+import { getCountry } from './countries/catalog';
+import type { CountryId } from './countries/types';
+import type { Guess, Question } from './quiz/question';
+import { worldQuestion } from './quiz/world';
 import type { Random } from './random';
 
 /** Small deterministic PRNG (mulberry32) so shuffles are reproducible in tests. */
@@ -13,8 +16,14 @@ export function seededRandom(seed: number): Random {
 }
 
 export const typed = (value: string): Guess => ({ type: 'text', value });
-export const clicked = (id: number): Guess => ({ type: 'country', id });
+export const clicked = (id: number): Guess => ({ type: 'region', id });
 
 export const BRASIL = 76;
 export const ARGENTINA = 32;
 export const CHILE = 152;
+
+/** A country as a question where the player types its name. */
+export const typedQuestion = (id: CountryId): Question => worldQuestion(getCountry(id), 'type');
+
+/** A country as a question where the player clicks it by name. */
+export const clickQuestion = (id: CountryId): Question => worldQuestion(getCountry(id), 'click');

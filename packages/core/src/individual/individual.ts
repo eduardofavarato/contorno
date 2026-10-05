@@ -1,21 +1,19 @@
-import { getCountry } from '../countries/catalog';
-import { isCorrectGuess, type Guess } from '../countries/guess';
-import type { CountryId } from '../countries/types';
-import { resolvePool, type Pool } from '../pool/pool';
+import { isCorrectGuess, toQuestionInfo, type Guess, type Question, type QuestionInfo } from '../quiz/question';
+import type { Quiz } from '../quiz/quiz';
 import { shuffle, type Random } from '../random';
-import { MAX_ATTEMPTS, pointsAfterWrongs, QUESTIONS_PER_GAME } from '../scoring';
+import { MAX_ATTEMPTS, pointsAfterWrongs } from '../scoring';
 
 export type IndividualOutcome = 'correct' | 'failed' | 'gave_up';
 
 export interface IndividualResult {
-  readonly countryId: CountryId;
+  readonly question: QuestionInfo;
   readonly outcome: IndividualOutcome;
   readonly wrongs: number;
   readonly points: number;
 }
 
 export interface IndividualState {
-  readonly questions: readonly CountryId[];
+  readonly questions: readonly Question[];
   readonly index: number;
   readonly score: number;
   /** Wrong guesses on the current question. */
@@ -28,21 +26,21 @@ export interface IndividualState {
 export type IndividualEvent =
   { readonly type: 'guess'; readonly guess: Guess } | { readonly type: 'give_up' } | { readonly type: 'next' };
 
-/** A whole continent is played end to end; any other pool is sampled. */
-export function selectIndividualQuestions(pool: Pool, random: Random): CountryId[] {
-  const ids = shuffle(resolvePool(pool), random).map((country) => country.id);
-  return pool.kind === 'continent' ? ids : ids.slice(0, QUESTIONS_PER_GAME);
+/** The questions of a solo game: all of them, or a random sample when the quiz asks for one. */
+export function selectIndividualQuestions(quiz: Quiz, random: Random): Question[] {
+  const shuffled = shuffle(quiz.questions, random);
+  return quiz.soloCount === null ? shuffled : shuffled.slice(0, quiz.soloCount);
 }
 
-export function startIndividual(questions: readonly CountryId[]): IndividualState {
+export function startIndividual(questions: readonly Question[]): IndividualState {
   if (questions.length === 0) throw new Error('An individual game needs at least one question');
   return { questions, index: 0, score: 0, wrongs: 0, status: 'asking', results: [] };
 }
 
-export function currentIndividualCountryId(state: IndividualState): CountryId {
-  const id = state.questions[state.index];
-  if (id === undefined) throw new Error('No current question');
-  return id;
+export function currentIndividualQuestion(state: IndividualState): Question {
+  const question = state.questions[state.index];
+  if (question === undefined) throw new Error('No current question');
+  return question;
 }
 
 /** Points the current question is worth right now. */
@@ -62,7 +60,7 @@ export function individualReducer(state: IndividualState, event: IndividualEvent
 }
 
 function guess(state: IndividualState, attempt: Guess): IndividualState {
-  if (isCorrectGuess(getCountry(currentIndividualCountryId(state)), attempt)) {
+  if (isCorrectGuess(currentIndividualQuestion(state), attempt)) {
     return settle(state, 'correct', currentIndividualPoints(state));
   }
   const wrongs = state.wrongs + 1;
@@ -71,7 +69,7 @@ function guess(state: IndividualState, attempt: Guess): IndividualState {
 
 function settle(state: IndividualState, outcome: IndividualOutcome, points: number): IndividualState {
   const result: IndividualResult = {
-    countryId: currentIndividualCountryId(state),
+    question: toQuestionInfo(currentIndividualQuestion(state)),
     outcome,
     wrongs: state.wrongs,
     points,

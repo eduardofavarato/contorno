@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { BRASIL_TOPICS } from '../brasil/topics';
 import { CONTINENT_IDS } from '../countries/continents';
-import type { Guess } from '../countries/guess';
 import type { DuelResolution, DuelResult, PlayerIndex } from '../duel/duel';
 import type { DuelView } from '../duel/view';
 import type { GameSetup } from '../modes';
+import type { Guess } from '../quiz/question';
 
 /** Longest typed answer accepted; the longest country alias is far shorter. */
 export const MAX_ANSWER_LENGTH = 80;
@@ -11,13 +12,13 @@ export const ROOM_CODE_LENGTH = 4;
 /** No 0/O/1/I: codes are read aloud and typed on phones. */
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-const countryId = z.number().int().positive();
+const id = z.number().int().positive();
 const player = z.union([z.literal(0), z.literal(1)]);
 const points = z.number().int().nonnegative();
 
 const guessSchema: z.ZodType<Guess> = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('text'), value: z.string().max(MAX_ANSWER_LENGTH) }),
-  z.strictObject({ type: z.literal('country'), id: countryId }),
+  z.strictObject({ type: z.literal('region'), id }),
 ]);
 
 const levelPool = z.strictObject({
@@ -25,11 +26,13 @@ const levelPool = z.strictObject({
   level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
 });
 const continentPool = z.strictObject({ kind: z.literal('continent'), continent: z.enum(CONTINENT_IDS) });
+const brasilPool = z.strictObject({ kind: z.literal('brasil'), topic: z.enum(BRASIL_TOPICS) });
 
 const setupSchema: z.ZodType<GameSetup> = z.discriminatedUnion('mode', [
   z.strictObject({ mode: z.literal('perguntas'), pool: levelPool }),
   z.strictObject({ mode: z.literal('continentes'), pool: continentPool }),
   z.strictObject({ mode: z.literal('localizar'), pool: levelPool }),
+  z.strictObject({ mode: z.literal('brasil'), pool: brasilPool }),
 ]);
 
 /** Room codes are case-insensitive for the player; the server normalizes them to upper case. */
@@ -71,8 +74,10 @@ const resolutionSchema: z.ZodType<DuelResolution> = z.discriminatedUnion('kind',
   z.strictObject({ kind: z.literal('tiebreak_decided'), winner: player }),
 ]);
 
+const questionPromptShape = { id, regionId: id, prompt: z.string().nullable() };
+
 const resultSchema: z.ZodType<DuelResult> = z.strictObject({
-  countryId,
+  question: z.strictObject({ ...questionPromptShape, subject: z.string(), answer: z.string() }),
   player: player.nullable(),
   points,
   stolen: z.boolean(),
@@ -88,7 +93,8 @@ const viewSchema: z.ZodType<DuelView> = z.strictObject({
   scores: z.tuple([points, points]),
   results: z.array(resultSchema),
   winner: player.nullable(),
-  countryId: countryId.nullable(),
+  question: z.strictObject(questionPromptShape).nullable(),
+  answer: z.string().nullable(),
   activePlayer: player,
   canGiveUp: z.boolean(),
   points,

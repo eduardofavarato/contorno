@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ARGENTINA, BRASIL, CHILE, clicked, seededRandom, typed } from '../test-support';
+import { quizFor } from '../quiz/quiz';
+import { ARGENTINA, BRASIL, CHILE, clickQuestion, clicked, seededRandom, typed, typedQuestion } from '../test-support';
 import {
-  currentIndividualCountryId,
+  currentIndividualQuestion,
   currentIndividualPoints,
   individualReducer,
   selectIndividualQuestions,
@@ -14,14 +15,21 @@ function play(state: IndividualState, ...events: IndividualEvent[]): IndividualS
   return events.reduce(individualReducer, state);
 }
 
-const start = () => startIndividual([BRASIL, ARGENTINA, CHILE]);
+const start = () => startIndividual([BRASIL, ARGENTINA, CHILE].map(typedQuestion));
 
 describe('individual game', () => {
   it('scores full points for a first-try answer', () => {
     const state = play(start(), { type: 'guess', guess: typed('brasil') });
 
     expect(state).toMatchObject({ score: 2000, status: 'resolved' });
-    expect(state.results).toEqual([{ countryId: BRASIL, outcome: 'correct', wrongs: 0, points: 2000 }]);
+    expect(state.results).toEqual([
+      {
+        question: { id: BRASIL, regionId: BRASIL, prompt: null, subject: 'Brasil', answer: 'Brasil' },
+        outcome: 'correct',
+        wrongs: 0,
+        points: 2000,
+      },
+    ]);
   });
 
   it('takes 200 points off per wrong guess', () => {
@@ -47,11 +55,6 @@ describe('individual game', () => {
     expect(state.results[0]).toMatchObject({ outcome: 'gave_up', points: 0 });
   });
 
-  it('accepts clicked countries as guesses', () => {
-    expect(play(start(), { type: 'guess', guess: clicked(BRASIL) }).score).toBe(2000);
-    expect(play(start(), { type: 'guess', guess: clicked(CHILE) }).wrongs).toBe(1);
-  });
-
   it('ignores guesses while the question is settled', () => {
     const settled = play(start(), { type: 'guess', guess: typed('brasil') });
 
@@ -64,7 +67,7 @@ describe('individual game', () => {
     const next = play(asking, { type: 'guess', guess: typed('brasil') }, { type: 'next' });
 
     expect(play(asking, { type: 'next' })).toBe(asking);
-    expect(currentIndividualCountryId(next)).toBe(ARGENTINA);
+    expect(currentIndividualQuestion(next).regionId).toBe(ARGENTINA);
     expect(next).toMatchObject({ index: 1, wrongs: 0, status: 'asking', score: 2000 });
   });
 
@@ -85,16 +88,31 @@ describe('individual game', () => {
 });
 
 describe('selectIndividualQuestions', () => {
-  it('samples 10 countries from a level pool', () => {
-    const ids = selectIndividualQuestions({ kind: 'level', level: 1 }, seededRandom(3));
+  it('samples 10 countries from a level quiz', () => {
+    const quiz = quizFor({ mode: 'perguntas', pool: { kind: 'level', level: 1 } });
+    const questions = selectIndividualQuestions(quiz, seededRandom(3));
 
-    expect(ids).toHaveLength(10);
-    expect(new Set(ids).size).toBe(10);
+    expect(questions).toHaveLength(10);
+    expect(new Set(questions.map((question) => question.id)).size).toBe(10);
   });
 
   it('plays a whole continent', () => {
-    const ids = selectIndividualQuestions({ kind: 'continent', continent: 'south-america' }, seededRandom(3));
+    const quiz = quizFor({ mode: 'continentes', pool: { kind: 'continent', continent: 'south-america' } });
+    const ids = selectIndividualQuestions(quiz, seededRandom(3)).map((question) => question.id);
 
-    expect([...ids].sort((a, b) => a - b)).toEqual([32, 68, 76, 152, 170, 218, 254, 328, 600, 604, 740, 780, 858, 862]);
+    expect(ids.sort((a, b) => a - b)).toEqual([32, 68, 76, 152, 170, 218, 254, 328, 600, 604, 740, 780, 858, 862]);
+  });
+});
+
+describe('locating questions', () => {
+  it('are answered by clicking, not by typing', () => {
+    const locating = () => startIndividual([BRASIL, ARGENTINA].map(clickQuestion));
+
+    expect(play(locating(), { type: 'guess', guess: clicked(BRASIL) }).score).toBe(2000);
+    expect(play(locating(), { type: 'guess', guess: typed('brasil') }).wrongs).toBe(1);
+  });
+
+  it('cannot be answered by clicking when the question asks for a name', () => {
+    expect(play(start(), { type: 'guess', guess: clicked(BRASIL) }).wrongs).toBe(1);
   });
 });

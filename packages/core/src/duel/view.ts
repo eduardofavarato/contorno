@@ -1,9 +1,10 @@
-import type { CountryId } from '../countries/types';
+import { toQuestionPrompt, type QuestionPrompt } from '../quiz/question';
 import {
   activePlayer,
   canGiveUp,
-  currentDuelCountryId,
   currentDuelPoints,
+  currentDuelQuestion,
+  revealsAnswer,
   type DuelResolution,
   type DuelResult,
   type DuelStage,
@@ -12,8 +13,8 @@ import {
 } from './duel';
 
 /**
- * What a player's screen needs from a duel, and nothing more: unlike `DuelState` it does not carry the
- * upcoming questions, so it is safe to send to clients.
+ * What a player's screen needs from a duel, and nothing more: unlike `DuelState` it does not carry the upcoming
+ * questions or the accepted answers, so it is safe to send to clients.
  */
 export interface DuelView {
   readonly stage: DuelStage;
@@ -26,8 +27,10 @@ export interface DuelView {
   readonly scores: readonly [number, number];
   readonly results: readonly DuelResult[];
   readonly winner: PlayerIndex | null;
-  /** The country being asked; `null` once the duel is finished. */
-  readonly countryId: CountryId | null;
+  /** The question being asked; `null` once the duel is finished. */
+  readonly question: QuestionPrompt | null;
+  /** The answer of the current question, once nobody else has to answer it. */
+  readonly answer: string | null;
   readonly activePlayer: PlayerIndex;
   readonly canGiveUp: boolean;
   /** Points the active player can win with the current question. */
@@ -35,7 +38,7 @@ export interface DuelView {
 }
 
 export function toDuelView(state: DuelState): DuelView {
-  const finished = state.status === 'finished';
+  const current = state.status === 'finished' ? null : currentDuelQuestion(state);
   return {
     stage: state.stage,
     status: state.status,
@@ -46,7 +49,8 @@ export function toDuelView(state: DuelState): DuelView {
     scores: state.scores,
     results: state.results,
     winner: state.winner,
-    countryId: finished ? null : currentDuelCountryId(state),
+    question: current && toQuestionPrompt(current),
+    answer: current && state.resolution && revealsAnswer(state.resolution) ? current.answer : null,
     activePlayer: activePlayer(state),
     canGiveUp: canGiveUp(state),
     points: currentDuelPoints(state),
