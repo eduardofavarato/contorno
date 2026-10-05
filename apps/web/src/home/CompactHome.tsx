@@ -8,7 +8,7 @@ import styles from './Home.module.css';
 import { ModeConfig } from './ModeConfig';
 import { DEFAULT_SELECTION } from './modeSelection';
 
-const MODES: readonly GameMode[] = ['perguntas', 'continentes', 'localizar'];
+const MODES: readonly GameMode[] = ['perguntas', 'continentes', 'localizar', 'brasil'];
 
 interface CompactHomeProps {
   readonly onPlay: (request: GameRequest) => void;

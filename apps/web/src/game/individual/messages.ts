@@ -1,4 +1,4 @@
-import { getCountry, MAX_ATTEMPTS, type Challenge, type IndividualResult } from '@contorno/core';
+import { MAX_ATTEMPTS, type Challenge, type IndividualResult } from '@contorno/core';
 import { formatPoints, plural } from '../../utils/format';
 
 export interface Feedback {
@@ -28,7 +28,7 @@ export function wrongsLabel(wrongs: number): string {
 
 /** Feedback once a question is settled. */
 export function resolutionFeedback(result: IndividualResult, challenge: Challenge): Feedback {
-  const name = getCountry(result.countryId).name;
+  const name = result.question.answer;
   switch (result.outcome) {
     case 'correct': {
       const points = `✓ Correto! +${formatPoints(result.points)} pontos`;

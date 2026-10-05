@@ -1,7 +1,21 @@
-import { CONTINENTS, type GameFormat, type GameMode, type GameSetup, type Level } from '@contorno/core';
+import {
+  challengeFor,
+  CONTINENTS,
+  type BrasilTopic,
+  type GameFormat,
+  type GameMode,
+  type GameSetup,
+  type Level,
+} from '@contorno/core';
 
 /** User-facing text (pt-BR), kept in one place so the UI can be translated later. */
 export const LEVEL_LABELS: Readonly<Record<Level, string>> = { 1: 'Fácil', 2: 'Médio', 3: 'Difícil' };
+
+export const BRASIL_TOPIC_LABELS: Readonly<Record<BrasilTopic, string>> = {
+  estados: 'Estados',
+  capitais: 'Capitais',
+  cidades: 'Cidades',
+};
 
 export const FORMAT_LABELS: Readonly<Record<GameFormat, string>> = { individual: 'Individual', duel: 'Disputa' };
 
@@ -76,6 +90,24 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
       duel: DUEL_RULES,
     },
   },
+  brasil: {
+    icon: '🇧🇷',
+    title: 'Especial Brasil',
+    summary: 'Estados, capitais e cidades do Brasil',
+    description: {
+      individual: 'Teste o que você sabe do Brasil: reconheça estados, capitais e cidades no mapa do país!',
+      duel: 'Dois jogadores, perguntas sobre o Brasil: quem errar deixa o adversário roubar os pontos.',
+    },
+    details: {
+      individual: [
+        '10 perguntas por rodada',
+        'Até 2.000 pts por acerto',
+        '–200 pts por resposta errada',
+        'Máximo de 3 tentativas por pergunta',
+      ],
+      duel: ['10 perguntas sorteadas', ...DUEL_RULES.slice(1)],
+    },
+  },
 };
 
 export const FREE_MODE_COPY = {
@@ -86,10 +118,39 @@ export const FREE_MODE_COPY = {
   details: ['Clique em qualquer país', 'Uma tentativa por país', 'Acertos são contabilizados', 'Sem pressão de tempo'],
 } as const;
 
-/** Short label for a game's pool, e.g. "Fácil" or "Europa". */
+/** Short label for a game's pool, e.g. "Fácil", "Europa" or "Capitais". */
 export function describePool({ pool }: GameSetup): string {
-  if (pool.kind === 'level') return LEVEL_LABELS[pool.level];
-  return CONTINENTS.find((continent) => continent.id === pool.continent)?.name ?? pool.continent;
+  switch (pool.kind) {
+    case 'level':
+      return LEVEL_LABELS[pool.level];
+    case 'continent':
+      return CONTINENTS.find((continent) => continent.id === pool.continent)?.name ?? pool.continent;
+    case 'brasil':
+      return BRASIL_TOPIC_LABELS[pool.topic];
+  }
+}
+
+/** Wording of the answer controls, which depends on what is being asked. */
+export interface QuizCopy {
+  /** Accessible name of the answer field (typing quizzes). */
+  readonly inputLabel: string;
+  readonly inputPlaceholder: string;
+  /** Heading above the name to find on the map (locating quizzes). */
+  readonly locateLabel: string;
+}
+
+export function quizCopy(setup: GameSetup): QuizCopy {
+  if (setup.mode === 'brasil') {
+    return setup.pool.topic === 'capitais'
+      ? { inputLabel: 'Capital do estado', inputPlaceholder: 'Capital do estado…', locateLabel: '' }
+      : { inputLabel: 'Nome do estado', inputPlaceholder: 'Nome do estado…', locateLabel: 'Em qual estado fica:' };
+  }
+  return { inputLabel: 'Nome do país', inputPlaceholder: 'Nome do país…', locateLabel: 'Encontre no mapa:' };
+}
+
+/** Whether the setup asks the player to click (as opposed to type). */
+export function isLocating(setup: GameSetup): boolean {
+  return challengeFor(setup) === 'click';
 }
 
 /** Title of a game's setup, e.g. "Modo Perguntas · Fácil" or "Modo Continentes · Europa". */

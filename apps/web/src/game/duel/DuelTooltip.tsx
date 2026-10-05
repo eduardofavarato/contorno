@@ -1,5 +1,6 @@
-import { getCountry, type DuelResult } from '@contorno/core';
+import type { DuelResult } from '@contorno/core';
 import { formatPoints } from '../../utils/format';
+import { questionTitle } from '../../utils/question';
 import { ResultTooltip } from '../ResultTooltip';
 
 interface DuelTooltipProps {
@@ -8,7 +9,7 @@ interface DuelTooltipProps {
 }
 
 export function DuelTooltip({ result, names }: DuelTooltipProps) {
-  const name = getCountry(result.countryId).name;
+  const name = questionTitle(result.question);
   if (result.player === null) return <ResultTooltip tone="bad" heading="✗ Sem ponto" name={name} />;
 
   const tone = result.player === 0 ? 'playerA' : 'playerB';

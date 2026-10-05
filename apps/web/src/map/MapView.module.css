@@ -34,7 +34,7 @@
   stroke-width: 0.5;
 }
 
-.clickable .country[data-country-id] {
+.clickable .country[data-region-id] {
   cursor: pointer;
 }
 

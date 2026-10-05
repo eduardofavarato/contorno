@@ -1,11 +1,11 @@
-import type { CountryId } from '@contorno/core';
+import type { RegionId } from '@contorno/core';
 import type { Bounds, MapLayout, MapSize } from './layout';
 
-/** What the map should frame: the whole world, one country, or a group (e.g. a continent). */
+/** What the map should frame: the whole map, one region (a country or a state), or a group (e.g. a continent). */
 export type MapFocus =
   | { readonly kind: 'world' }
-  | { readonly kind: 'country'; readonly id: CountryId }
-  | { readonly kind: 'countries'; readonly ids: readonly CountryId[] };
+  | { readonly kind: 'region'; readonly id: RegionId }
+  | { readonly kind: 'regions'; readonly ids: readonly RegionId[] };
 
 /** Pan and zoom of the map's viewport: `translate(x, y) scale(k)`. */
 export interface ViewTransform {
@@ -24,26 +24,26 @@ export function focusKey(focus: MapFocus): string {
   switch (focus.kind) {
     case 'world':
       return 'world';
-    case 'country':
-      return `country:${String(focus.id)}`;
-    case 'countries':
-      return `countries:${focus.ids.join(',')}`;
+    case 'region':
+      return `region:${String(focus.id)}`;
+    case 'regions':
+      return `regions:${focus.ids.join(',')}`;
   }
 }
 
-/** The view that centers `focus` in the map, or `null` when it points at nothing known. */
+/** The view that centers `focus` in the map (`world` means the map as a whole), or `null` when it points at nothing known. */
 export function viewFor(focus: MapFocus, layout: MapLayout): ViewTransform | null {
   switch (focus.kind) {
     case 'world':
       return WORLD_VIEW;
-    case 'country': {
+    case 'region': {
       const bounds = layout.mainlandBounds(focus.id);
       return (
         bounds &&
         fitBounds(bounds, layout.size, Math.min(layout.size.width, layout.size.height) * COUNTRY_PADDING_RATIO)
       );
     }
-    case 'countries': {
+    case 'regions': {
       const bounds = layout.boundsOf(focus.ids);
       return bounds && fitBounds(bounds, layout.size, GROUP_PADDING);
     }

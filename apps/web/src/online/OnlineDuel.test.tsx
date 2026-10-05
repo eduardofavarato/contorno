@@ -10,7 +10,7 @@ import {
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FakeWebSocket, stubResizeObserver } from '../test-utils';
+import { FakeWebSocket, pickQuestions, stubResizeObserver } from '../test-utils';
 import { OnlineDuel } from './OnlineDuel';
 
 const setup: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } };
@@ -18,7 +18,12 @@ const BRASIL = 76;
 const ARGENTINA = 32;
 
 const viewAfter = (...events: DuelEvent[]): DuelView =>
-  toDuelView(events.reduce(duelReducer, startDuel({ questions: [BRASIL, ARGENTINA], tiebreakOrder: [152] })));
+  toDuelView(
+    events.reduce(
+      duelReducer,
+      startDuel({ questions: pickQuestions(setup, [BRASIL, ARGENTINA]), tiebreakOrder: pickQuestions(setup, [152]) }),
+    ),
+  );
 
 function renderLobby() {
   const onQuit = vi.fn();

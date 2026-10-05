@@ -1,27 +1,22 @@
-import type { CountryId } from '@contorno/core';
-import type { Feature, FeatureCollection, MultiLineString } from 'geojson';
+import { geoNaturalEarth1 } from 'd3-geo';
 import { feature, mesh } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
+import type { MapData } from './mapData';
 import raw from './world.json';
 
 type WorldTopology = Topology<{ countries: GeometryCollection }>;
 
 const topology = raw as unknown as WorldTopology;
+const collection = feature(topology, topology.objects.countries);
 
-export interface WorldShape {
-  /** `null` for territories the quiz does not ask about (e.g. Somaliland). */
-  readonly id: CountryId | null;
-  readonly feature: Feature;
-}
-
-const collection: FeatureCollection = feature(topology, topology.objects.countries);
-
-export const WORLD_COLLECTION = collection;
-
-export const WORLD_SHAPES: readonly WorldShape[] = collection.features.map((entry) => ({
-  id: entry.id === undefined ? null : Number(entry.id),
-  feature: entry,
-}));
-
-/** Interior borders only, so a shared border is drawn once. */
-export const WORLD_BORDERS: MultiLineString = mesh(topology, topology.objects.countries, (a, b) => a !== b);
+export const WORLD_MAP: MapData = {
+  label: 'Mapa-múndi',
+  collection,
+  shapes: collection.features.map((entry) => ({
+    id: entry.id === undefined ? null : Number(entry.id),
+    feature: entry,
+  })),
+  borders: mesh(topology, topology.objects.countries, (a, b) => a !== b),
+  projection: geoNaturalEarth1,
+  backdrop: 'globe',
+};

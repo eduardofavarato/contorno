@@ -13,7 +13,7 @@ async function renderGame() {
   render(<FreeGame onQuit={onQuit} />);
   const map = await screen.findByRole('img', { name: 'Mapa-múndi' });
   const pick = (id: number) => {
-    fireEvent.click(queryRequired(map, `[data-country-id="${String(id)}"]`));
+    fireEvent.click(queryRequired(map, `[data-region-id="${String(id)}"]`));
   };
   return { user, onQuit, pick };
 }

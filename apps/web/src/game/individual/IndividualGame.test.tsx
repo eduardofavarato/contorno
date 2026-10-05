@@ -1,19 +1,22 @@
-import { getCountry, selectIndividualQuestions, type CountryId, type GameSetup } from '@contorno/core';
+import { quizFor, selectIndividualQuestions, type GameSetup, type Question } from '@contorno/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { queryRequired, stubResizeObserver } from '../../test-utils';
+import { queryRequired, required, seededRandom, stubResizeObserver } from '../../test-utils';
 import { IndividualGame } from './IndividualGame';
 
 const perguntas: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } };
 const oceania: GameSetup = { mode: 'continentes', pool: { kind: 'continent', continent: 'oceania' } };
 const localizar: GameSetup = { mode: 'localizar', pool: { kind: 'level', level: 1 } };
+const capitais: GameSetup = { mode: 'brasil', pool: { kind: 'brasil', topic: 'capitais' } };
+const estados: GameSetup = { mode: 'brasil', pool: { kind: 'brasil', topic: 'estados' } };
+const cidades: GameSetup = { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } };
 
 /** `random` that always answers 0: the shuffle is then fixed and the test can predict the questions. */
 const random = () => 0;
-const questionsOf = (setup: GameSetup): CountryId[] => selectIndividualQuestions(setup.pool, random);
-const answerOf = (id: CountryId) => getCountry(id).aliases[0] ?? '';
-const firstQuestion = (game: GameSetup): CountryId => {
+const questionsOf = (setup: GameSetup): Question[] => selectIndividualQuestions(quizFor(setup), random);
+const answerOf = (question: Question) => question.accepts[0] ?? '';
+const firstQuestion = (game: GameSetup): Question => {
   const [first] = questionsOf(game);
   if (first === undefined) throw new Error('No questions');
   return first;
@@ -47,7 +50,7 @@ describe('typing game', () => {
     await user.type(answerBox(), `${answerOf(first)}{Enter}`);
 
     expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
-    expect(answerBox()).toHaveValue(getCountry(first).name);
+    expect(answerBox()).toHaveValue(first.answer);
     expect(answerBox()).toBeDisabled();
     expect(stat('Pergunta').getByText('1/10')).toBeInTheDocument();
 
@@ -95,8 +98,8 @@ describe('typing game', () => {
   it('shows the final results after the last question and can start over', async () => {
     const { user, onQuit, onPlayAgain } = renderGame(oceania);
 
-    for (const id of questionsOf(oceania)) {
-      await user.type(answerBox(), `${answerOf(id)}{Enter}`);
+    for (const question of questionsOf(oceania)) {
+      await user.type(answerBox(), `${answerOf(question)}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(1600);
       });
@@ -149,12 +152,12 @@ describe('locating game', () => {
   it('shows the country to find and scores a click on it', async () => {
     stubResizeObserver();
     renderGame(localizar);
-    const target = getCountry(firstQuestion(localizar));
+    const target = firstQuestion(localizar);
 
-    expect(screen.getByText(target.name)).toBeInTheDocument();
+    expect(screen.getByText(target.answer)).toBeInTheDocument();
     const map = await screen.findByRole('img', { name: 'Mapa-múndi' });
 
-    fireEvent.click(queryRequired(map, `[data-country-id="${String(target.id)}"]`));
+    fireEvent.click(queryRequired(map, `[data-region-id="${String(target.regionId)}"]`));
 
     expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
   });
@@ -162,11 +165,78 @@ describe('locating game', () => {
   it('counts a click on another country as a mistake', async () => {
     stubResizeObserver();
     renderGame(localizar);
-    const other = firstQuestion(localizar) === 76 ? 32 : 76;
+    const other = firstQuestion(localizar).regionId === 76 ? 32 : 76;
     const map = await screen.findByRole('img', { name: 'Mapa-múndi' });
 
-    fireEvent.click(queryRequired(map, `[data-country-id="${String(other)}"]`));
+    fireEvent.click(queryRequired(map, `[data-region-id="${String(other)}"]`));
 
     expect(screen.getByRole('status')).toHaveTextContent('✗ Não é esse! 2 tentativas restantes.');
+  });
+});
+
+describe('Especial Brasil', () => {
+  it('asks for the name or abbreviation of a state', async () => {
+    const { user } = renderGame(estados);
+    const first = firstQuestion(estados);
+
+    expect(screen.getByRole('textbox', { name: 'Nome do estado' })).toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: 'Nome do estado' }), 'zzz{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent('✗ Incorreto.');
+
+    const abbreviation = first.accepts[1] ?? '';
+    await user.type(screen.getByRole('textbox', { name: 'Nome do estado' }), `${abbreviation}{Enter}`);
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +1.800 pontos (1 erro)');
+  });
+
+  it('asks for the capital of the highlighted state', async () => {
+    const { user } = renderGame(capitais);
+    const first = firstQuestion(capitais);
+
+    const box = screen.getByRole('textbox', { name: 'Capital do estado' });
+    expect(box).toHaveAttribute('placeholder', 'Capital do estado…');
+    await user.type(box, `${answerOf(first)}{Enter}`);
+
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
+    expect(box).toHaveValue(first.answer);
+  });
+
+  it('shows a city and expects a click on its state, on the map of Brazil', async () => {
+    stubResizeObserver();
+    renderGame(cidades);
+    const city = firstQuestion(cidades);
+    const map = await screen.findByRole('img', { name: 'Mapa do Brasil' });
+
+    expect(screen.getByText('Em qual estado fica:')).toBeInTheDocument();
+    expect(screen.getByText(city.prompt ?? '')).toBeInTheDocument();
+    const wrong = city.regionId === 35 ? 52 : 35;
+    fireEvent.click(queryRequired(map, `[data-region-id="${String(wrong)}"]`));
+    expect(screen.getByRole('status')).toHaveTextContent('✗ Não é esse!');
+
+    fireEvent.click(queryRequired(map, `[data-region-id="${String(city.regionId)}"]`));
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +1.800 pontos (1 erro)');
+  });
+
+  it('lets a state answer several cities even though an earlier one already painted it', async () => {
+    stubResizeObserver();
+    // Pick a shuffle whose first two questions are cities of the same state.
+    const seed = [...Array(2000).keys()].find((candidate) => {
+      const [a, b] = selectIndividualQuestions(quizFor(cidades), seededRandom(candidate));
+      return a?.regionId === b?.regionId && a !== undefined;
+    });
+    if (seed === undefined) throw new Error('No seed puts two cities of one state first');
+    const [first] = selectIndividualQuestions(quizFor(cidades), seededRandom(seed));
+    render(<IndividualGame setup={cidades} random={seededRandom(seed)} onQuit={vi.fn()} onPlayAgain={vi.fn()} />);
+    const map = await screen.findByRole('img', { name: 'Mapa do Brasil' });
+    const state = queryRequired(map, `[data-region-id="${String(required(first).regionId)}"]`);
+
+    fireEvent.click(state);
+    act(() => {
+      vi.advanceTimersByTime(1600);
+    });
+    expect(state.getAttribute('class')).toMatch(/correct/);
+
+    // The second city belongs to that same, already green, state: clicking it must still answer.
+    fireEvent.click(state);
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
   });
 });

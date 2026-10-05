@@ -3,6 +3,8 @@ import { cx } from '../../ui/cx';
 import styles from './panel.module.css';
 
 interface AnswerFormProps {
+  /** Accessible name of the field. */
+  readonly label: string;
   readonly placeholder: string;
   /** The answer once the question is settled; the form shows it and locks. */
   readonly settled?: { readonly text: string; readonly tone: 'ok' | 'bad' } | null;
@@ -18,6 +20,7 @@ interface AnswerFormProps {
 
 /** Typed-answer controls: text field, confirm and (optionally) give up. */
 export function AnswerForm({
+  label,
   placeholder,
   settled = null,
   disabled = false,
@@ -49,7 +52,7 @@ export function AnswerForm({
           shaking && styles.shake,
         )}
         type="text"
-        aria-label="Nome do país"
+        aria-label={label}
         placeholder={placeholder}
         value={settled ? settled.text : text}
         disabled={locked}

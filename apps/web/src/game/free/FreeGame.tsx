@@ -1,8 +1,8 @@
-import { freeReducer, freeStats, getCountry, startFree, type CountryId, type FreeAnswer } from '@contorno/core';
+import { freeReducer, freeStats, getCountry, startFree, type RegionId, type FreeAnswer } from '@contorno/core';
 import { useState } from 'react';
 import { FREE_MODE_COPY } from '../../copy';
-import { LazyWorldMap } from '../../map/LazyWorldMap';
-import type { MapTone } from '../../map/WorldMap';
+import { LazyMap } from '../../map/LazyMap';
+import type { MapTone } from '../../map/MapView';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { GameLayout } from '../GameLayout';
 import { AnswerForm } from '../panel/AnswerForm';
@@ -16,7 +16,7 @@ interface FreeGameProps {
   readonly onQuit: () => void;
 }
 
-function hint(selected: CountryId | null, lastAnswered: boolean): string {
+function hint(selected: RegionId | null, lastAnswered: boolean): string {
   if (selected !== null) return 'País selecionado — qual é o nome dele?';
   return lastAnswered ? 'Clique em outro país para continuar' : 'Clique em um país no mapa para adivinhar';
 }
@@ -26,7 +26,7 @@ export function FreeGame({ onQuit }: FreeGameProps) {
   const [confirmingQuit, setConfirmingQuit] = useState(false);
   const { correct, total } = freeStats(state);
 
-  const tones = new Map<CountryId, MapTone>();
+  const tones = new Map<RegionId, MapTone>();
   for (const [id, answer] of state.answers) tones.set(id, answer.correct ? 'correct' : 'wrong');
   if (state.selected !== null) tones.set(state.selected, 'target');
 
@@ -40,6 +40,7 @@ export function FreeGame({ onQuit }: FreeGameProps) {
       <PanelInfo>{hint(state.selected, last !== undefined)}</PanelInfo>
       <AnswerForm
         key={state.selected ?? 'idle'}
+        label="Nome do país"
         placeholder={state.selected === null ? 'Selecione um país no mapa…' : 'Nome do país…'}
         disabled={state.selected === null && last === undefined}
         settled={
@@ -76,9 +77,10 @@ export function FreeGame({ onQuit }: FreeGameProps) {
         }
         bottom={bottom}
       >
-        <LazyWorldMap
+        <LazyMap
+          map="world"
           tones={tones}
-          onCountryClick={(id) => {
+          onRegionClick={(id) => {
             dispatch({ type: 'select', id });
           }}
           renderTooltip={(id) => {

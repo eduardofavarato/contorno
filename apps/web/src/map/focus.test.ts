@@ -35,7 +35,7 @@ describe('viewFor', () => {
 
   it('centers a country and zooms to fit it with 10% padding', () => {
     const layout = layoutWith({ 1: { x0: 300, y0: 200, x1: 500, y1: 400 } });
-    const view = viewFor({ kind: 'country', id: 1 }, layout);
+    const view = viewFor({ kind: 'region', id: 1 }, layout);
 
     // padding = 10% of 600 = 60; k = min(800 / 320, 600 / 320) = 1.875
     expect(view?.k).toBeCloseTo(1.875);
@@ -48,12 +48,12 @@ describe('viewFor', () => {
     const layout = layoutWith({ 1: { x0: 400, y0: 300, x1: 401, y1: 301 } });
 
     // Padding (60px each side) dominates: k = 600 / (1 + 120)
-    expect(viewFor({ kind: 'country', id: 1 }, layout)?.k).toBeCloseTo(600 / 121);
+    expect(viewFor({ kind: 'region', id: 1 }, layout)?.k).toBeCloseTo(600 / 121);
   });
 
   it('fits a group of countries together with 30px padding', () => {
     const layout = layoutWith({ 1: { x0: 100, y0: 100, x1: 200, y1: 200 }, 2: { x0: 300, y0: 150, x1: 400, y1: 250 } });
-    const view = viewFor({ kind: 'countries', ids: [1, 2] }, layout);
+    const view = viewFor({ kind: 'regions', ids: [1, 2] }, layout);
 
     // Group box: 100..400 x 100..250 -> k = min(800 / 360, 600 / 210)
     expect(view?.k).toBeCloseTo(800 / 360);
@@ -61,18 +61,18 @@ describe('viewFor', () => {
   });
 
   it('returns null when the focus points at nothing known', () => {
-    expect(viewFor({ kind: 'country', id: 999 }, layoutWith({}))).toBeNull();
-    expect(viewFor({ kind: 'countries', ids: [999] }, layoutWith({}))).toBeNull();
+    expect(viewFor({ kind: 'region', id: 999 }, layoutWith({}))).toBeNull();
+    expect(viewFor({ kind: 'regions', ids: [999] }, layoutWith({}))).toBeNull();
   });
 });
 
 describe('focusKey', () => {
   it('is equal for equal focuses and different otherwise', () => {
-    const a: MapFocus = { kind: 'countries', ids: [1, 2] };
-    const b: MapFocus = { kind: 'countries', ids: [1, 2] };
+    const a: MapFocus = { kind: 'regions', ids: [1, 2] };
+    const b: MapFocus = { kind: 'regions', ids: [1, 2] };
 
     expect(focusKey(a)).toBe(focusKey(b));
-    expect(focusKey(a)).not.toBe(focusKey({ kind: 'country', id: 1 }));
+    expect(focusKey(a)).not.toBe(focusKey({ kind: 'region', id: 1 }));
     expect(focusKey({ kind: 'world' })).toBe('world');
   });
 });

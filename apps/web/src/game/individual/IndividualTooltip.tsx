@@ -1,9 +1,10 @@
-import { getCountry, type IndividualResult } from '@contorno/core';
+import type { IndividualResult } from '@contorno/core';
 import { formatPoints, plural } from '../../utils/format';
+import { questionTitle } from '../../utils/question';
 import { ResultTooltip } from '../ResultTooltip';
 
 export function IndividualTooltip({ result }: { readonly result: IndividualResult }) {
-  const name = getCountry(result.countryId).name;
+  const name = questionTitle(result.question);
   switch (result.outcome) {
     case 'correct': {
       const attempt = result.wrongs === 0 ? 'De primeira!' : plural(result.wrongs, 'erro');

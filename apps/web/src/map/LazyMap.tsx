@@ -1,13 +1,15 @@
+import type { MapKind } from '@contorno/core';
 import { lazy, Suspense } from 'react';
-import type { WorldMapProps } from './WorldMap';
+import type { MapViewProps } from './MapView';
 
-// The map brings ~700 KB of geometry, so it is only fetched once a screen needs it.
-const WorldMap = lazy(() => import('./WorldMap').then((module) => ({ default: module.WorldMap })));
+// Each map brings its own geometry (the world's is ~700 KB), so it is only fetched once a screen needs it.
+const WorldMapView = lazy(() => import('./WorldMapView').then((module) => ({ default: module.WorldMapView })));
+const BrasilMapView = lazy(() => import('./BrasilMapView').then((module) => ({ default: module.BrasilMapView })));
 
-export function LazyWorldMap(props: WorldMapProps) {
+type LazyMapProps = Omit<MapViewProps, 'data'> & { readonly map: MapKind };
+
+export function LazyMap({ map, ...props }: LazyMapProps) {
   return (
-    <Suspense fallback={null}>
-      <WorldMap {...props} />
-    </Suspense>
+    <Suspense fallback={null}>{map === 'brasil' ? <BrasilMapView {...props} /> : <WorldMapView {...props} />}</Suspense>
   );
 }

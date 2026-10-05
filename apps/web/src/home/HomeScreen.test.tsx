@@ -16,7 +16,7 @@ describe('HomeScreen (desktop)', () => {
   it('shows a card per mode, with Disputa as a format and not as a mode', () => {
     renderHome();
 
-    for (const title of ['Modo Perguntas', 'Modo Continentes', 'Modo Localizar', 'Modo Livre']) {
+    for (const title of ['Modo Perguntas', 'Modo Continentes', 'Modo Localizar', 'Especial Brasil', 'Modo Livre']) {
       expect(screen.getByRole('region', { name: title })).toBeInTheDocument();
     }
     expect(screen.queryByRole('region', { name: 'Modo Disputa' })).not.toBeInTheDocument();
@@ -69,6 +69,38 @@ describe('HomeScreen (desktop)', () => {
     expect(onPlay).toHaveBeenCalledExactlyOnceWith({
       setup: { mode: 'continentes', pool: { kind: 'continent', continent: 'europe' } },
       format: 'individual',
+    });
+  });
+
+  it('offers states, capitals and cities instead of difficulty levels in Especial Brasil', async () => {
+    const { onPlay } = renderHome();
+    const brasil = card('Especial Brasil');
+
+    expect(brasil.queryByRole('radio', { name: 'Médio' })).not.toBeInTheDocument();
+    for (const topic of ['Estados', 'Capitais', 'Cidades']) {
+      expect(brasil.getByRole('radio', { name: topic })).toBeInTheDocument();
+    }
+
+    await userEvent.click(brasil.getByRole('radio', { name: 'Cidades' }));
+    await userEvent.click(brasil.getByRole('button', { name: 'Jogar' }));
+    expect(onPlay).toHaveBeenLastCalledWith({
+      setup: { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } },
+      format: 'individual',
+    });
+  });
+
+  it('plays Especial Brasil as a duel too', async () => {
+    const { onPlay } = renderHome();
+    const brasil = card('Especial Brasil');
+
+    await userEvent.click(brasil.getByRole('radio', { name: 'Capitais' }));
+    await userEvent.click(brasil.getByRole('radio', { name: 'Disputa' }));
+    await userEvent.click(brasil.getByRole('button', { name: /Online/ }));
+
+    expect(onPlay).toHaveBeenLastCalledWith({
+      setup: { mode: 'brasil', pool: { kind: 'brasil', topic: 'capitais' } },
+      format: 'duel',
+      venue: 'online',
     });
   });
 

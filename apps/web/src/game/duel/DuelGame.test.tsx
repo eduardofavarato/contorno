@@ -1,4 +1,4 @@
-import { getCountry, selectDuelSetup, type CountryId, type GameSetup } from '@contorno/core';
+import { quizFor, selectDuelSetup, type GameSetup, type Question } from '@contorno/core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,11 +7,13 @@ import { DuelGame } from './DuelGame';
 
 const perguntas: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } };
 const localizar: GameSetup = { mode: 'localizar', pool: { kind: 'level', level: 1 } };
+const cidades: GameSetup = { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } };
+const capitais: GameSetup = { mode: 'brasil', pool: { kind: 'brasil', topic: 'capitais' } };
 
 /** `random` that always answers 0: the shuffle is then fixed and the test can predict the questions. */
 const random = () => 0;
-const plan = (game: GameSetup) => selectDuelSetup(game.pool, random);
-const answerOf = (id: CountryId) => getCountry(id).aliases[0] ?? '';
+const plan = (game: GameSetup) => selectDuelSetup(quizFor(game), random);
+const answerOf = (question: Question) => question.accepts[0] ?? '';
 
 function renderGame(game: GameSetup) {
   const onQuit = vi.fn();
@@ -84,8 +86,8 @@ describe('typing duel', () => {
 
     expect(screen.getByRole('button', { name: 'Desistir' })).toBeDisabled();
     await user.type(answerBox(), 'zzz{Enter}');
-    expect(screen.getByRole('status')).toHaveTextContent(`Era ${getCountry(required(first)).name}`);
-    expect(answerBox()).toHaveValue(getCountry(required(first)).name);
+    expect(screen.getByRole('status')).toHaveTextContent(`Era ${required(first).answer}`);
+    expect(answerBox()).toHaveValue(required(first).answer);
   });
 
   it('plays the Rodada de Fogo when tied and ends with the winner', async () => {
@@ -93,8 +95,8 @@ describe('typing duel', () => {
     const { questions, tiebreakOrder } = plan(perguntas);
 
     // Everyone answers their own turn right: 5 x 2.000 each, a tie.
-    for (const id of questions) {
-      await user.type(answerBox(), `${answerOf(id)}{Enter}`);
+    for (const question of questions) {
+      await user.type(answerBox(), `${answerOf(question)}{Enter}`);
       wait(1600);
     }
 
@@ -131,23 +133,57 @@ describe('typing duel', () => {
 });
 
 describe('locating duel', () => {
-  const pathOf = (map: HTMLElement, id: number) => queryRequired(map, `[data-country-id="${String(id)}"]`);
+  const pathOf = (map: HTMLElement, id: number) => queryRequired(map, `[data-region-id="${String(id)}"]`);
 
   it('does not reveal the country after a miss, only once the steal is settled', async () => {
     stubResizeObserver();
     renderGame(localizar);
     const first = required(plan(localizar).questions[0]);
-    const wrongId = first === 76 ? 32 : 76;
+    const wrongId = first.regionId === 76 ? 32 : 76;
     const map = await screen.findByRole('img', { name: 'Mapa-múndi' });
 
-    expect(screen.getByText(getCountry(first).name)).toBeInTheDocument();
+    expect(screen.getByText(first.answer)).toBeInTheDocument();
     fireEvent.click(pathOf(map, wrongId));
     expect(screen.getByRole('status')).toHaveTextContent('Jogador B pode roubar');
-    expect(pathOf(map, first).getAttribute('class')).toMatch(/neutral/);
+    expect(pathOf(map, first.regionId).getAttribute('class')).toMatch(/neutral/);
 
     wait(2000);
-    fireEvent.click(pathOf(map, first));
+    fireEvent.click(pathOf(map, first.regionId));
     expect(screen.getByRole('status')).toHaveTextContent('✓ Roubo de Jogador B!');
-    expect(pathOf(map, first).getAttribute('class')).toMatch(/correct/);
+    expect(pathOf(map, first.regionId).getAttribute('class')).toMatch(/correct/);
+  });
+});
+
+describe('Especial Brasil duels', () => {
+  it('asks the capital of a state and reveals it only after the steal', async () => {
+    const { user } = renderGame(capitais);
+    const first = required(plan(capitais).questions[0]);
+    const box = () => screen.getByRole('textbox', { name: 'Capital do estado' });
+
+    await user.type(box(), 'zzz{Enter}');
+    expect(box()).toHaveValue('');
+    wait(2000);
+    await user.type(box(), `${answerOf(first)}{Enter}`);
+
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Roubo de Jogador B!');
+    expect(box()).toHaveValue(first.answer);
+  });
+
+  it('shows a city to find, and only reveals its state once the steal is settled', async () => {
+    stubResizeObserver();
+    renderGame(cidades);
+    const first = required(plan(cidades).questions[0]);
+    const wrongId = first.regionId === 35 ? 52 : 35;
+    const map = await screen.findByRole('img', { name: 'Mapa do Brasil' });
+    const path = (id: number) => queryRequired(map, `[data-region-id="${String(id)}"]`);
+
+    expect(screen.getByText(first.prompt ?? '')).toBeInTheDocument();
+    fireEvent.click(path(wrongId));
+    expect(screen.getByRole('status')).toHaveTextContent('Jogador B pode roubar');
+    expect(path(first.regionId).getAttribute('class')).toMatch(/neutral/);
+
+    wait(2000);
+    fireEvent.click(path(first.regionId));
+    expect(path(first.regionId).getAttribute('class')).toMatch(/correct/);
   });
 });

@@ -2,6 +2,7 @@ import {
   activePlayer,
   duelReducer,
   duelResolutionDelayMs,
+  quizFor,
   selectDuelSetup,
   startDuel,
   toDuelView,
@@ -26,7 +27,7 @@ interface DuelGameProps {
 /** Duel with both players on this device: the turn owner answers on the shared screen. */
 export function DuelGame({ setup, onQuit, onPlayAgain, random = Math.random }: DuelGameProps) {
   const [state, dispatch] = useReducer(duelReducer, setup, (initial) =>
-    startDuel(selectDuelSetup(initial.pool, random)),
+    startDuel(selectDuelSetup(quizFor(initial), random)),
   );
   const [confirmingQuit, setConfirmingQuit] = useState(false);
   const { resolution } = state;

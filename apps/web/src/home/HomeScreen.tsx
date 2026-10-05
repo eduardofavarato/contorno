@@ -7,7 +7,7 @@ import { FreeModeCard } from './FreeModeCard';
 import styles from './Home.module.css';
 import { ModeCard } from './ModeCard';
 
-const MODES: readonly GameMode[] = ['perguntas', 'continentes', 'localizar'];
+const MODES: readonly GameMode[] = ['perguntas', 'continentes', 'localizar', 'brasil'];
 
 interface HomeScreenProps {
   readonly onPlay: (request: GameRequest) => void;

@@ -1,20 +1,19 @@
 import {
-  challengeFor,
-  currentIndividualCountryId,
   currentIndividualPoints,
-  getCountry,
+  currentIndividualQuestion,
   individualReducer,
+  quizFor,
   selectIndividualQuestions,
   startIndividual,
-  type CountryId,
   type GameSetup,
   type Guess,
   type Random,
+  type RegionId,
 } from '@contorno/core';
-import { useEffect, useReducer, useState } from 'react';
-import { describeSetup } from '../../copy';
+import { useEffect, useMemo, useReducer, useState } from 'react';
+import { describeSetup, quizCopy } from '../../copy';
 import { useTransient } from '../../hooks/useTransient';
-import { LazyWorldMap } from '../../map/LazyWorldMap';
+import { LazyMap } from '../../map/LazyMap';
 import { ResultsScreen } from '../../results/ResultsScreen';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { formatPoints } from '../../utils/format';
@@ -40,9 +39,10 @@ interface IndividualGameProps {
 }
 
 export function IndividualGame({ setup, onQuit, onPlayAgain, random = Math.random }: IndividualGameProps) {
-  const challenge = challengeFor(setup.mode);
-  const [state, dispatch] = useReducer(individualReducer, setup, (initial) =>
-    startIndividual(selectIndividualQuestions(initial.pool, random)),
+  const quiz = useMemo(() => quizFor(setup), [setup]);
+  const { challenge } = quiz;
+  const [state, dispatch] = useReducer(individualReducer, quiz, (initial) =>
+    startIndividual(selectIndividualQuestions(initial, random)),
   );
   const [flash, showFlash] = useTransient<Flash>();
   const [shaking, shake] = useTransient<true>();
@@ -76,18 +76,19 @@ export function IndividualGame({ setup, onQuit, onPlayAgain, random = Math.rando
     );
   }
 
-  const currentId = currentIndividualCountryId(state);
+  const question = currentIndividualQuestion(state);
+  const copy = quizCopy(setup);
 
-  const guess = (attempt: Guess, blinkOn: CountryId, blinkMs: number) => {
+  const guess = (attempt: Guess, blinkOn: RegionId, blinkMs: number) => {
     const event = { type: 'guess', guess: attempt } as const;
     if (individualReducer(state, event).wrongs > state.wrongs) {
-      showFlash({ countryId: blinkOn, tone: 'wrong' }, blinkMs);
+      showFlash({ regionId: blinkOn, tone: 'wrong' }, blinkMs);
       shake(true, blinkMs);
     }
     dispatch(event);
   };
 
-  const view = individualMapView(state, setup, flash);
+  const view = individualMapView(state, quiz, flash);
   const feedback = settled
     ? resolutionFeedback(settled, challenge)
     : state.wrongs > 0
@@ -105,13 +106,12 @@ export function IndividualGame({ setup, onQuit, onPlayAgain, random = Math.rando
         <PanelInfo warning={wrongsLabel(state.wrongs)}>{points}</PanelInfo>
         <AnswerForm
           key={state.index}
-          placeholder="Nome do país…"
+          label={copy.inputLabel}
+          placeholder={copy.inputPlaceholder}
           shaking={shaking !== null}
-          settled={
-            settled ? { text: getCountry(currentId).name, tone: settled.outcome === 'correct' ? 'ok' : 'bad' } : null
-          }
+          settled={settled ? { text: question.answer, tone: settled.outcome === 'correct' ? 'ok' : 'bad' } : null}
           onSubmit={(text) => {
-            guess({ type: 'text', value: text }, currentId, TYPED_BLINK_MS);
+            guess({ type: 'text', value: text }, question.regionId, TYPED_BLINK_MS);
           }}
           onGiveUp={() => {
             dispatch({ type: 'give_up' });
@@ -121,7 +121,8 @@ export function IndividualGame({ setup, onQuit, onPlayAgain, random = Math.rando
       </>
     ) : (
       <LocatePanel
-        countryName={getCountry(currentId).name}
+        label={copy.locateLabel}
+        prompt={question.prompt ?? question.answer}
         info={points}
         warning={wrongsLabel(state.wrongs)}
         feedback={feedback}
@@ -148,17 +149,20 @@ export function IndividualGame({ setup, onQuit, onPlayAgain, random = Math.rando
         }
         bottom={bottom}
       >
-        <LazyWorldMap
+        <LazyMap
+          map={quiz.map}
           tones={view.tones}
           focus={view.focus}
           {...(challenge === 'click' && {
-            onCountryClick: (id: CountryId) => {
-              const alreadySettled = state.results.some((result) => result.countryId === id);
-              if (!alreadySettled) guess({ type: 'country', id }, id, CLICKED_BLINK_MS);
+            onRegionClick: (id: RegionId) => {
+              // Regions already painted are ignored, unless this very question is about one: a state can be
+              // the answer for several cities.
+              const painted = state.results.some((result) => result.question.regionId === id);
+              if (!painted || id === question.regionId) guess({ type: 'region', id }, id, CLICKED_BLINK_MS);
             },
           })}
           renderTooltip={(id) => {
-            const result = state.results.find((entry) => entry.countryId === id);
+            const result = state.results.findLast((entry) => entry.question.regionId === id);
             return result && <IndividualTooltip result={result} />;
           }}
         />

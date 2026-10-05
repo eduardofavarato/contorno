@@ -1,7 +1,7 @@
-import type { CountryId } from '@contorno/core';
-import { geoArea, geoGraticule, geoNaturalEarth1, geoPath, type GeoPath, type GeoPermissibleObjects } from 'd3-geo';
+import type { RegionId } from '@contorno/core';
+import { geoArea, geoGraticule, geoPath, type GeoPath, type GeoPermissibleObjects } from 'd3-geo';
 import type { Geometry, Polygon } from 'geojson';
-import { WORLD_BORDERS, WORLD_COLLECTION, WORLD_SHAPES } from './world';
+import type { MapData } from './mapData';
 
 export interface MapSize {
   readonly width: number;
@@ -15,8 +15,8 @@ export interface Bounds {
   readonly y1: number;
 }
 
-export interface CountryPath {
-  readonly id: CountryId | null;
+export interface RegionPath {
+  readonly id: RegionId | null;
   readonly key: string;
   readonly d: string;
 }
@@ -26,45 +26,45 @@ export interface MapLayout {
   readonly spherePath: string;
   readonly graticulePath: string;
   readonly bordersPath: string;
-  readonly countries: readonly CountryPath[];
+  readonly countries: readonly RegionPath[];
   /** Bounds of the country's largest landmass, or `null` for an unknown id. */
-  mainlandBounds(id: CountryId): Bounds | null;
+  mainlandBounds(id: RegionId): Bounds | null;
   /** Bounds enclosing every known country in `ids`, or `null` when none is known. */
-  boundsOf(ids: readonly CountryId[]): Bounds | null;
+  boundsOf(ids: readonly RegionId[]): Bounds | null;
 }
 
 const MARGIN = 10;
 
-/** Projects the world into a `size` box; all coordinates are in the SVG's pixel space. */
-export function createMapLayout(size: MapSize): MapLayout {
-  const projection = geoNaturalEarth1().fitExtent(
+/** Projects a map into a `size` box; all coordinates are in the SVG's pixel space. */
+export function createMapLayout(size: MapSize, data: MapData): MapLayout {
+  const projection = data.projection().fitExtent(
     [
       [MARGIN, MARGIN],
       [size.width - MARGIN, size.height - MARGIN],
     ],
-    WORLD_COLLECTION,
+    data.collection,
   );
   const path = geoPath(projection);
   const render = (object: GeoPermissibleObjects) => path(object) ?? '';
 
   return {
     size,
-    spherePath: render({ type: 'Sphere' }),
-    graticulePath: render(geoGraticule()()),
-    bordersPath: render(WORLD_BORDERS),
-    countries: WORLD_SHAPES.map((shape, index) => ({
+    spherePath: data.backdrop === 'globe' ? render({ type: 'Sphere' }) : '',
+    graticulePath: data.backdrop === 'globe' ? render(geoGraticule()()) : '',
+    bordersPath: render(data.borders),
+    countries: data.shapes.map((shape, index) => ({
       id: shape.id,
       // Some territories share a country's id (Ashmore and Cartier Is. is 036, like Australia), so the index disambiguates.
       key: `${shape.id === null ? 'territory' : String(shape.id)}-${String(index)}`,
       d: render(shape.feature),
     })),
     mainlandBounds: (id) => {
-      const shape = WORLD_SHAPES.find((entry) => entry.id === id);
+      const shape = data.shapes.find((entry) => entry.id === id);
       return shape ? toBounds(path, largestLandmass(shape.feature.geometry)) : null;
     },
     boundsOf: (ids) => {
       const bounds = ids.flatMap((id) => {
-        const shape = WORLD_SHAPES.find((entry) => entry.id === id);
+        const shape = data.shapes.find((entry) => entry.id === id);
         return shape ? [toBounds(path, shape.feature)] : [];
       });
       return bounds.length === 0 ? null : bounds.reduce(union);

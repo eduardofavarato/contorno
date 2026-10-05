@@ -9,3 +9,4 @@ package-lock.json
 **/scripts
 README.md
 apps/web/src/map/world.json
+apps/web/src/map/brasil.json

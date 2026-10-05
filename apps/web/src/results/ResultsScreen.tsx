@@ -1,8 +1,9 @@
-import { getCountry, MAX_POINTS, type IndividualResult } from '@contorno/core';
+import { MAX_POINTS, type IndividualResult } from '@contorno/core';
 import { useBackAction } from '../hooks/useBackAction';
 import { Button } from '../ui/Button';
 import { cx } from '../ui/cx';
 import { formatPoints, plural } from '../utils/format';
+import { questionTitle } from '../utils/question';
 import { ratingFor } from './rating';
 import styles from './ResultsScreen.module.css';
 
@@ -49,10 +50,10 @@ export function ResultsScreen({ modeName, score, results, onPlayAgain, onHome }:
         <h2>Resultado por País</h2>
         <ol className={styles.items}>
           {results.map((result, index) => (
-            <li key={result.countryId} className={styles.item}>
+            <li key={result.question.id} className={styles.item}>
               <div className={styles.number}>{index + 1}</div>
               <div className={styles.info}>
-                <div className={styles.country}>{getCountry(result.countryId).name}</div>
+                <div className={styles.country}>{questionTitle(result.question)}</div>
                 <div className={styles.attempt}>{attemptLabel(result)}</div>
               </div>
               <div className={cx(styles.points, pointsClass(result.points))}>{formatPoints(result.points)}</div>

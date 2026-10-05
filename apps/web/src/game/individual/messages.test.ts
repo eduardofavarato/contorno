@@ -4,7 +4,7 @@ import { resolutionDelayMs, resolutionFeedback, wrongGuessFeedback, wrongsLabel 
 
 const BRASIL = 76;
 const result = (overrides: Partial<IndividualResult>): IndividualResult => ({
-  countryId: BRASIL,
+  question: { id: BRASIL, regionId: BRASIL, prompt: null, subject: 'Brasil', answer: 'Brasil' },
   outcome: 'correct',
   wrongs: 0,
   points: 2000,

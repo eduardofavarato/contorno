@@ -1,49 +1,52 @@
-import type { CountryId } from '@contorno/core';
+import type { RegionId } from '@contorno/core';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { cx } from '../ui/cx';
-import { CountryPaths, type MapTone } from './CountryPaths';
+import { RegionPaths, type MapTone } from './RegionPaths';
 import { focusKey, viewFor, type MapFocus } from './focus';
 import { createMapLayout } from './layout';
+import type { MapData } from './mapData';
 import { useElementSize } from './useElementSize';
 import { useMapZoom } from './useMapZoom';
-import styles from './WorldMap.module.css';
+import styles from './MapView.module.css';
 
-export type { MapTone } from './CountryPaths';
+export type { MapTone } from './RegionPaths';
 
 const ZOOM_IN_FACTOR = 1.5;
 const FOCUS_MS = 900;
 const REFOCUS_MS = 300;
-const NO_TONES: ReadonlyMap<CountryId, MapTone> = new Map();
+const NO_TONES: ReadonlyMap<RegionId, MapTone> = new Map();
 const WORLD: MapFocus = { kind: 'world' };
 
-export interface WorldMapProps {
-  readonly tones?: ReadonlyMap<CountryId, MapTone>;
+export interface MapViewProps {
+  /** The map to draw. */
+  readonly data: MapData;
+  readonly tones?: ReadonlyMap<RegionId, MapTone>;
   /** What to frame; the map animates there whenever it changes. */
   readonly focus?: MapFocus;
   /** When set, countries are clickable (Modo Localizar and Modo Livre). */
-  readonly onCountryClick?: (id: CountryId) => void;
+  readonly onRegionClick?: (id: RegionId) => void;
   /** Content for the hover tooltip; return `null` for no tooltip. */
-  readonly renderTooltip?: (id: CountryId) => ReactNode;
+  readonly renderTooltip?: (id: RegionId) => ReactNode;
 }
 
 interface Hover {
-  readonly id: CountryId;
+  readonly id: RegionId;
   readonly x: number;
   readonly y: number;
 }
 
-function countryIdOf(event: MouseEvent): CountryId | null {
+function regionIdOf(event: MouseEvent): RegionId | null {
   if (!(event.target instanceof Element)) return null;
-  const raw = event.target.closest('[data-country-id]')?.getAttribute('data-country-id');
+  const raw = event.target.closest('[data-region-id]')?.getAttribute('data-region-id');
   return raw === null || raw === undefined ? null : Number(raw);
 }
 
-export function WorldMap({ tones = NO_TONES, focus = WORLD, onCountryClick, renderTooltip }: WorldMapProps) {
+export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, renderTooltip }: MapViewProps) {
   const areaRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const viewportRef = useRef<SVGGElement>(null);
   const size = useElementSize(areaRef);
-  const layout = useMemo(() => (size ? createMapLayout(size) : null), [size]);
+  const layout = useMemo(() => (size ? createMapLayout(size, data) : null), [size, data]);
   const { scaleBy, moveTo } = useMapZoom(svgRef, viewportRef, size);
   const [hover, setHover] = useState<Hover | null>(null);
 
@@ -65,7 +68,7 @@ export function WorldMap({ tones = NO_TONES, focus = WORLD, onCountryClick, rend
   }, [applyFocus, key]);
 
   const showHover = (event: MouseEvent) => {
-    const id = countryIdOf(event);
+    const id = regionIdOf(event);
     const area = areaRef.current;
     if (id === null || !area) {
       setHover(null);
@@ -83,16 +86,16 @@ export function WorldMap({ tones = NO_TONES, focus = WORLD, onCountryClick, rend
       {layout && (
         <svg
           ref={svgRef}
-          className={cx(styles.svg, onCountryClick && styles.clickable)}
+          className={cx(styles.svg, onRegionClick && styles.clickable)}
           viewBox={`0 0 ${String(layout.size.width)} ${String(layout.size.height)}`}
           role="img"
-          aria-label="Mapa-múndi"
+          aria-label={data.label}
         >
           <g
             ref={viewportRef}
             onClick={(event) => {
-              const id = countryIdOf(event);
-              if (id !== null) onCountryClick?.(id);
+              const id = regionIdOf(event);
+              if (id !== null) onRegionClick?.(id);
             }}
             onMouseOver={showHover}
             onMouseMove={showHover}
@@ -102,7 +105,7 @@ export function WorldMap({ tones = NO_TONES, focus = WORLD, onCountryClick, rend
           >
             <path className={styles.sphere} d={layout.spherePath} />
             <path className={styles.graticule} d={layout.graticulePath} />
-            <CountryPaths countries={layout.countries} tones={tones} />
+            <RegionPaths countries={layout.countries} tones={tones} />
             <path className={styles.borders} d={layout.bordersPath} />
           </g>
         </svg>

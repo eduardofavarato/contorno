@@ -5,7 +5,10 @@ import { PanelInfo } from './PanelInfo';
 import panel from './panel.module.css';
 
 interface LocatePanelProps {
-  readonly countryName: string;
+  /** Heading above the prompt, e.g. "Encontre no mapa:". */
+  readonly label: string;
+  /** What to find on the map. */
+  readonly prompt: string;
   readonly info: ReactNode;
   /** Right-aligned warning next to the info line, e.g. the mistakes so far. */
   readonly warning?: string;
@@ -15,12 +18,12 @@ interface LocatePanelProps {
 }
 
 /** Controls of the click-on-the-map challenge: which country to find, and give up. */
-export function LocatePanel({ countryName, info, warning, feedback, canGiveUp, onGiveUp }: LocatePanelProps) {
+export function LocatePanel({ label, prompt, info, warning, feedback, canGiveUp, onGiveUp }: LocatePanelProps) {
   return (
     <>
       <div className={panel.target}>
-        <div className={panel.targetLabel}>Encontre no mapa:</div>
-        <div className={panel.targetName}>{countryName}</div>
+        <div className={panel.targetLabel}>{label}</div>
+        <div className={panel.targetName}>{prompt}</div>
       </div>
       <PanelInfo {...(warning !== undefined && { warning })}>{info}</PanelInfo>
       <div className={panel.centered}>

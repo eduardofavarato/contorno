@@ -1,3 +1,4 @@
+import { quizFor, type GameSetup, type Guess, type Question } from '@contorno/core';
 import { vi } from 'vitest';
 
 /** Like `querySelector`, but fails the test loudly when the element is missing. */
@@ -80,4 +81,33 @@ export class FakeWebSocket {
   receive(message: unknown): void {
     this.onmessage?.({ data: typeof message === 'string' ? message : JSON.stringify(message) });
   }
+}
+
+/** The questions of a setup about the given regions, in the order given. */
+export function pickQuestions(setup: GameSetup, regionIds: readonly number[]): Question[] {
+  const { questions } = quizFor(setup);
+  return regionIds.map((id) => required(questions.find((question) => question.regionId === id)));
+}
+
+/** A guess that answers the question right: its first accepted answer, or a click on its region. */
+export function correctGuess(question: Question): Guess {
+  return question.challenge === 'type'
+    ? { type: 'text', value: required(question.accepts[0]) }
+    : { type: 'region', id: question.regionId };
+}
+
+/** A guess that answers the question wrong. */
+export function wrongGuess(question: Question): Guess {
+  return question.challenge === 'type' ? { type: 'text', value: 'zzz' } : { type: 'region', id: question.regionId + 1 };
+}
+
+/** Small deterministic PRNG (mulberry32) so shuffles are reproducible in tests. */
+export function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }

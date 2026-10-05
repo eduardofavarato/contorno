@@ -1,6 +1,6 @@
 import { toDuelView, startDuel, duelReducer, type GameSetup, type ServerMessage } from '@contorno/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FakeWebSocket } from '../test-utils';
+import { FakeWebSocket, pickQuestions } from '../test-utils';
 import {
   CONNECTING,
   OnlineSession,
@@ -12,11 +12,12 @@ import {
 
 const setup: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } };
 const BRASIL = 76;
-const view = toDuelView(startDuel({ questions: [BRASIL], tiebreakOrder: [32] }));
+const duel = () => startDuel({ questions: pickQuestions(setup, [BRASIL]), tiebreakOrder: pickQuestions(setup, [32]) });
+const view = toDuelView(duel());
 const finishedView = toDuelView(
   [{ type: 'guess', player: 0, guess: { type: 'text', value: 'brasil' } }, { type: 'next' }].reduce(
     duelReducer as never,
-    startDuel({ questions: [BRASIL], tiebreakOrder: [32] }),
+    duel(),
   ),
 );
 
