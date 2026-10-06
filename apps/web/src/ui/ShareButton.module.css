@@ -1,29 +1,30 @@
 .group {
   position: relative;
   display: flex;
-  width: 100%;
-  max-width: 560px;
+  flex: none;
 }
 
 .main,
 .more {
-  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--touch);
   color: var(--text);
-  font-size: 0.92rem;
-  font-weight: 700;
   background: var(--bg3);
   border: 1px solid var(--border);
   cursor: pointer;
 }
 
 .main {
-  flex: 1;
-  border-radius: 12px 0 0 12px;
+  width: var(--touch);
+  border-radius: 10px 0 0 10px;
 }
 
 .more {
+  width: 32px;
   border-left: 0;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 10px 10px 0;
 }
 
 .main:hover,
@@ -46,9 +47,10 @@
 
 .item {
   width: 100%;
+  min-height: var(--touch);
   padding: 0.8rem 1rem;
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   text-align: left;
   white-space: nowrap;

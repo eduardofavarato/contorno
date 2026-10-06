@@ -37,3 +37,9 @@
   display: flex;
   gap: 0.6rem;
 }
+
+@media (width <= 480px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
+}

@@ -44,7 +44,7 @@ export function LoginScreen({ onDone, onBack }: LoginScreenProps) {
   };
 
   return (
-    <ScreenShell title={signingUp ? 'Criar conta' : 'Entrar'} backLabel="← Voltar" onBack={onBack}>
+    <ScreenShell title={signingUp ? 'Criar conta' : 'Entrar'} backLabel="Voltar" onBack={onBack}>
       <form className={styles.card} onSubmit={(event) => void submit(event)}>
         {signingUp && (
           <div className={styles.field}>

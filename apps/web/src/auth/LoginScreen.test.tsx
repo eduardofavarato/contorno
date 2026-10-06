@@ -89,7 +89,7 @@ describe('LoginScreen', () => {
   it('goes back', async () => {
     const { onBack } = renderLogin();
 
-    await userEvent.click(screen.getByRole('button', { name: '← Voltar' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
     expect(onBack).toHaveBeenCalledOnce();
   });
 });

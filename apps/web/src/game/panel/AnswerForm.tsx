@@ -12,13 +12,9 @@ interface AnswerFormProps {
   /** Blinks the field red, e.g. after a wrong answer. */
   readonly shaking?: boolean;
   readonly onSubmit: (text: string) => void;
-  /** When given, shows a give-up button. */
-  readonly onGiveUp?: () => void;
-  /** Whether giving up is allowed right now (it is a one-time option in some turns). */
-  readonly canGiveUp?: boolean;
 }
 
-/** Typed-answer controls: text field, confirm and (optionally) give up. */
+/** Typed-answer controls: text field and confirm. */
 export function AnswerForm({
   label,
   placeholder,
@@ -26,8 +22,6 @@ export function AnswerForm({
   disabled = false,
   shaking = false,
   onSubmit,
-  onGiveUp,
-  canGiveUp = true,
 }: AnswerFormProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,11 +61,6 @@ export function AnswerForm({
       <button type="submit" className={styles.confirm} disabled={locked}>
         Confirmar
       </button>
-      {onGiveUp && (
-        <button type="button" className={styles.giveUp} disabled={locked || !canGiveUp} onClick={onGiveUp}>
-          Desistir
-        </button>
-      )}
     </form>
   );
 }

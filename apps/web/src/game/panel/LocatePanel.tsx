@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Feedback } from '../individual/messages';
 import { FeedbackLine } from './FeedbackLine';
+import { GiveUpButton } from './GiveUpButton';
 import { PanelInfo } from './PanelInfo';
 import panel from './panel.module.css';
 
@@ -26,12 +27,7 @@ export function LocatePanel({ label, prompt, info, warning, feedback, canGiveUp,
         <div className={panel.targetName}>{prompt}</div>
       </div>
       <PanelInfo {...(warning !== undefined && { warning })}>{info}</PanelInfo>
-      <div className={panel.centered}>
-        <button type="button" className={panel.giveUp} disabled={!canGiveUp} onClick={onGiveUp}>
-          Desistir
-        </button>
-      </div>
-      <FeedbackLine feedback={feedback} />
+      <FeedbackLine feedback={feedback} action={<GiveUpButton disabled={!canGiveUp} onClick={onGiveUp} />} />
     </>
   );
 }

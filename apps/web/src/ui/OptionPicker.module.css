@@ -1,35 +1,78 @@
 .group {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .wrap {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .column {
   flex-direction: column;
 }
 
-.option {
-  flex: 1;
-  padding: 0.5rem 0.25rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
+.scroll {
+  /* A row that scrolls out to the screen's edge: the page's side margin (--bleed) is taken out and put back inside. */
+  padding: 0 var(--bleed, 0px) 2px;
+  margin: 0 calc(var(--bleed, 0px) * -1);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.wrap .option {
-  min-width: calc(50% - 0.2rem);
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.option {
+  flex: 1;
+  min-height: var(--touch);
+  padding: 0.5rem 1rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    transform 0.1s;
+}
+
+.option:active {
+  transform: scale(0.97);
+}
+
+.scroll .option {
+  flex: none;
+  white-space: nowrap;
 }
 
 .selected {
   color: var(--bg);
   background: var(--gold);
   border-color: var(--gold);
+}
+
+.segmented {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.segmented .option {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.segmented .option + .option {
+  border-left: 1px solid var(--border);
+}
+
+.segmented .selected {
+  background: var(--gold);
 }

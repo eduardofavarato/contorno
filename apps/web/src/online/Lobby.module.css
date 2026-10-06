@@ -1,36 +1,28 @@
-.screen {
+.panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  min-height: 100vh;
-  padding: 2rem 1.25rem;
-  overflow-y: auto;
-  text-align: center;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 440px;
+  text-align: left;
 }
 
 .setup {
-  color: var(--muted);
+  align-self: flex-start;
+  padding: 0.3rem 0.75rem;
+  color: var(--gold);
   font-size: 0.85rem;
-}
-
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 640px;
+  font-weight: 700;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-line);
+  border-radius: 8px;
 }
 
 .card {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: 0.9rem;
-  min-width: 240px;
-  padding: 1.5rem;
-  text-align: left;
+  padding: 1.25rem;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -38,61 +30,162 @@
 
 .card h2 {
   color: var(--gold);
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 800;
 }
 
 .hint {
-  flex: 1;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.input {
-  padding: 0.7rem 1rem;
-  color: var(--text);
-  font-size: 1.4rem;
-  font-weight: 800;
-  text-align: center;
-  text-indent: 0.4em;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  background: var(--bg3);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  outline: none;
+.joinForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.input:focus {
+.codeField {
+  position: relative;
+}
+
+/* The real field covers the boxes: tapping anywhere opens the keyboard, and the boxes only draw what was typed. */
+.codeInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  opacity: 0;
+  cursor: text;
+}
+
+.boxes {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.box,
+.boxLarge {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 72px;
+  color: var(--gold);
+  font-size: 2.4rem;
+  font-weight: 900;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.boxLarge {
+  flex: none;
+  width: 64px;
+  height: 88px;
+  font-size: 3rem;
+  background: var(--gold-soft);
+  border-color: var(--gold-line);
+}
+
+.boxFilled {
+  background: var(--gold-soft);
+}
+
+.boxFocus {
   border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 440px;
+  padding-top: 1rem;
 }
 
 .codeLabel {
   color: var(--muted);
   font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.code {
-  padding: 1rem 2rem;
-  color: var(--gold);
-  font-size: 3rem;
-  font-weight: 900;
-  text-indent: 0.3em;
-  letter-spacing: 0.3em;
-  background: var(--bg2);
-  border: 2px dashed var(--gold);
-  border-radius: 14px;
+.roomActions {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.roomActions button {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding-inline: 0.5rem;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 .status {
   color: var(--muted);
 }
 
+.room .status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.dot,
+.dotWaiting {
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+
+.dotWaiting {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.roomHint {
+  max-width: 280px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .error {
   min-height: 1.3rem;
   color: var(--red);
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dotWaiting {
+    animation: none;
+  }
 }

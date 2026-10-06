@@ -31,12 +31,13 @@
   /* min-width: 0 lets the field shrink; otherwise its intrinsic width pushes the buttons off narrow screens. */
   flex: 1;
   min-width: 0;
+  min-height: 52px;
   padding: 0.7rem 1rem;
   color: var(--text);
   font-size: 1rem;
   background: var(--bg3);
   border: 2px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -82,10 +83,11 @@
 
 .confirm,
 .giveUp {
+  min-height: var(--touch);
   padding: 0.7rem 1.3rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
   white-space: nowrap;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -95,17 +97,24 @@
   font-weight: 800;
   background: var(--gold-gradient);
   border: 0;
-  transition: opacity 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
 }
 
 .confirm:hover {
   opacity: 0.9;
 }
 
+.confirm:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
 .giveUp {
+  flex: none;
   padding: 0.7rem 1rem;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   background: none;
   border: 1px solid var(--border);
   transition:
@@ -113,7 +122,7 @@
     color 0.15s;
 }
 
-.giveUp:hover {
+.giveUp:hover:not(:disabled) {
   color: var(--text);
   background: var(--bg3);
 }
@@ -125,18 +134,24 @@
 }
 
 @media (width <= 480px) {
-  .confirm,
-  .giveUp {
-    padding: 0.7rem 0.85rem;
-    font-size: 0.85rem;
+  .confirm {
+    padding: 0.7rem 1rem;
   }
 }
 
+.feedbackRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
 .feedback {
+  flex: 1;
+  min-width: 0;
   min-height: 1.4rem;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .feedbackOk {

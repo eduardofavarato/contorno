@@ -22,7 +22,9 @@ export const FORMAT_LABELS: Readonly<Record<GameFormat, string>> = { individual:
 export interface ModeCopy {
   readonly icon: string;
   readonly title: string;
-  /** One line shown in the compact mode list. */
+  /** Short name for tiles and chips, e.g. "Perguntas". */
+  readonly short: string;
+  /** One line shown on the mode's tile. */
   readonly summary: string;
   readonly description: Readonly<Record<GameFormat, string>>;
   readonly details: Readonly<Record<GameFormat, readonly string[]>>;
@@ -39,6 +41,7 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
   perguntas: {
     icon: '❓',
     title: 'Modo Perguntas',
+    short: 'Perguntas',
     summary: 'Adivinhe países pelo contorno',
     description: {
       individual: 'Um país é destacado no mapa a cada rodada. Adivinhe o nome antes que os pontos acabem!',
@@ -57,6 +60,7 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
   continentes: {
     icon: '🌎',
     title: 'Modo Continentes',
+    short: 'Continentes',
     summary: 'Todos os países de um continente',
     description: {
       individual: 'Escolha um continente e tente acertar todos os países que fazem parte dele!',
@@ -75,6 +79,7 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
   localizar: {
     icon: '🎯',
     title: 'Modo Localizar',
+    short: 'Localizar',
     summary: 'Encontre o país no mapa pelo nome',
     description: {
       individual: 'O nome do país é revelado — encontre-o no mapa clicando no lugar certo!',
@@ -93,6 +98,7 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
   brasil: {
     icon: '🇧🇷',
     title: 'Especial Brasil',
+    short: 'Especial Brasil',
     summary: 'Estados, capitais e cidades do Brasil',
     description: {
       individual: 'Teste o que você sabe do Brasil: reconheça estados, capitais e cidades no mapa do país!',
@@ -110,13 +116,19 @@ export const MODE_COPY: Readonly<Record<GameMode, ModeCopy>> = {
   },
 };
 
-export const FREE_MODE_COPY = {
+export const FREE_MODE_COPY: {
+  readonly icon: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly description: string;
+  readonly details: readonly string[];
+} = {
   icon: '🔍',
   title: 'Modo Livre',
   summary: 'Explore o mapa sem pressão',
   description: 'Explore o mapa e clique em qualquer país para tentar adivinhar o nome dele.',
   details: ['Clique em qualquer país', 'Uma tentativa por país', 'Acertos são contabilizados', 'Sem pressão de tempo'],
-} as const;
+};
 
 /** Short label for a game's pool, e.g. "Fácil", "Europa" or "Capitais". */
 export function describePool({ pool }: GameSetup): string {
@@ -160,9 +172,6 @@ export function describeSetup(setup: GameSetup): string {
 
 /** Display names of the two duel players; the online mode will replace them with the players' own. */
 export const PLAYER_NAMES: readonly [string, string] = ['Jogador A', 'Jogador B'];
-
-/** What the narrow scoreboard shows instead of the full names. */
-export const PLAYER_SHORT_NAMES: readonly [string, string] = ['A', 'B'];
 
 /** Marks one seat as the viewer's own ("Jogador A (você)"), so players know which side of the scoreboard is theirs. */
 export function markAsMe(names: readonly [string, string], me: 0 | 1): readonly [string, string] {

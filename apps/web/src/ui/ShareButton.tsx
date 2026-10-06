@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { HAPTICS, vibrate } from '../haptics';
+import { Icon } from './Icon';
 import styles from './ShareButton.module.css';
 
 interface ShareButtonProps {
@@ -8,7 +10,7 @@ interface ShareButtonProps {
   readonly onShareText: () => void;
 }
 
-/** A button that shares an image, with a small menu to share the same thing as text instead. */
+/** An icon button that shares an image, with a small menu to share the same thing as text instead. */
 export function ShareButton({ label, onShareImage, onShareText }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
@@ -27,8 +29,16 @@ export function ShareButton({ label, onShareImage, onShareText }: ShareButtonPro
 
   return (
     <div ref={container} className={styles.group}>
-      <button type="button" className={styles.main} onClick={onShareImage}>
-        📤 {label}
+      <button
+        type="button"
+        className={styles.main}
+        aria-label={label}
+        onClick={() => {
+          vibrate(HAPTICS.press);
+          onShareImage();
+        }}
+      >
+        <Icon name="share" size={22} />
       </button>
       <button
         type="button"
@@ -39,7 +49,7 @@ export function ShareButton({ label, onShareImage, onShareText }: ShareButtonPro
           setOpen((current) => !current);
         }}
       >
-        ▾
+        <Icon name="down" size={18} />
       </button>
       {open && (
         <div className={styles.menu}>

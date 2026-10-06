@@ -18,6 +18,7 @@
   background: var(--accent-soft);
   border-bottom: 1px solid var(--border);
   border-left: 4px solid var(--accent);
+  min-height: var(--touch);
   transition:
     background 0.25s,
     border-color 0.25s;
@@ -33,9 +34,19 @@
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+/* The second player is a square, the first a circle: the turn can be told apart without color. */
+.playerB .dot {
+  border-radius: 0;
+}
+
+.round {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
 .player {
   color: var(--accent);
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
 }
 

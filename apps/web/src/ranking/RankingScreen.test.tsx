@@ -30,14 +30,13 @@ function renderRanking(
   auth: Partial<AuthContextValue> = { status: 'anonymous' },
   initial?: Parameters<typeof RankingScreen>[0]['initial'],
 ) {
-  const onBack = vi.fn();
   const onLogin = vi.fn();
   render(
     <WithAuth value={fakeAuth(auth)}>
-      <RankingScreen {...(initial && { initial })} onBack={onBack} onLogin={onLogin} />
+      <RankingScreen {...(initial && { initial })} onLogin={onLogin} />
     </WithAuth>,
   );
-  return { onBack, onLogin };
+  return { onLogin };
 }
 
 const answer = (response: RankingResponse) => vi.mocked(gameApi.ranking).mockResolvedValue(response);
@@ -47,25 +46,41 @@ beforeEach(() => {
 });
 
 describe('RankingScreen', () => {
-  it('lists the players with points and time, best first', async () => {
-    answer({ entries: [entry(1, 'Beto', 20_000, 42_000), entry(2, 'Ana', 18_000, 65_000)], mine: null });
+  it('puts the top three on the podium and lists the rest, best first', async () => {
+    answer({
+      entries: [
+        entry(1, 'Beto', 20_000, 42_000),
+        entry(2, 'Ana', 18_000, 65_000),
+        entry(3, 'Caio', 17_000, 70_000),
+        entry(4, 'Duda', 16_000, 80_000),
+        entry(5, 'Edu', 15_000, 90_000),
+      ],
+      mine: null,
+    });
     renderRanking();
 
-    const table = await screen.findByRole('table', { name: 'Ranking de Modo Perguntas · Fácil' });
-    const rows = within(table).getAllByRole('row').slice(1);
-
+    const podium = await screen.findByRole('list', { name: 'Pódio de Modo Perguntas · Fácil' });
     expect(
-      rows.map((row) =>
-        within(row)
-          .getAllByRole('cell')
-          .slice(0, 4)
-          .map((cell) => cell.textContent),
-      ),
-    ).toEqual([
-      ['1', 'Beto', '20.000', '0:42'],
-      ['2', 'Ana', '18.000', '1:05'],
-    ]);
+      within(podium)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['1Beto20.0000:42', '2Ana18.0001:05', '3Caio17.0001:10']);
+
+    const rest = screen.getByRole('list', { name: 'Ranking de Modo Perguntas · Fácil' });
+    expect(
+      within(rest)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual([expect.stringMatching(/^4Duda.*1:2016\.000$/), expect.stringMatching(/^5Edu.*1:3015\.000$/)]);
     expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', null);
+  });
+
+  it('shows only a podium when there are no more than three players', async () => {
+    answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: null });
+    renderRanking();
+
+    expect(await screen.findByRole('list', { name: /Pódio/ })).toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: /^Ranking de/ })).not.toBeInTheDocument();
   });
 
   it('asks for the board that was picked, and opens on the one given', async () => {
@@ -91,23 +106,32 @@ describe('RankingScreen', () => {
     expect(gameApi.ranking).toHaveBeenLastCalledWith('continentes:continent:europe', null);
   });
 
-  it('highlights the signed-in player and sends their token to see their own best game', async () => {
+  it('highlights the signed-in player in the list and sends their token to see their own best game', async () => {
     answer({
-      entries: [entry(1, 'Beto', 20_000, 42_000), entry(2, 'Ana', 18_000, 65_000, 7)],
-      mine: entry(2, 'Ana', 18_000, 65_000, 7),
+      entries: [
+        entry(1, 'Beto', 20_000, 42_000),
+        entry(2, 'Caio', 19_000, 50_000),
+        entry(3, 'Duda', 18_500, 60_000),
+        entry(4, 'Ana', 18_000, 65_000, 7),
+      ],
+      mine: entry(4, 'Ana', 18_000, 65_000, 7),
     });
     renderRanking({ status: 'signedIn', user: { id: 7, name: 'Ana' } });
 
-    const row = (await screen.findByRole('cell', { name: 'Ana' })).closest('tr');
-    expect(row?.className).toMatch(/mine/);
+    const rest = await screen.findByRole('list', { name: 'Ranking de Modo Perguntas · Fácil' });
+    const row = within(rest).getByText('Ana').closest('li');
+    expect(row?.className).toMatch(/rowMine/);
     expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', 'test-token');
   });
 
-  it('shows where the player stands when they are outside the listed top', async () => {
+  it('keeps the signed-in player’s best game in view below the list', async () => {
     answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: entry(37, 'Ana', 9_000, 90_000, 7) });
     renderRanking({ status: 'signedIn', user: { id: 7, name: 'Ana' } });
 
-    expect(await screen.findByText(/Sua melhor/)).toHaveTextContent('Sua melhor: #37 · 9.000 pts · 1:30');
+    const mine = await screen.findByRole('complementary', { name: 'Sua melhor partida' });
+    expect(mine).toHaveTextContent('#37');
+    expect(mine).toHaveTextContent('Sua melhor · 1:30');
+    expect(mine).toHaveTextContent('9.000 pts');
   });
 
   it('invites visitors to sign in', async () => {
@@ -130,14 +154,6 @@ describe('RankingScreen', () => {
     renderRanking();
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível carregar o ranking.');
-  });
-
-  it('goes back', async () => {
-    answer({ entries: [], mine: null });
-    const { onBack } = renderRanking();
-
-    await userEvent.click(screen.getByRole('button', { name: '← Voltar' }));
-    expect(onBack).toHaveBeenCalledOnce();
   });
 
   describe('sharing', () => {

@@ -41,6 +41,26 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+describe('haptics', () => {
+  afterEach(() => {
+    Reflect.deleteProperty(navigator, 'vibrate');
+  });
+
+  it('buzzes briefly for a right answer and twice for a wrong one', async () => {
+    const vibrate = vi.fn(() => true);
+    Object.assign(navigator, { vibrate });
+    const { user } = renderGame(perguntas);
+    const [first] = plan(perguntas).questions;
+
+    await user.type(answerBox(), 'zzz{Enter}');
+    expect(vibrate).toHaveBeenLastCalledWith([30, 40, 30]);
+
+    wait(2000);
+    await user.type(answerBox(), `${answerOf(required(first))}{Enter}`);
+    expect(vibrate).toHaveBeenLastCalledWith(20);
+  });
+});
+
 describe('typing duel', () => {
   it('starts with Jogador A, then hands the turn over after a correct answer', async () => {
     const { user } = renderGame(perguntas);
@@ -115,7 +135,7 @@ describe('typing duel', () => {
     expect(score('Jogador A').getByText('10.000')).toBeInTheDocument();
     expect(score('Jogador B').getByText('10.000')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Jogar Novamente' }));
+    await user.click(screen.getByRole('button', { name: 'Revanche' }));
     expect(onPlayAgain).toHaveBeenCalledOnce();
     await user.click(screen.getByRole('button', { name: 'Início' }));
     expect(onQuit).toHaveBeenCalledOnce();

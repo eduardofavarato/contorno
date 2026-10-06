@@ -1,23 +1,22 @@
 .home {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
-  min-height: 100vh;
-  padding: 2rem;
-  overflow-y: auto;
-  text-align: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+  padding: 1rem 1.25rem 1.5rem;
+  margin: 0 auto;
 }
 
-.homeCompact {
-  justify-content: flex-start;
-  gap: 1.25rem;
-  padding: 1.75rem 1.25rem;
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .logo {
-  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -27,216 +26,139 @@
 }
 
 .tagline {
+  margin-top: 0.3rem;
   color: var(--muted);
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-style: italic;
 }
 
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 1300px;
+.account {
+  flex: none;
+  width: auto;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.card {
+.modes {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 0.9rem;
-  min-width: 220px;
-  max-width: 310px;
-  padding: 1.6rem 1.5rem;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.tile,
+.tileWide {
+  display: flex;
+  gap: 0.6rem;
+  min-height: var(--touch);
+  padding: 1rem;
+  color: var(--text);
   text-align: left;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 14px;
+  cursor: pointer;
   transition:
     border-color 0.2s,
-    box-shadow 0.2s;
+    background 0.2s,
+    transform 0.1s;
 }
 
-.card:hover {
+.tile {
+  flex-direction: column;
+  align-items: center;
+  min-height: 140px;
+  text-align: center;
+}
+
+.tileWide {
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 72px;
+}
+
+.tile:hover,
+.tileWide:hover {
   border-color: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold) inset;
 }
 
-.cardIcon {
+.tile:active,
+.tileWide:active {
+  background: var(--gold-soft);
+  transform: scale(0.97);
+}
+
+.tileIcon {
+  display: flex;
   font-size: 2rem;
   line-height: 1;
 }
 
-.cardTitle {
-  color: var(--gold);
-  font-size: 1.05rem;
-  font-weight: 800;
-}
-
-.cardDescription {
+.tileText {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.2rem;
 }
 
-.cardDescription p {
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
-
-.details summary {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-  transition: color 0.15s;
-}
-
-.details summary:hover {
-  color: var(--text);
-}
-
-.details summary::-webkit-details-marker {
-  display: none;
-}
-
-.details summary::after {
-  content: '▾';
-  display: inline-block;
-  font-size: 1rem;
-  transition: transform 0.2s;
-}
-
-.details[open] summary::after {
-  transform: rotate(-180deg);
-}
-
-.details ul {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  margin-top: 0.5rem;
-  list-style: none;
-}
-
-.details li {
-  display: flex;
-  gap: 0.5rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.details li::before {
-  content: '›';
-  flex-shrink: 0;
+.tileName {
   color: var(--gold);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.1;
 }
 
-.config {
+.tileSummary {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.tileChevron {
   display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+  color: var(--muted);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .fieldLabel {
   color: var(--muted);
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.compactList,
-.compactConfig {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  width: 100%;
-}
+@media (width >= 900px) {
+  .home {
+    padding-top: 2.5rem;
+    gap: 2rem;
+  }
 
-.compactConfig {
-  gap: 1.1rem;
-}
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
-.compactHeader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-}
-
-.compactIcon {
-  font-size: 1.75rem;
-}
-
-.compactTitle {
-  color: var(--gold);
-  font-size: 1.4rem;
-  font-weight: 800;
-}
-
-.listItem {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  width: 100%;
-  padding: 1.25rem 1.1rem;
-  text-align: left;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.listItem:hover {
-  border-color: var(--gold);
-}
-
-.listItem:active {
-  transform: scale(0.98);
-}
-
-.listIcon {
-  flex-shrink: 0;
-  font-size: 1.8rem;
-}
-
-.listInfo {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-}
-
-.listName {
-  color: var(--text);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.listSummary {
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.chevron {
-  flex-shrink: 0;
-  color: var(--muted);
-  font-size: 1.2rem;
+  .tile {
+    min-height: 0;
+  }
 }

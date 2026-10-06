@@ -1,6 +1,7 @@
-import { quizFor, type DuelView, type GameSetup, type Guess, type RegionId } from '@contorno/core';
-import { useMemo } from 'react';
+import { quizFor, type DuelView, type GameSetup, type Guess, type PlayerIndex, type RegionId } from '@contorno/core';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { quizCopy } from '../../copy';
+import { HAPTICS, vibrate } from '../../haptics';
 import { useTransient } from '../../hooks/useTransient';
 import { LazyMap } from '../../map/LazyMap';
 import { cx } from '../../ui/cx';
@@ -8,6 +9,7 @@ import { GameLayout } from '../GameLayout';
 import type { Flash } from '../individual/individualView';
 import { AnswerForm } from '../panel/AnswerForm';
 import { FeedbackLine } from '../panel/FeedbackLine';
+import { GiveUpButton } from '../panel/GiveUpButton';
 import { LocatePanel } from '../panel/LocatePanel';
 import { PanelInfo } from '../panel/PanelInfo';
 import styles from './DuelBoard.module.css';
@@ -17,13 +19,12 @@ import { ScoreBar } from './ScoreBar';
 import { TurnToast } from './TurnToast';
 
 const CLICK_BLINK_MS = 600;
+const SHAKE_MS = 350;
 
 interface DuelBoardProps {
   readonly view: DuelView;
   readonly setup: GameSetup;
   readonly names: readonly [string, string];
-  /** Compact labels for narrow screens. */
-  readonly shortNames: readonly [string, string];
   readonly badge: string;
   /** Whether this screen may answer right now; online, only the player whose turn it is. */
   readonly canAct: boolean;
@@ -33,18 +34,11 @@ interface DuelBoardProps {
 }
 
 /** The duel screen, driven entirely by a `DuelView`: the same view serves local and online games. */
-export function DuelBoard({
-  view,
-  setup,
-  names,
-  shortNames,
-  badge,
-  canAct,
-  onGuess,
-  onGiveUp,
-  onQuit,
-}: DuelBoardProps) {
+export function DuelBoard({ view, setup, names, badge, canAct, onGuess, onGiveUp, onQuit }: DuelBoardProps) {
   const [flash, showFlash] = useTransient<Flash>();
+  const [shaking, shake] = useTransient<true>();
+  const [bump, setBump] = useState<{ player: PlayerIndex; key: number } | null>(null);
+  const previousScores = useRef(view.scores);
   const quiz = useMemo(() => quizFor(setup), [setup]);
   const { challenge } = quiz;
   const asking = view.status === 'asking';
@@ -66,6 +60,25 @@ export function DuelBoard({
   const map = duelMapView(view, quiz, flash);
   const feedback = duelFeedback(view, names);
   const info = stakesLabel(view);
+  const feedbackTone = feedback?.tone;
+
+  // A buzz for every answer (a short one when right, a double one when wrong), and the scoreboard pulses on a point.
+  useEffect(() => {
+    if (!feedbackTone) return;
+    if (feedbackTone === 'ok') {
+      vibrate(HAPTICS.right);
+    } else {
+      vibrate(HAPTICS.wrong);
+      shake(true, SHAKE_MS);
+    }
+  }, [view.resolution, feedbackTone, shake]);
+
+  useEffect(() => {
+    const before = previousScores.current;
+    previousScores.current = view.scores;
+    const scorer = ([0, 1] as const).find((player) => view.scores[player] > before[player]);
+    if (scorer !== undefined) setBump((current) => ({ player: scorer, key: (current?.key ?? 0) + 1 }));
+  }, [view.scores]);
 
   const controls =
     challenge === 'type' ? (
@@ -77,13 +90,17 @@ export function DuelBoard({
           placeholder={canAct ? copy.inputPlaceholder : 'Vez do adversário…'}
           disabled={!canAct}
           settled={settledAnswer(view)}
-          canGiveUp={view.canGiveUp}
+          shaking={shaking !== null}
           onSubmit={(text) => {
             onGuess({ type: 'text', value: text });
           }}
-          onGiveUp={onGiveUp}
         />
-        <FeedbackLine feedback={feedback} />
+        <FeedbackLine
+          feedback={feedback}
+          action={
+            <GiveUpButton disabled={!canAct || !view.canGiveUp || settledAnswer(view) !== null} onClick={onGiveUp} />
+          }
+        />
       </>
     ) : (
       <LocatePanel
@@ -105,8 +122,11 @@ export function DuelBoard({
         onQuit={onQuit}
         progress={inTiebreak ? 1 : view.round / view.questionCount}
         stats={
-          <ScoreBar names={names} shortNames={shortNames} scores={view.scores} active={asking ? banner.player : null} />
+          <span className={styles.round}>
+            {inTiebreak ? '🔥' : `${String(view.round + 1)}/${String(view.questionCount)}`}
+          </span>
         }
+        scores={<ScoreBar names={names} scores={view.scores} active={asking ? banner.player : null} bump={bump} />}
         bottom={
           <>
             <div className={styles.banner} role="group" aria-label="Turno">

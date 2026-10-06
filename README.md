@@ -14,6 +14,16 @@ Cada modo (menos o Livre) pode ser jogado em dois **formatos**: **Individual** o
 | **Especial Brasil** | Estados e Capitais: digitando; Cidades: clicando no estado | Tema: Estados, Capitais ou Cidades (mapa do Brasil) |
 | **Livre**       | Clicando em qualquer país e digitando o nome   | Todo o mapa, sem pressão               |
 
+### Interface
+
+- **Navegação:** abas **Jogar / Ranking / Conta** (barra embaixo no celular, no topo em telas largas; sem contas no servidor
+  só existe o jogo e não há barra).
+- **Configurar um modo:** tocar no modo abre uma folha (no celular sobe de baixo; em telas largas é um diálogo) com formato,
+  dificuldade/continente/tema e "Como funciona".
+- **Toque:** alvos de pelo menos 48 px e vibração curta em toques, acertos e erros (`navigator.vibrate`, no app com a
+  permissão `VIBRATE`). O turno na Disputa se distingue por forma (círculo/quadrado) e não só por cor.
+- **Disputa online:** a sala tem o código em letras grandes, com **Copiar** e **Compartilhar**.
+
 ### Especial Brasil
 
 Usa o mapa dos 27 estados (malha oficial do IBGE) no lugar do mapa-múndi. Em vez de dificuldade, escolhe-se o tema:

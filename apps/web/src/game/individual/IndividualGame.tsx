@@ -28,6 +28,7 @@ import { formatDuration, formatPoints } from '../../utils/format';
 import { GameLayout } from '../GameLayout';
 import { LocatePanel } from '../panel/LocatePanel';
 import { FeedbackLine } from '../panel/FeedbackLine';
+import { GiveUpButton } from '../panel/GiveUpButton';
 import { AnswerForm } from '../panel/AnswerForm';
 import { PanelInfo } from '../panel/PanelInfo';
 import { Stat } from '../Stat';
@@ -155,11 +156,18 @@ export function IndividualGame({
           onSubmit={(text) => {
             guess({ type: 'text', value: text }, question.regionId, TYPED_BLINK_MS);
           }}
-          onGiveUp={() => {
-            dispatch({ type: 'give_up' });
-          }}
         />
-        <FeedbackLine feedback={feedback} />
+        <FeedbackLine
+          feedback={feedback}
+          action={
+            <GiveUpButton
+              disabled={settled !== undefined}
+              onClick={() => {
+                dispatch({ type: 'give_up' });
+              }}
+            />
+          }
+        />
       </>
     ) : (
       <LocatePanel

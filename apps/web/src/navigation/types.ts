@@ -7,13 +7,15 @@ export type GameRequest =
   | { readonly setup: GameSetup; readonly format: 'individual' }
   | { readonly setup: GameSetup; readonly format: 'duel'; readonly venue: Venue };
 
+/** The three main screens, switched from the navigation bar. */
+export type Tab = 'play' | 'ranking' | 'account';
+
 export type Screen =
-  | { readonly name: 'home' }
+  /** `board` is the ranking to open first, e.g. the one a player just finished a game on. */
+  | { readonly name: 'home'; readonly tab: Tab; readonly board?: GameSetup }
   /** `run` changes on "play again" so the game restarts from scratch. */
   | { readonly name: 'game'; readonly request: GameRequest; readonly run: number }
   | { readonly name: 'free' }
-  | { readonly name: 'login' }
-  /** `board` is the ranking to open first. */
-  | { readonly name: 'ranking'; readonly board?: GameSetup };
+  | { readonly name: 'login' };
 
 export type { GameFormat };

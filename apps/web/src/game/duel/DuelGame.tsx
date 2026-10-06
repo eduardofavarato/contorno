@@ -11,7 +11,7 @@ import {
   type Random,
 } from '@contorno/core';
 import { useEffect, useReducer, useState } from 'react';
-import { describeSetup, PLAYER_NAMES, PLAYER_SHORT_NAMES } from '../../copy';
+import { describeSetup, PLAYER_NAMES } from '../../copy';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { DuelBoard } from './DuelBoard';
 import { DuelResults } from './DuelResults';
@@ -63,7 +63,6 @@ export function DuelGame({ setup, onQuit, onPlayAgain, random = Math.random }: D
         view={toDuelView(state)}
         setup={setup}
         names={PLAYER_NAMES}
-        shortNames={PLAYER_SHORT_NAMES}
         badge={`${describeSetup(setup)} · Disputa`}
         canAct
         onGuess={(guess: Guess) => {

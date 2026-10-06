@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { describeSetup, markAsMe, PLAYER_NAMES, PLAYER_SHORT_NAMES } from '../copy';
+import { describeSetup, markAsMe, PLAYER_NAMES } from '../copy';
 import { DuelBoard } from '../game/duel/DuelBoard';
 import { DuelResults } from '../game/duel/DuelResults';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -7,6 +7,7 @@ import styles from './Lobby.module.css';
 import { ScreenShell } from '../ui/ScreenShell';
 import { INTERRUPTION_MESSAGES, REFUSAL_MESSAGES } from './messages';
 import type { Intent } from './session';
+import { WaitingRoom } from './WaitingRoom';
 import { useOnlineSession } from './useOnlineSession';
 
 interface OnlineMatchProps {
@@ -24,27 +25,28 @@ export function OnlineMatch({ intent, onLeave, onHome }: OnlineMatchProps) {
   switch (state.phase) {
     case 'connecting':
       return (
-        <ScreenShell title="⚔️ Disputa Online" backLabel="Cancelar" onBack={onLeave}>
+        <ScreenShell title="Disputa online" backLabel="Cancelar" onBack={onLeave}>
           <p className={styles.status}>Conectando…</p>
         </ScreenShell>
       );
 
     case 'waiting':
       return (
-        <ScreenShell title="⚔️ Disputa Online" backLabel="← Voltar" onBack={onLeave}>
-          <div className={styles.codeLabel}>Código da sala</div>
-          <div className={styles.code} aria-label={`Código da sala: ${state.code}`}>
-            {state.code}
-          </div>
-          <p className={styles.status} role="status">
-            {state.player === 0 && !state.opponentJoined ? 'Aguardando adversário…' : 'Conectado! Aguardando início…'}
-          </p>
-        </ScreenShell>
+        <WaitingRoom
+          code={state.code}
+          host={state.player === 0}
+          status={
+            state.player === 0 && !state.opponentJoined ? 'Aguardando adversário…' : 'Conectado! Aguardando início…'
+          }
+          connected={state.player !== 0 || state.opponentJoined}
+          setupName={describeSetup(state.setup)}
+          onLeave={onLeave}
+        />
       );
 
     case 'refused':
       return (
-        <ScreenShell title="⚔️ Disputa Online" backLabel="← Voltar" onBack={onLeave}>
+        <ScreenShell title="Disputa online" backLabel="Voltar" onBack={onLeave}>
           <p className={styles.error} role="alert">
             {REFUSAL_MESSAGES[state.code]}
           </p>
@@ -53,7 +55,7 @@ export function OnlineMatch({ intent, onLeave, onHome }: OnlineMatchProps) {
 
     case 'interrupted':
       return (
-        <ScreenShell title="⚔️ Disputa Online" backLabel="← Voltar" onBack={onLeave}>
+        <ScreenShell title="Disputa online" backLabel="Voltar" onBack={onLeave}>
           <p className={styles.error} role="alert">
             {INTERRUPTION_MESSAGES[state.reason]}
           </p>
@@ -75,7 +77,6 @@ export function OnlineMatch({ intent, onLeave, onHome }: OnlineMatchProps) {
             view={view}
             setup={setup}
             names={names}
-            shortNames={markAsMe(PLAYER_SHORT_NAMES, player)}
             badge={`${describeSetup(setup)} · Online`}
             canAct={view.status === 'asking' && view.activePlayer === player}
             onGuess={guess}

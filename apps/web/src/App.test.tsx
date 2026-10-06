@@ -4,7 +4,13 @@ import { describe, expect, it } from 'vitest';
 import { App } from './App';
 import { WithAuth } from './test-auth';
 import { runBackAction } from './native/backStack';
-import { stubResizeObserver } from './test-utils';
+import { fakeAuth, stubResizeObserver } from './test-utils';
+
+/** Taps a mode's tile on the home and returns the queries of the setup sheet that opens. */
+async function openMode(name: RegExp) {
+  await userEvent.click(screen.getByRole('button', { name }));
+  return within(screen.getByRole('dialog'));
+}
 
 describe('App', () => {
   it('opens a game from the home and returns to it once the quit is confirmed', async () => {
@@ -16,9 +22,7 @@ describe('App', () => {
     );
     expect(screen.getByRole('heading', { name: 'Contorno' })).toBeInTheDocument();
 
-    await userEvent.click(
-      within(screen.getByRole('region', { name: 'Modo Perguntas' })).getByRole('button', { name: 'Jogar' }),
-    );
+    await userEvent.click((await openMode(/Perguntas/)).getByRole('button', { name: 'Jogar' }));
     expect(screen.getByText('Modo Perguntas · Fácil')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Sair' }));
@@ -34,9 +38,7 @@ describe('App', () => {
       </WithAuth>,
     );
 
-    await userEvent.click(
-      within(screen.getByRole('region', { name: 'Modo Livre' })).getByRole('button', { name: 'Jogar' }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /Modo Livre/ }));
 
     expect(screen.getByText('Clique em um país no mapa para adivinhar')).toBeInTheDocument();
   });
@@ -48,10 +50,10 @@ describe('App', () => {
         <App />
       </WithAuth>,
     );
-    const localizar = within(screen.getByRole('region', { name: 'Modo Localizar' }));
+    const localizar = await openMode(/Localizar/);
 
     await userEvent.click(localizar.getByRole('radio', { name: 'Disputa' }));
-    await userEvent.click(localizar.getByRole('button', { name: 'Jogar (Local)' }));
+    await userEvent.click(localizar.getByRole('button', { name: 'Jogar (mesmo aparelho)' }));
 
     expect(screen.getByText('Modo Localizar · Fácil · Disputa')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Jogador A' })).toBeInTheDocument();
@@ -64,7 +66,7 @@ describe('App', () => {
         <App />
       </WithAuth>,
     );
-    const perguntas = within(screen.getByRole('region', { name: 'Modo Perguntas' }));
+    const perguntas = await openMode(/Perguntas/);
 
     await userEvent.click(perguntas.getByRole('radio', { name: 'Disputa' }));
     await userEvent.click(perguntas.getByRole('button', { name: /Online/ }));
@@ -73,7 +75,62 @@ describe('App', () => {
     expect(screen.getByText('Modo Perguntas · Fácil')).toBeInTheDocument();
   });
 
+  describe('tabs', () => {
+    const renderWithAccounts = () =>
+      render(
+        <WithAuth value={fakeAuth({ status: 'anonymous' })}>
+          <App />
+        </WithAuth>,
+      );
+
+    it('opens the account tab from the bar and returns to the game list', async () => {
+      renderWithAccounts();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Conta' }));
+      expect(screen.getByRole('heading', { name: 'Conta' })).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Continuar sem conta' }));
+      expect(screen.getByRole('heading', { name: 'Contorno' })).toBeInTheDocument();
+    });
+
+    it('goes to the login screen from the home and returns to the list when it is dismissed', async () => {
+      renderWithAccounts();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+      expect(screen.getByRole('heading', { name: 'Entrar' })).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+      expect(screen.getByRole('heading', { name: 'Contorno' })).toBeInTheDocument();
+    });
+
+    it('has no navigation bar without accounts', () => {
+      render(
+        <WithAuth>
+          <App />
+        </WithAuth>,
+      );
+
+      expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    });
+  });
+
   describe('system back button (Android app)', () => {
+    it('closes the setup sheet before anything else', async () => {
+      render(
+        <WithAuth>
+          <App />
+        </WithAuth>,
+      );
+      await openMode(/Perguntas/);
+
+      act(() => {
+        runBackAction();
+      });
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(runBackAction()).toBe(false);
+    });
+
     const back = () => {
       act(() => {
         runBackAction();
@@ -97,9 +154,7 @@ describe('App', () => {
           <App />
         </WithAuth>,
       );
-      await userEvent.click(
-        within(screen.getByRole('region', { name: 'Modo Perguntas' })).getByRole('button', { name: 'Jogar' }),
-      );
+      await userEvent.click((await openMode(/Perguntas/)).getByRole('button', { name: 'Jogar' }));
 
       back();
       expect(screen.getByRole('alertdialog', { name: 'Sair da partida?' })).toBeInTheDocument();
@@ -119,7 +174,7 @@ describe('App', () => {
           <App />
         </WithAuth>,
       );
-      const perguntas = within(screen.getByRole('region', { name: 'Modo Perguntas' }));
+      const perguntas = await openMode(/Perguntas/);
       await userEvent.click(perguntas.getByRole('radio', { name: 'Disputa' }));
       await userEvent.click(perguntas.getByRole('button', { name: /Online/ }));
 
