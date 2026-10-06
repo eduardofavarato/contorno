@@ -6,9 +6,16 @@ import { gameApi } from '../api/gameApi';
 import { WithAuth } from '../test-auth';
 import { fakeAuth } from '../test-utils';
 import type { AuthContextValue } from '../auth/authContext';
+import { shareOrDownloadImage, supportsFileShare } from '../share/shareImage';
+import { shareText } from '../share/shareText';
 import { RankingScreen } from './RankingScreen';
 
 vi.mock('../api/gameApi');
+vi.mock('../share/shareImage', () => ({
+  shareOrDownloadImage: vi.fn(() => Promise.resolve()),
+  supportsFileShare: vi.fn(() => true),
+}));
+vi.mock('../share/shareText', () => ({ shareText: vi.fn() }));
 
 const entry = (rank: number, name: string, points: number, durationMs: number, userId = rank): RankingEntry => ({
   rank,
@@ -131,5 +138,46 @@ describe('RankingScreen', () => {
 
     await userEvent.click(screen.getByRole('button', { name: '← Voltar' }));
     expect(onBack).toHaveBeenCalledOnce();
+  });
+
+  describe('sharing', () => {
+    it('shares the ranking as an image named after the board', async () => {
+      answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: null });
+      renderRanking();
+
+      await userEvent.click(await screen.findByRole('button', { name: /Compartilhar ranking/ }));
+
+      expect(shareOrDownloadImage).toHaveBeenCalledWith(
+        expect.any(HTMLElement),
+        'ranking-contorno.png',
+        'Ranking do Contorno · Modo Perguntas · Fácil',
+      );
+    });
+
+    it('shares the same ranking as text from the menu', async () => {
+      answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: null });
+      renderRanking();
+
+      await userEvent.click(await screen.findByLabelText('Mais opções de compartilhamento'));
+      await userEvent.click(screen.getByText(/Compartilhar como texto/));
+
+      expect(shareText).toHaveBeenCalledWith(expect.stringContaining('🥇 Beto — 20.000 pts em 0:42'));
+    });
+
+    it('offers to download the image where files cannot be shared', async () => {
+      vi.mocked(supportsFileShare).mockReturnValue(false);
+      answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: null });
+      renderRanking();
+
+      expect(await screen.findByRole('button', { name: /Baixar imagem/ })).toBeInTheDocument();
+    });
+
+    it('has nothing to share on an empty board', async () => {
+      answer({ entries: [], mine: null });
+      renderRanking();
+      await screen.findByText(/Seja o primeiro/);
+
+      expect(screen.queryByRole('button', { name: /Compartilhar ranking|Baixar imagem/ })).not.toBeInTheDocument();
+    });
   });
 });

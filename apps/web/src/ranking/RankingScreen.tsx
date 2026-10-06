@@ -9,6 +9,7 @@ import { OptionPicker } from '../ui/OptionPicker';
 import { ScreenShell } from '../ui/ScreenShell';
 import { cx } from '../ui/cx';
 import { formatDuration, formatPoints } from '../utils/format';
+import { RankingShare } from './RankingShare';
 import styles from './RankingScreen.module.css';
 import { useRanking } from './useRanking';
 
@@ -102,6 +103,7 @@ function Board({ setup, onLogin }: { readonly setup: GameSetup; readonly onLogin
           {formatDuration(mine.durationMs)}
         </p>
       )}
+      <RankingShare setup={setup} entries={entries} />
       {status === 'anonymous' && <Button onClick={onLogin}>Entrar para aparecer no ranking</Button>}
     </>
   );

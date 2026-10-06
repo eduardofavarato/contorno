@@ -38,6 +38,7 @@ partida é uma linha; ordena por pontos (maior) e desempata pelo tempo (menor). 
 - **Sem trapaça:** ao iniciar, o servidor sorteia as perguntas e marca a hora; ao terminar, o app envia as jogadas e o
   servidor **refaz a partida** com os mesmos motores do `core`, recalcula os pontos e mede o tempo no relógio dele. Partida
   rápida demais, incompleta ou repetida é recusada, e cada sessão vale uma vez.
+- **Compartilhar:** a tela de Ranking gera uma imagem do topo (como o Golzinho: `html-to-image` + `@capacitor/share` no Android, Web Share ou download no navegador) e também compartilha como texto (WhatsApp).
 - **Privacidade:** o ranking mostra só o nome da conta (nunca o e-mail), e "Excluir minha conta" apaga conta e pontuações.
 
 ### Disputa
