@@ -1,10 +1,10 @@
 import {
   revealsAnswer,
   STEAL_POINTS,
-  type Challenge,
   type DuelResolution,
   type DuelView,
   type PlayerIndex,
+  type Quiz,
   type RegionId,
 } from '@contorno/core';
 import type { MapFocus } from '../../map/focus';
@@ -43,10 +43,16 @@ function resolutionTone(resolution: DuelResolution): MapTone | null {
  * What the map shows. Typing duels light up the question's region; locating duels hide it
  * until nobody else has to find it, so a steal is not handed the answer.
  */
-export function duelMapView(view: DuelView, challenge: Challenge, flash: Flash | null): MapView {
+export function duelMapView(
+  view: DuelView,
+  { challenge, repeatsRegions }: Pick<Quiz, 'challenge' | 'repeatsRegions'>,
+  flash: Flash | null,
+): MapView {
   const tones = new Map<RegionId, MapTone>();
   for (const result of view.results) {
-    tones.set(result.question.regionId, result.player === null ? 'wrong' : 'correct');
+    // As in solo games: where a region can be asked again, a miss shows only while its answer is on screen.
+    if (result.player !== null) tones.set(result.question.regionId, 'correct');
+    else if (!repeatsRegions) tones.set(result.question.regionId, 'wrong');
   }
 
   let focus = WORLD;

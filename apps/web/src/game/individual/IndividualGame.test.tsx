@@ -239,4 +239,37 @@ describe('Especial Brasil', () => {
     fireEvent.click(state);
     expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
   });
+
+  it('paints a missed state red only for a few seconds, so another of its cities can come', async () => {
+    stubResizeObserver();
+    const seed = [...Array(2000).keys()].find((candidate) => {
+      const [a, b] = selectIndividualQuestions(quizFor(cidades), seededRandom(candidate));
+      return a?.regionId === b?.regionId && a !== undefined;
+    });
+    if (seed === undefined) throw new Error('No seed puts two cities of one state first');
+    const [first] = selectIndividualQuestions(quizFor(cidades), seededRandom(seed));
+    render(<IndividualGame setup={cidades} random={seededRandom(seed)} onQuit={vi.fn()} onPlayAgain={vi.fn()} />);
+    const map = await screen.findByRole('img', { name: 'Mapa do Brasil' });
+    const stateId = required(first).regionId;
+    const state = queryRequired(map, `[data-region-id="${String(stateId)}"]`);
+
+    // Three wrong clicks fail the city: its state shows red while the answer is on screen...
+    const elsewhere = stateId === 35 ? 52 : 35;
+    for (let i = 0; i < 3; i++) {
+      fireEvent.click(queryRequired(map, `[data-region-id="${String(elsewhere)}"]`));
+      // A wrong state blinks red for a moment; wait it out before the next click.
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+    }
+    expect(state.getAttribute('class')).toMatch(/wrong/);
+
+    // ...and goes back to normal when the next city (of the same state) arrives.
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
+    expect(state.getAttribute('class')).toMatch(/neutral/);
+    fireEvent.click(state);
+    expect(screen.getByRole('status')).toHaveTextContent('✓ Correto! +2.000 pontos');
+  });
 });

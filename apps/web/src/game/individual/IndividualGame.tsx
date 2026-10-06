@@ -200,7 +200,7 @@ export function IndividualGame({
             onRegionClick: (id: RegionId) => {
               // Regions already painted are ignored, unless this very question is about one: a state can be
               // the answer for several cities.
-              const painted = state.results.some((result) => result.question.regionId === id);
+              const painted = view.tones.has(id);
               if (!painted || id === question.regionId) guess({ type: 'region', id }, id, CLICKED_BLINK_MS);
             },
           })}

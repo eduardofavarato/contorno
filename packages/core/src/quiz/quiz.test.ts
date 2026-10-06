@@ -36,6 +36,18 @@ describe('quizFor', () => {
   });
 });
 
+describe('repeatsRegions', () => {
+  it('is true only where several questions share a region: the cities of a state', () => {
+    const repeats = (setup: Parameters<typeof quizFor>[0]) => quizFor(setup).repeatsRegions;
+
+    expect(repeats({ mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } })).toBe(true);
+    expect(repeats({ mode: 'brasil', pool: { kind: 'brasil', topic: 'estados' } })).toBe(false);
+    expect(repeats({ mode: 'brasil', pool: { kind: 'brasil', topic: 'capitais' } })).toBe(false);
+    expect(repeats({ mode: 'localizar', pool: { kind: 'level', level: 3 } })).toBe(false);
+    expect(repeats({ mode: 'continentes', pool: { kind: 'continent', continent: 'europe' } })).toBe(false);
+  });
+});
+
 describe('questionsFor', () => {
   const setup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } } as const;
 

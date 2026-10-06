@@ -1,4 +1,5 @@
-import { challengeFor, mapFor, type DuelView, type GameSetup, type Guess, type RegionId } from '@contorno/core';
+import { quizFor, type DuelView, type GameSetup, type Guess, type RegionId } from '@contorno/core';
+import { useMemo } from 'react';
 import { quizCopy } from '../../copy';
 import { useTransient } from '../../hooks/useTransient';
 import { LazyMap } from '../../map/LazyMap';
@@ -44,7 +45,8 @@ export function DuelBoard({
   onQuit,
 }: DuelBoardProps) {
   const [flash, showFlash] = useTransient<Flash>();
-  const challenge = challengeFor(setup);
+  const quiz = useMemo(() => quizFor(setup), [setup]);
+  const { challenge } = quiz;
   const asking = view.status === 'asking';
   const banner = turnBanner(view, names);
   const turnKey = `${String(view.round)}-${view.stage}-${String(view.tiebreakRound)}`;
@@ -56,13 +58,12 @@ export function DuelBoard({
     if (!canAct || !asking || question === null) return;
     // Regions already painted are ignored, unless this very question is about one: a state can be the answer
     // for several cities.
-    const painted = view.results.some((result) => result.question.regionId === id);
-    if (painted && id !== question.regionId) return;
+    if (map.tones.has(id) && id !== question.regionId) return;
     if (id !== question.regionId) showFlash({ regionId: id, tone: 'wrong' }, CLICK_BLINK_MS);
     onGuess({ type: 'region', id });
   };
 
-  const map = duelMapView(view, challenge, flash);
+  const map = duelMapView(view, quiz, flash);
   const feedback = duelFeedback(view, names);
   const info = stakesLabel(view);
 
@@ -118,7 +119,7 @@ export function DuelBoard({
         }
       >
         <LazyMap
-          map={mapFor(setup)}
+          map={quiz.map}
           tones={map.tones}
           focus={map.focus}
           {...(challenge === 'click' && { onRegionClick: clickRegion })}

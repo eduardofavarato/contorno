@@ -15,21 +15,18 @@ export interface Quiz {
   readonly questions: readonly Question[];
   /** How many a solo game asks; `null` plays them all (e.g. every country of a continent). */
   readonly soloCount: number | null;
+  /** Whether a region can be the answer of more than one question (e.g. several cities of one state). */
+  readonly repeatsRegions: boolean;
 }
 
 const SAMPLE_SIZE = 10;
 
 export function quizFor(setup: GameSetup): Quiz {
   const challenge = challengeFor(setup);
-  if (setup.mode === 'brasil') {
-    return { challenge, map: mapFor(setup), questions: brasilQuestions(setup.pool.topic), soloCount: SAMPLE_SIZE };
-  }
-  return {
-    challenge,
-    map: mapFor(setup),
-    questions: worldQuestions(setup.pool, challenge),
-    soloCount: setup.pool.kind === 'continent' ? null : SAMPLE_SIZE,
-  };
+  const questions = setup.mode === 'brasil' ? brasilQuestions(setup.pool.topic) : worldQuestions(setup.pool, challenge);
+  const soloCount = setup.mode !== 'brasil' && setup.pool.kind === 'continent' ? null : SAMPLE_SIZE;
+  const regions = new Set(questions.map((question) => question.regionId));
+  return { challenge, map: mapFor(setup), questions, soloCount, repeatsRegions: regions.size < questions.length };
 }
 
 /** The questions of a setup with the given ids, in that order; `null` if any id is not part of the quiz. */

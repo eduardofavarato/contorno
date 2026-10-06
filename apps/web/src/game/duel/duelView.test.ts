@@ -16,6 +16,11 @@ const ARGENTINA = 32;
 const CHILE = 152;
 const NAMES = ['Ana', 'Beto'] as const;
 
+const TYPING = { challenge: 'type', repeatsRegions: false } as const;
+const LOCATING = { challenge: 'click', repeatsRegions: false } as const;
+/** Locating where a region can be asked again, like the cities of a state. */
+const CITIES = { challenge: 'click', repeatsRegions: true } as const;
+
 const perguntas: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 1 } };
 
 const start = () =>
@@ -41,46 +46,68 @@ const tied = (): DuelEvent[] => [right(0), next, say(1, 'argentina'), next];
 
 describe('duelMapView', () => {
   it('lights up the current country when typing and zooms to it', () => {
-    const view = duelMapView(play(), 'type', null);
+    const view = duelMapView(play(), TYPING, null);
 
     expect(view.tones.get(BRASIL)).toBe('target');
     expect(view.focus).toEqual({ kind: 'region', id: BRASIL });
   });
 
   it('paints settled questions: scored green, unanswered red', () => {
-    const view = duelMapView(play(wrong(0), next, wrong(1), next), 'type', null);
+    const view = duelMapView(play(wrong(0), next, wrong(1), next), TYPING, null);
 
     expect(view.tones.get(BRASIL)).toBe('wrong');
     expect(view.tones.get(ARGENTINA)).toBe('target');
   });
 
   it('lights the country again for the steal after a miss', () => {
-    expect(duelMapView(play(wrong(0)), 'type', null).tones.get(BRASIL)).toBe('wrong');
-    expect(duelMapView(play(wrong(0), next), 'type', null).tones.get(BRASIL)).toBe('target');
+    expect(duelMapView(play(wrong(0)), TYPING, null).tones.get(BRASIL)).toBe('wrong');
+    expect(duelMapView(play(wrong(0), next), TYPING, null).tones.get(BRASIL)).toBe('target');
   });
 
   it('hides the answer when locating, even after the first player missed', () => {
-    const view = duelMapView(play(wrong(0)), 'click', null);
+    const view = duelMapView(play(wrong(0)), LOCATING, null);
 
     expect(view.tones.has(BRASIL)).toBe(false);
     expect(view.focus).toEqual({ kind: 'world' });
   });
 
   it('reveals and zooms to the answer once nobody else has to find it', () => {
-    const view = duelMapView(play(right(0)), 'click', null);
+    const view = duelMapView(play(right(0)), LOCATING, null);
 
     expect(view.tones.get(BRASIL)).toBe('correct');
     expect(view.focus).toEqual({ kind: 'region', id: BRASIL });
   });
 
   it('keeps the answer hidden after the first Rodada de Fogo answer when locating', () => {
-    const view = duelMapView(play(...tied(), say(0, 'chile')), 'click', null);
+    const view = duelMapView(play(...tied(), say(0, 'chile')), LOCATING, null);
 
     expect(view.tones.has(CHILE)).toBe(false);
   });
 
   it('applies a flash on top', () => {
-    expect(duelMapView(play(), 'click', { regionId: CHILE, tone: 'wrong' }).tones.get(CHILE)).toBe('wrong');
+    expect(duelMapView(play(), LOCATING, { regionId: CHILE, tone: 'wrong' }).tones.get(CHILE)).toBe('wrong');
+  });
+});
+
+describe('duelMapView where regions repeat', () => {
+  it('shows a missed question in red only while its answer is on screen', () => {
+    const missed = play(wrong(0), next, wrong(1));
+    expect(duelMapView(missed, CITIES, null).tones.get(BRASIL)).toBe('wrong');
+
+    const nextQuestion = play(wrong(0), next, wrong(1), next);
+    expect(duelMapView(nextQuestion, CITIES, null).tones.has(BRASIL)).toBe(false);
+  });
+
+  it('keeps a scored region painted', () => {
+    const view = duelMapView(play(right(0), next), CITIES, null);
+
+    expect(view.tones.get(BRASIL)).toBe('correct');
+  });
+
+  it('still keeps misses painted where each region is asked once', () => {
+    const view = duelMapView(play(wrong(0), next, wrong(1), next), LOCATING, null);
+
+    expect(view.tones.get(BRASIL)).toBe('wrong');
   });
 });
 

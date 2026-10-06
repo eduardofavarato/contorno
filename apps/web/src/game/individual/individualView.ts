@@ -22,7 +22,10 @@ const WHOLE_MAP: MapFocus = { kind: 'world' };
 export function individualMapView(state: IndividualState, quiz: Quiz, flash: Flash | null): MapView {
   const tones = new Map<RegionId, MapTone>();
   for (const { question, outcome } of state.results) {
-    tones.set(question.regionId, outcome === 'correct' ? 'correct' : 'wrong');
+    // Where a region can be asked again (several cities of one state), a miss must not stay painted: it would
+    // mark that region as already dealt with. It shows red while the answer is on screen and then clears.
+    if (outcome === 'correct') tones.set(question.regionId, 'correct');
+    else if (!quiz.repeatsRegions) tones.set(question.regionId, 'wrong');
   }
 
   let focus = WHOLE_MAP;
@@ -41,6 +44,7 @@ export function individualMapView(state: IndividualState, quiz: Quiz, flash: Fla
     } else if (state.status === 'resolved') {
       // Locating: the answer is revealed in gold when the player gives up, and zoomed to once settled.
       if (gaveUp) tones.set(regionId, 'target');
+      else if (state.results.at(-1)?.outcome === 'failed') tones.set(regionId, 'wrong');
       focus = { kind: 'region', id: regionId };
     }
   }

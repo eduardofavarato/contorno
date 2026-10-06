@@ -110,6 +110,37 @@ describe('locating mode', () => {
   });
 });
 
+describe('locating where regions repeat (Brazilian cities)', () => {
+  // Two cities of the same state, then one of another.
+  const twoInSaoPaulo = () => {
+    const [first, second] = quizFor(cidades).questions.filter((question) => question.regionId === SAO_PAULO);
+    return [required(first), required(second)];
+  };
+  const play3 = (...steps: ('right' | 'wrong' | 'give_up' | 'next')[]) =>
+    run(startIndividual([...twoInSaoPaulo(), ...pickQuestions(cidades, [GOIAS])]), steps);
+
+  it('paints a failed state red while the answer is on screen, then clears it', () => {
+    const failed = play3('wrong', 'wrong', 'wrong');
+    expect(viewOf(cidades, failed).tones.get(SAO_PAULO)).toBe('wrong');
+
+    const nextCity = play3('wrong', 'wrong', 'wrong', 'next');
+    expect(viewOf(cidades, nextCity).tones.has(SAO_PAULO)).toBe(false);
+  });
+
+  it('clears a revealed (given-up) state once the next city comes', () => {
+    expect(viewOf(cidades, play3('give_up')).tones.get(SAO_PAULO)).toBe('target');
+    expect(viewOf(cidades, play3('give_up', 'next')).tones.has(SAO_PAULO)).toBe(false);
+  });
+
+  it('keeps a correctly found state painted green', () => {
+    expect(viewOf(cidades, play3('right', 'next')).tones.get(SAO_PAULO)).toBe('correct');
+  });
+
+  it('still paints a miss permanently where each region is asked once', () => {
+    expect(viewOf(localizar, play(localizar, 'give_up', 'next')).tones.get(BRASIL)).toBe('wrong');
+  });
+});
+
 describe('flash', () => {
   it('overrides the tone of its region', () => {
     const view = individualMapView(play(perguntas), quizFor(perguntas), { regionId: BRASIL, tone: 'wrong' });
