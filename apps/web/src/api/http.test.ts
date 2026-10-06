@@ -32,6 +32,20 @@ describe('request', () => {
     });
   });
 
+  it('sends an empty JSON body with calls that carry none, except GET', async () => {
+    respond(204);
+
+    await request('/auth/logout', { method: 'POST' });
+    await request('/me', { method: 'GET' });
+
+    expect(fetch).toHaveBeenNthCalledWith(1, '/api/v1/auth/logout', expect.objectContaining({ body: '{}' }));
+    expect(fetch).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/me',
+      expect.not.objectContaining({ body: expect.anything() as unknown }),
+    );
+  });
+
   it('turns an API error into an ApiRequestError with its code', async () => {
     respond(409, { code: 'EMAIL_TAKEN', message: 'Este e-mail já está em uso.' });
 

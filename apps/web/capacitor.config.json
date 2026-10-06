@@ -18,6 +18,9 @@
         "apple": false,
         "twitter": false
       }
+    },
+    "CapacitorCookies": {
+      "enabled": true
     }
   }
 }

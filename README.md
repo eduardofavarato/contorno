@@ -132,6 +132,9 @@ O app (`br.com.fvrt.contorno`) empacota o mesmo cliente com [Capacitor](https://
 pelo [WalduApps](https://walduapps.fvrt.com.br). O `server.hostname` do `capacitor.config.json` faz o app se apresentar como
 `https://contorno.fvrt.com.br`, então a Disputa Online usa o mesmo servidor e a mesma lista de origens da web.
 O botão voltar do sistema anda pelas telas (e sai do app na tela inicial).
+Como a página do app é servida pelo Capacitor no mesmo host do servidor, o WebView responderia as chamadas `/api` com os
+arquivos do app: por isso, no Android, `apps/web/src/api/http.ts` usa o HTTP nativo (`CapacitorHttp`) e o plugin
+`CapacitorCookies` guarda o cookie de refresh, o que mantém o login entre aberturas do app.
 
 ```bash
 npm run build:app -w @contorno/web      # build do cliente + cap sync
