@@ -143,6 +143,15 @@ export function IndividualGame({
     </>
   );
 
+  const giveUp = (
+    <GiveUpButton
+      disabled={settled !== undefined}
+      onClick={() => {
+        dispatch({ type: 'give_up' });
+      }}
+    />
+  );
+
   const bottom =
     challenge === 'type' ? (
       <>
@@ -157,17 +166,7 @@ export function IndividualGame({
             guess({ type: 'text', value: text }, question.regionId, TYPED_BLINK_MS);
           }}
         />
-        <FeedbackLine
-          feedback={feedback}
-          action={
-            <GiveUpButton
-              disabled={settled !== undefined}
-              onClick={() => {
-                dispatch({ type: 'give_up' });
-              }}
-            />
-          }
-        />
+        <FeedbackLine feedback={feedback} />
       </>
     ) : (
       <LocatePanel
@@ -176,10 +175,6 @@ export function IndividualGame({
         info={points}
         warning={wrongsLabel(state.wrongs)}
         feedback={feedback}
-        canGiveUp={settled === undefined}
-        onGiveUp={() => {
-          dispatch({ type: 'give_up' });
-        }}
       />
     );
 
@@ -199,6 +194,7 @@ export function IndividualGame({
           </>
         }
         bottom={bottom}
+        mapAction={giveUp}
       >
         <LazyMap
           map={quiz.map}

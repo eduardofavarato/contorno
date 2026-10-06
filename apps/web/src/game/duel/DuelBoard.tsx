@@ -80,6 +80,8 @@ export function DuelBoard({ view, setup, names, badge, canAct, onGuess, onGiveUp
     if (scorer !== undefined) setBump((current) => ({ player: scorer, key: (current?.key ?? 0) + 1 }));
   }, [view.scores]);
 
+  const giveUpOff = !canAct || !view.canGiveUp || (challenge === 'type' && settledAnswer(view) !== null);
+
   const controls =
     challenge === 'type' ? (
       <>
@@ -95,22 +97,10 @@ export function DuelBoard({ view, setup, names, badge, canAct, onGuess, onGiveUp
             onGuess({ type: 'text', value: text });
           }}
         />
-        <FeedbackLine
-          feedback={feedback}
-          action={
-            <GiveUpButton disabled={!canAct || !view.canGiveUp || settledAnswer(view) !== null} onClick={onGiveUp} />
-          }
-        />
+        <FeedbackLine feedback={feedback} />
       </>
     ) : (
-      <LocatePanel
-        label={copy.locateLabel}
-        prompt={question?.prompt ?? ''}
-        info={info}
-        feedback={feedback}
-        canGiveUp={canAct && view.canGiveUp}
-        onGiveUp={onGiveUp}
-      />
+      <LocatePanel label={copy.locateLabel} prompt={question?.prompt ?? ''} info={info} feedback={feedback} />
     );
 
   const inTiebreak = view.stage === 'tiebreak-first' || view.stage === 'tiebreak-second';
@@ -127,6 +117,7 @@ export function DuelBoard({ view, setup, names, badge, canAct, onGuess, onGiveUp
           </span>
         }
         scores={<ScoreBar names={names} scores={view.scores} active={asking ? banner.player : null} bump={bump} />}
+        mapAction={<GiveUpButton disabled={giveUpOff} onClick={onGiveUp} />}
         bottom={
           <>
             <div className={styles.banner} role="group" aria-label="Turno">

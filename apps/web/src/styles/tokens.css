@@ -10,8 +10,7 @@
   --gold-line: rgb(240 192 64 / 45%);
   --overlay: rgb(0 0 0 / 60%);
   --touch: 48px;
-  /* The system navigation bar's height: `env()` where the WebView has it, the Capacitor-injected variable otherwise. */
-  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --gold-gradient: linear-gradient(135deg, #f0c040, #e09000);
   --player-a: #f0c040;
   --player-b: #58a6ff;

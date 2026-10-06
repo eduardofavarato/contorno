@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Feedback } from '../individual/messages';
 import { FeedbackLine } from './FeedbackLine';
-import { GiveUpButton } from './GiveUpButton';
 import { PanelInfo } from './PanelInfo';
 import panel from './panel.module.css';
 
@@ -14,12 +13,10 @@ interface LocatePanelProps {
   /** Right-aligned warning next to the info line, e.g. the mistakes so far. */
   readonly warning?: string;
   readonly feedback: Feedback | null;
-  readonly canGiveUp: boolean;
-  readonly onGiveUp: () => void;
 }
 
-/** Controls of the click-on-the-map challenge: which country to find, and give up. */
-export function LocatePanel({ label, prompt, info, warning, feedback, canGiveUp, onGiveUp }: LocatePanelProps) {
+/** Controls of the click-on-the-map challenge: which country to find. */
+export function LocatePanel({ label, prompt, info, warning, feedback }: LocatePanelProps) {
   return (
     <>
       <div className={panel.target}>
@@ -27,7 +24,7 @@ export function LocatePanel({ label, prompt, info, warning, feedback, canGiveUp,
         <div className={panel.targetName}>{prompt}</div>
       </div>
       <PanelInfo {...(warning !== undefined && { warning })}>{info}</PanelInfo>
-      <FeedbackLine feedback={feedback} action={<GiveUpButton disabled={!canGiveUp} onClick={onGiveUp} />} />
+      <FeedbackLine feedback={feedback} />
     </>
   );
 }

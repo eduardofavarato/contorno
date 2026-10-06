@@ -15,12 +15,23 @@ interface GameLayoutProps {
   readonly scores?: ReactNode;
   /** Interaction area under the map (answer field, turn info...). */
   readonly bottom?: ReactNode;
+  /** Button over the map's top-left corner (e.g. give up). */
+  readonly mapAction?: ReactNode;
   /** The map. */
   readonly children: ReactNode;
 }
 
 /** Frame shared by every game screen: header, progress bar, map and a bottom panel. */
-export function GameLayout({ badge, onQuit, stats, progress = 0, scores, bottom, children }: GameLayoutProps) {
+export function GameLayout({
+  badge,
+  onQuit,
+  stats,
+  progress = 0,
+  scores,
+  bottom,
+  mapAction,
+  children,
+}: GameLayoutProps) {
   useBackAction(onQuit);
 
   return (
@@ -54,7 +65,10 @@ export function GameLayout({ badge, onQuit, stats, progress = 0, scores, bottom,
         <div className={styles.progressFill} style={{ width: `${String(progress * 100)}%` }} />
       </div>
       {scores && <div className={styles.scores}>{scores}</div>}
-      {children}
+      <div className={styles.mapArea}>
+        {children}
+        {mapAction && <div className={styles.mapAction}>{mapAction}</div>}
+      </div>
       {bottom && <div className={styles.bottom}>{bottom}</div>}
     </div>
   );
