@@ -39,7 +39,13 @@ export function App() {
             />
           )}
           {screen.tab === 'ranking' && (
-            <RankingScreen {...(screen.board && { initial: screen.board })} onLogin={goLogin} />
+            <RankingScreen
+              {...(screen.board && { initial: screen.board })}
+              onLogin={goLogin}
+              onPlay={(request) => {
+                setScreen({ name: 'game', request, run: 0 });
+              }}
+            />
           )}
           {screen.tab === 'account' && <AccountScreen onLogin={goLogin} onContinue={goHome} />}
         </AppShell>

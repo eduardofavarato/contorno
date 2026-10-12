@@ -1,5 +1,5 @@
 import type { RankingEntry, RankingResponse } from '@contorno/core';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { gameApi } from '../api/gameApi';
@@ -31,12 +31,13 @@ function renderRanking(
   initial?: Parameters<typeof RankingScreen>[0]['initial'],
 ) {
   const onLogin = vi.fn();
+  const onPlay = vi.fn();
   render(
     <WithAuth value={fakeAuth(auth)}>
-      <RankingScreen {...(initial && { initial })} onLogin={onLogin} />
+      <RankingScreen {...(initial && { initial })} onLogin={onLogin} onPlay={onPlay} />
     </WithAuth>,
   );
-  return { onLogin };
+  return { onLogin, onPlay };
 }
 
 const answer = (response: RankingResponse) => vi.mocked(gameApi.ranking).mockResolvedValue(response);
@@ -72,7 +73,7 @@ describe('RankingScreen', () => {
         .getAllByRole('listitem')
         .map((item) => item.textContent),
     ).toEqual([expect.stringMatching(/^4Duda.*1:2016\.000$/), expect.stringMatching(/^5Edu.*1:3015\.000$/)]);
-    expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', null);
+    expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', null, undefined);
   });
 
   it('shows only a podium when there are no more than three players', async () => {
@@ -88,11 +89,11 @@ describe('RankingScreen', () => {
     renderRanking({ status: 'anonymous' }, { mode: 'brasil', pool: { kind: 'brasil', topic: 'capitais' } });
 
     await screen.findByText(/Ninguém jogou/);
-    expect(gameApi.ranking).toHaveBeenLastCalledWith('brasil:brasil:capitais', null);
+    expect(gameApi.ranking).toHaveBeenLastCalledWith('brasil:brasil:capitais', null, undefined);
 
     await userEvent.click(screen.getByRole('radio', { name: 'Cidades' }));
     await screen.findByText(/Ninguém jogou Especial Brasil · Cidades/);
-    expect(gameApi.ranking).toHaveBeenLastCalledWith('brasil:brasil:cidades', null);
+    expect(gameApi.ranking).toHaveBeenLastCalledWith('brasil:brasil:cidades', null, undefined);
   });
 
   it('switches between modes and their pools', async () => {
@@ -103,7 +104,7 @@ describe('RankingScreen', () => {
     await userEvent.click(screen.getByRole('radio', { name: 'Continentes' }));
     await userEvent.click(await screen.findByRole('radio', { name: 'Europa' }));
 
-    expect(gameApi.ranking).toHaveBeenLastCalledWith('continentes:continent:europe', null);
+    expect(gameApi.ranking).toHaveBeenLastCalledWith('continentes:continent:europe', null, undefined);
   });
 
   it('highlights the signed-in player in the list and sends their token to see their own best game', async () => {
@@ -121,7 +122,7 @@ describe('RankingScreen', () => {
     const rest = await screen.findByRole('list', { name: 'Ranking de Modo Perguntas · Fácil' });
     const row = within(rest).getByText('Ana').closest('li');
     expect(row?.className).toMatch(/rowMine/);
-    expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', 'test-token');
+    expect(gameApi.ranking).toHaveBeenCalledWith('perguntas:level:1', 'test-token', undefined);
   });
 
   it('keeps the signed-in player’s best game in view below the list', async () => {
@@ -154,6 +155,73 @@ describe('RankingScreen', () => {
     renderRanking();
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível carregar o ranking.');
+  });
+
+  describe('play button', () => {
+    it('starts an individual game on the board being viewed', async () => {
+      answer({ entries: [entry(1, 'Beto', 20_000, 42_000)], mine: null });
+      const { onPlay } = renderRanking();
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Jogar' }));
+
+      expect(onPlay).toHaveBeenCalledExactlyOnceWith({
+        setup: { mode: 'perguntas', pool: { kind: 'level', level: 1 } },
+        format: 'individual',
+      });
+    });
+
+    it('follows the filters', async () => {
+      answer({ entries: [], mine: null });
+      const { onPlay } = renderRanking();
+      await screen.findByText(/Ninguém jogou/);
+
+      await userEvent.click(screen.getByRole('radio', { name: 'Continentes' }));
+      await userEvent.click(await screen.findByRole('radio', { name: 'Europa' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Jogar' }));
+
+      expect(onPlay).toHaveBeenCalledExactlyOnceWith({
+        setup: { mode: 'continentes', pool: { kind: 'continent', continent: 'europe' } },
+        format: 'individual',
+      });
+    });
+
+    it('opens on the board it was given', async () => {
+      answer({ entries: [], mine: null });
+      const { onPlay } = renderRanking(
+        { status: 'anonymous' },
+        { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Jogar' }));
+
+      expect(onPlay).toHaveBeenCalledExactlyOnceWith({
+        setup: { mode: 'brasil', pool: { kind: 'brasil', topic: 'cidades' } },
+        format: 'individual',
+      });
+    });
+
+    it('is there while loading, on an empty board and when the ranking fails', async () => {
+      vi.mocked(gameApi.ranking).mockReturnValue(new Promise(() => undefined));
+      const { unmount } = render(
+        <WithAuth value={fakeAuth({ status: 'anonymous' })}>
+          <RankingScreen onLogin={vi.fn()} onPlay={vi.fn()} />
+        </WithAuth>,
+      );
+      expect(screen.getByText('Carregando…')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Jogar' })).toBeInTheDocument();
+      unmount();
+
+      answer({ entries: [], mine: null });
+      renderRanking();
+      await screen.findByText(/Seja o primeiro/);
+      expect(screen.getByRole('button', { name: 'Jogar' })).toBeInTheDocument();
+      cleanup();
+
+      vi.mocked(gameApi.ranking).mockRejectedValue(new Error('offline'));
+      renderRanking();
+      await screen.findByRole('alert');
+      expect(screen.getByRole('button', { name: 'Jogar' })).toBeInTheDocument();
+    });
   });
 
   describe('sharing', () => {

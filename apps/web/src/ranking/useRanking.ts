@@ -11,18 +11,23 @@ export type RankingState =
 
 const LOADING: RankingState = { status: 'loading' };
 
-/** The ranking of one board; refetched when the board changes or the player signs in or out. */
-export function useRanking(boardKey: string): RankingState {
+/**
+ * The ranking of one board (its top `limit` entries, the server's default when omitted); refetched when the board
+ * changes or the player signs in or out.
+ */
+export function useRanking(boardKey: string, limit?: number): RankingState {
   const { status, withToken } = useAuth();
   const signedIn = status === 'signedIn';
   // The answer is remembered with the request it belongs to, so a new request shows "loading" without any reset.
-  const request = `${boardKey}|${String(signedIn)}`;
+  const request = `${boardKey}|${String(limit)}|${String(signedIn)}`;
   const [answer, setAnswer] = useState<{ readonly request: string; readonly state: RankingState } | null>(null);
 
   useEffect(() => {
     let current = true;
     // A signed-in player's request also carries their token, so the answer includes their own best game.
-    const load = signedIn ? withToken((token) => gameApi.ranking(boardKey, token)) : gameApi.ranking(boardKey, null);
+    const load = signedIn
+      ? withToken((token) => gameApi.ranking(boardKey, token, limit))
+      : gameApi.ranking(boardKey, null, limit);
     load
       .then((ranking) => {
         if (current) setAnswer({ request, state: { status: 'ready', ranking } });
@@ -34,7 +39,7 @@ export function useRanking(boardKey: string): RankingState {
     return () => {
       current = false;
     };
-  }, [boardKey, signedIn, withToken, request]);
+  }, [boardKey, limit, signedIn, withToken, request]);
 
   return answer?.request === request ? answer.state : LOADING;
 }

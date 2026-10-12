@@ -1,5 +1,6 @@
 .screen {
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
   max-width: 640px;
@@ -8,6 +9,7 @@
 
 .content {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.25rem 1.5rem;
@@ -167,15 +169,24 @@
   text-align: right;
 }
 
-.mine {
+.footer {
   position: sticky;
   bottom: var(--tabbar, 0);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.mine {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1.25rem;
   background: var(--bg2);
-  border-top: 1px solid var(--gold-line);
+  border-bottom: 1px solid var(--gold-line);
+}
+
+.play {
+  padding: 0.75rem 1.25rem;
 }
 
 .mineRank {

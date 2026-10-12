@@ -2,7 +2,9 @@ import { boardKeyFor, type GameMode, type GameSetup, type RankingEntry } from '@
 import { useState } from 'react';
 import { useAuth } from '../auth/authContext';
 import { describeSetup, MODE_COPY } from '../copy';
-import { DEFAULT_SELECTION, toSetup, type ModeSelection } from '../home/modeSelection';
+import { HAPTICS, vibrate } from '../haptics';
+import type { GameRequest } from '../navigation/types';
+import { DEFAULT_SELECTION, toRequest, toSetup, type ModeSelection } from '../home/modeSelection';
 import { PoolPicker } from '../home/PoolPicker';
 import { Button } from '../ui/Button';
 import { OptionPicker } from '../ui/OptionPicker';
@@ -20,12 +22,14 @@ interface RankingScreenProps {
   /** Board to open first, e.g. the one a player just finished a game on. */
   readonly initial?: GameSetup;
   readonly onLogin: () => void;
+  /** Starts a game on the board being viewed. */
+  readonly onPlay: (request: GameRequest) => void;
 }
 
 const dateFormat = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
 /** The Ranking tab: pick a mode and its pool, see the podium, the rest of the list and the player's own best game. */
-export function RankingScreen({ initial, onLogin }: RankingScreenProps) {
+export function RankingScreen({ initial, onLogin, onPlay }: RankingScreenProps) {
   const { user, status } = useAuth();
   const [mode, setMode] = useState<GameMode>(initial?.mode ?? 'perguntas');
   const [selection, setSelection] = useState<ModeSelection>(() => selectionFor(initial));
@@ -51,15 +55,28 @@ export function RankingScreen({ initial, onLogin }: RankingScreenProps) {
         <Board state={state} setup={setup} userId={user?.id} anonymous={status === 'anonymous'} onLogin={onLogin} />
       </div>
 
-      {mine && (
-        <aside className={styles.mine} aria-label="Sua melhor partida">
-          <span className={styles.mineRank}>#{mine.rank}</span>
-          <span className={styles.mineText}>
-            <strong>Sua melhor</strong> · {formatDuration(mine.durationMs)}
-          </span>
-          <span className={styles.minePoints}>{formatPoints(mine.points)} pts</span>
-        </aside>
-      )}
+      <footer className={styles.footer}>
+        {mine && (
+          <aside className={styles.mine} aria-label="Sua melhor partida">
+            <span className={styles.mineRank}>#{mine.rank}</span>
+            <span className={styles.mineText}>
+              <strong>Sua melhor</strong> · {formatDuration(mine.durationMs)}
+            </span>
+            <span className={styles.minePoints}>{formatPoints(mine.points)} pts</span>
+          </aside>
+        )}
+        <div className={styles.play}>
+          <Button
+            size="large"
+            onClick={() => {
+              vibrate(HAPTICS.press);
+              onPlay(toRequest(mode, selection));
+            }}
+          >
+            Jogar
+          </Button>
+        </div>
+      </footer>
     </main>
   );
 }

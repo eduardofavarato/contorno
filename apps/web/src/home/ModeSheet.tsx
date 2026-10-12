@@ -8,7 +8,8 @@ import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { OptionPicker } from '../ui/OptionPicker';
 import styles from './ModeSheet.module.css';
-import { DEFAULT_SELECTION, toRequest } from './modeSelection';
+import { BestGame } from './BestGame';
+import { DEFAULT_SELECTION, toRequest, toSetup } from './modeSelection';
 import { PoolPicker } from './PoolPicker';
 
 const FORMAT_OPTIONS = (['individual', 'duel'] as const).map((value) => ({ value, label: FORMAT_LABELS[value] }));
@@ -16,11 +17,13 @@ const FORMAT_OPTIONS = (['individual', 'duel'] as const).map((value) => ({ value
 interface ModeSheetProps {
   readonly mode: GameMode;
   readonly onPlay: (request: GameRequest) => void;
+  /** Opens the sign-in screen (the best game asks visitors to sign in). */
+  readonly onLogin: () => void;
   readonly onClose: () => void;
 }
 
 /** Where a mode is set up: a sheet that slides up from the bottom on phones and a dialog on wide screens. */
-export function ModeSheet({ mode, onPlay, onClose }: ModeSheetProps) {
+export function ModeSheet({ mode, onPlay, onLogin, onClose }: ModeSheetProps) {
   const [selection, setSelection] = useState(DEFAULT_SELECTION);
   const [rulesOpen, setRulesOpen] = useState(false);
   const titleId = useId();
@@ -87,6 +90,9 @@ export function ModeSheet({ mode, onPlay, onClose }: ModeSheetProps) {
         </div>
 
         <PoolPicker mode={mode} selection={selection} onChange={setSelection} labelled />
+
+        {/* Only individual games are ranked, so only they have a best game to show. */}
+        {selection.format === 'individual' && <BestGame setup={toSetup(mode, selection)} onLogin={onLogin} />}
 
         <div className={styles.rules}>
           <button

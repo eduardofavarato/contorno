@@ -69,6 +69,7 @@ export function HomeScreen({ onPlay, onPlayFree, onLogin, onOpenAccount }: HomeS
         <ModeSheet
           mode={mode}
           onPlay={onPlay}
+          onLogin={onLogin}
           onClose={() => {
             setMode(null);
           }}

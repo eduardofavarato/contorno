@@ -15,6 +15,10 @@ export const gameApi = {
     request('/games', { method: 'POST', body: { setup }, token, schema: startGameResponseSchema }),
   finish: (gameId: string, events: readonly IndividualEvent[], token: string): Promise<FinishGameResponse> =>
     request(`/games/${gameId}/finish`, { method: 'POST', body: { events }, token, schema: finishGameResponseSchema }),
-  ranking: (board: string, token: string | null): Promise<RankingResponse> =>
-    request(`/ranking?board=${encodeURIComponent(board)}`, { token, schema: rankingResponseSchema }),
+  /** `limit` caps the listed entries (1 is enough to read only the player's own best game, in `mine`). */
+  ranking: (board: string, token: string | null, limit?: number): Promise<RankingResponse> =>
+    request(`/ranking?board=${encodeURIComponent(board)}${limit === undefined ? '' : `&limit=${String(limit)}`}`, {
+      token,
+      schema: rankingResponseSchema,
+    }),
 };

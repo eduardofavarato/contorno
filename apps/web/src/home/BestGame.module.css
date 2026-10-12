@@ -1,0 +1,25 @@
+.line,
+.invite {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding: 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.line strong {
+  margin-right: 0.35rem;
+  color: var(--gold);
+}
+
+.invite {
+  width: 100%;
+  color: var(--gold);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
