@@ -278,6 +278,29 @@ describe('ranking', () => {
     expect((await ranking('perguntas:level:1', ana.accessToken)).mine).toBeNull();
   });
 
+  it('has no personal entry on a board the player has not played, whatever they did elsewhere', async () => {
+    const { accessToken } = await t.signup('Ana', 'ana@example.com');
+    await play(accessToken, 30);
+
+    expect((await ranking('perguntas:level:1', accessToken)).mine).toMatchObject({ name: 'Ana', rank: 1 });
+    expect((await ranking('perguntas:level:2', accessToken)).mine).toBeNull();
+    expect((await ranking('continentes:continent:oceania', accessToken)).mine).toBeNull();
+  });
+
+  it('shows the best game of the board being viewed, not the best one the player has anywhere', async () => {
+    const ana = await t.signup('Ana', 'ana@example.com');
+    const beto = await t.signup('Beto', 'beto@example.com');
+    const medio: GameSetup = { mode: 'perguntas', pool: { kind: 'level', level: 2 } };
+    await play(ana.accessToken, 10);
+    await play(beto.accessToken, 20, medio);
+    await play(ana.accessToken, 50, medio);
+
+    const response = await ranking('perguntas:level:2', ana.accessToken, '&limit=1');
+
+    expect(response.entries.map((entry) => entry.name)).toEqual(['Beto']);
+    expect(response.mine).toMatchObject({ name: 'Ana', rank: 2, durationMs: 50 * SECOND });
+  });
+
   it('refuses boards that do not exist and absurd limits', async () => {
     const unknown = await t.app.inject({ method: 'GET', url: '/api/v1/ranking?board=hack' });
     const huge = await t.app.inject({ method: 'GET', url: '/api/v1/ranking?board=perguntas:level:1&limit=5000' });

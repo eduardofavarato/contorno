@@ -1,5 +1,5 @@
 import { setupForBoard, type RankingEntry, type RankingResponse } from '@contorno/core';
-import { asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq } from 'drizzle-orm';
 import type { Db } from '../db/client';
 import { scores, users } from '../db/schema';
 import { ApiException } from '../http/errors';
@@ -51,27 +51,34 @@ export class RankingService {
     const inList = listed.find((entry) => entry.userId === userId);
     if (inList) return inList;
 
-    const [best] = await this.select(boardKey)
-      .where(eq(scores.userId, userId))
+    const [best] = await this.select(boardKey, userId)
       .orderBy(...BEST_FIRST)
       .limit(1);
     if (!best) return null;
     return toEntry(best, await positionOf(this.db, { ...best, boardKey }));
   }
 
-  private select(boardKey: string) {
-    return this.db
-      .select({
-        id: scores.id,
-        userId: scores.userId,
-        name: users.name,
-        points: scores.points,
-        durationMs: scores.durationMs,
-        createdAt: scores.createdAt,
-      })
-      .from(scores)
-      .innerJoin(users, eq(users.id, scores.userId))
-      .where(eq(scores.boardKey, boardKey))
-      .$dynamic();
+  /** The games of a board, or only those of `userId` on it. */
+  private select(boardKey: string, userId?: number) {
+    return (
+      this.db
+        .select({
+          id: scores.id,
+          userId: scores.userId,
+          name: users.name,
+          points: scores.points,
+          durationMs: scores.durationMs,
+          createdAt: scores.createdAt,
+        })
+        .from(scores)
+        .innerJoin(users, eq(users.id, scores.userId))
+        // A single `where`: calling it twice would replace the board filter instead of adding to it.
+        .where(
+          userId === undefined
+            ? eq(scores.boardKey, boardKey)
+            : and(eq(scores.boardKey, boardKey), eq(scores.userId, userId)),
+        )
+        .$dynamic()
+    );
   }
 }
