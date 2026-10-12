@@ -1,5 +1,5 @@
 import type { RegionId } from '@contorno/core';
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { cx } from '../ui/cx';
 import { RegionPaths, type MapTone } from './RegionPaths';
 import { focusKey, viewFor, type MapFocus } from './focus';
@@ -7,6 +7,7 @@ import { createMapLayout } from './layout';
 import type { MapData } from './mapData';
 import { useElementSize } from './useElementSize';
 import { useMapZoom } from './useMapZoom';
+import { regionIdOf, useRegionTooltip } from './useRegionTooltip';
 import styles from './MapView.module.css';
 
 export type { MapTone } from './RegionPaths';
@@ -25,20 +26,8 @@ export interface MapViewProps {
   readonly focus?: MapFocus;
   /** When set, countries are clickable (Modo Localizar and Modo Livre). */
   readonly onRegionClick?: (id: RegionId) => void;
-  /** Content for the hover tooltip; return `null` for no tooltip. */
+  /** Content for the tooltip (shown on hover with a mouse, for a few seconds after a tap on a touch screen); `null` for none. */
   readonly renderTooltip?: (id: RegionId) => ReactNode;
-}
-
-interface Hover {
-  readonly id: RegionId;
-  readonly x: number;
-  readonly y: number;
-}
-
-function regionIdOf(event: MouseEvent): RegionId | null {
-  if (!(event.target instanceof Element)) return null;
-  const raw = event.target.closest('[data-region-id]')?.getAttribute('data-region-id');
-  return raw === null || raw === undefined ? null : Number(raw);
 }
 
 export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, renderTooltip }: MapViewProps) {
@@ -48,7 +37,7 @@ export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, 
   const size = useElementSize(areaRef);
   const layout = useMemo(() => (size ? createMapLayout(size, data) : null), [size, data]);
   const { scaleBy, moveTo } = useMapZoom(svgRef, viewportRef, size);
-  const [hover, setHover] = useState<Hover | null>(null);
+  const { anchor, pointerHandlers, onClick: showTooltipOnTap } = useRegionTooltip(areaRef);
 
   const key = focusKey(focus);
   const lastFocusKey = useRef<string | null>(null);
@@ -67,19 +56,8 @@ export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, 
     lastFocusKey.current = key;
   }, [applyFocus, key]);
 
-  const showHover = (event: MouseEvent) => {
-    const id = regionIdOf(event);
-    const area = areaRef.current;
-    if (id === null || !area) {
-      setHover(null);
-      return;
-    }
-    const box = area.getBoundingClientRect();
-    setHover({ id, x: event.clientX - box.left, y: event.clientY - box.top });
-  };
-
-  const tooltip = hover && renderTooltip?.(hover.id);
-  const flip = hover && size ? { left: hover.x > size.width / 2, below: hover.y < size.height / 4 } : null;
+  const tooltip = anchor && renderTooltip?.(anchor.id);
+  const flip = anchor && size ? { left: anchor.x > size.width / 2, below: anchor.y < size.height / 4 } : null;
 
   return (
     <div ref={areaRef} className={styles.area}>
@@ -93,14 +71,11 @@ export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, 
         >
           <g
             ref={viewportRef}
+            {...pointerHandlers}
             onClick={(event) => {
               const id = regionIdOf(event);
               if (id !== null) onRegionClick?.(id);
-            }}
-            onMouseOver={showHover}
-            onMouseMove={showHover}
-            onMouseLeave={() => {
-              setHover(null);
+              showTooltipOnTap(event);
             }}
           >
             <path className={styles.sphere} d={layout.spherePath} />
@@ -155,10 +130,10 @@ export function MapView({ data, tones = NO_TONES, focus = WORLD, onRegionClick, 
         </button>
       </div>
 
-      {hover && tooltip && flip && (
+      {anchor && tooltip && flip && (
         <div
           className={cx(styles.tooltip, flip.left && styles.tooltipLeft, flip.below && styles.tooltipBelow)}
-          style={{ left: hover.x, top: hover.y }}
+          style={{ left: anchor.x, top: anchor.y }}
         >
           {tooltip}
         </div>
